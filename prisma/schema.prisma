@@ -1,0 +1,289 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+enum SourceType {
+  MANUAL_LINK
+  MANUAL_TEXT
+  FILE_IMPORT
+  SOCIAL_EXPORT
+  BROWSER_EXTENSION
+  SHARE_SHEET
+  API_CONNECTOR
+}
+
+enum ContentCategory {
+  FOOD
+  WORKOUT
+  TECH
+  PRODUCTS
+  JOBS
+  MISC
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSED
+  DUPLICATE
+  FAILED
+}
+
+enum EntityType {
+  FOOD
+  INGREDIENT
+  WORKOUT
+  MUSCLE
+  EQUIPMENT
+  COMPANY
+  JOB
+  SKILL
+  PRODUCT
+  CONCEPT
+  PERSON
+  GOAL
+  NOTE
+}
+
+enum AgentKind {
+  EMAIL
+  CALENDAR
+  CONTACTS
+  RESEARCH
+  EXPENSES
+  CALCULATOR
+  KNOWLEDGE
+  VOICE
+  ORCHESTRATOR
+  CUSTOM
+}
+
+enum WorkflowStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum WorkflowRunStatus {
+  QUEUED
+  RUNNING
+  WAITING_FOR_APPROVAL
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum ConnectorType {
+  OPENAI
+  TELEGRAM
+  N8N
+  EMAIL
+  CALENDAR
+  CONTACTS
+  ELEVENLABS
+  ANTHROPIC
+  STORAGE
+}
+
+model RawSourceItem {
+  id              String           @id @default(cuid())
+  sourceType      SourceType
+  originalUrl     String?
+  canonicalUrl    String?
+  title           String?
+  author          String?
+  platform        String?
+  rawText         String?
+  rawMetadata     Json?
+  contentHash     String?
+  category        ContentCategory  @default(MISC)
+  status          ProcessingStatus @default(PENDING)
+  summary         String?
+  embedding       Unsupported("vector(1536)")?
+  duplicateOfId   String?
+  duplicateOf     RawSourceItem?   @relation("DuplicateItems", fields: [duplicateOfId], references: [id])
+  duplicates      RawSourceItem[]  @relation("DuplicateItems")
+  knowledgeItems  KnowledgeItem[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([canonicalUrl])
+  @@index([contentHash])
+}
+
+model KnowledgeItem {
+  id          String          @id @default(cuid())
+  sourceId    String?
+  source      RawSourceItem?  @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  category    ContentCategory @default(MISC)
+  title       String
+  summary     String
+  insights    String[]
+  actions     String[]
+  confidence  Float           @default(0.7)
+  embedding   Unsupported("vector(1536)")?
+  entities    EntityMention[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([category])
+}
+
+model Entity {
+  id          String          @id @default(cuid())
+  type        EntityType
+  name        String
+  description String?
+  metadata    Json?
+  mentions    EntityMention[]
+  outgoing    EntityRelation[] @relation("EntityRelationFrom")
+  incoming    EntityRelation[] @relation("EntityRelationTo")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([type, name])
+  @@index([type])
+}
+
+model EntityMention {
+  id              String        @id @default(cuid())
+  entityId        String
+  knowledgeItemId String
+  entity          Entity        @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  knowledgeItem   KnowledgeItem @relation(fields: [knowledgeItemId], references: [id], onDelete: Cascade)
+  context         String?
+  createdAt       DateTime      @default(now())
+
+  @@unique([entityId, knowledgeItemId])
+}
+
+model EntityRelation {
+  id           String   @id @default(cuid())
+  fromEntityId String
+  toEntityId   String
+  relation     String
+  weight       Float    @default(1)
+  metadata     Json?
+  fromEntity   Entity   @relation("EntityRelationFrom", fields: [fromEntityId], references: [id], onDelete: Cascade)
+  toEntity     Entity   @relation("EntityRelationTo", fields: [toEntityId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([fromEntityId, toEntityId, relation])
+}
+
+model ChatSession {
+  id        String        @id @default(cuid())
+  title     String?
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String
+  content   String
+  metadata  Json?
+  createdAt DateTime    @default(now())
+}
+
+model AgentDefinition {
+  id           String             @id @default(cuid())
+  key          String             @unique
+  kind         AgentKind
+  name         String
+  description  String
+  capabilities String[]
+  riskLevel    Int                @default(1)
+  enabled      Boolean            @default(false)
+  metadata     Json?
+  workflowRuns WorkflowRun[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model WorkflowTemplate {
+  id             String         @id @default(cuid())
+  key            String         @unique
+  name           String
+  description    String
+  trigger        String
+  agentKinds     AgentKind[]
+  steps          Json
+  requiredScopes String[]
+  status         WorkflowStatus @default(DRAFT)
+  n8nWorkflowId  String?
+  runs           WorkflowRun[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model WorkflowRun {
+  id                 String            @id @default(cuid())
+  workflowTemplateId String?
+  workflowTemplate   WorkflowTemplate? @relation(fields: [workflowTemplateId], references: [id], onDelete: SetNull)
+  agentDefinitionId  String?
+  agentDefinition    AgentDefinition?  @relation(fields: [agentDefinitionId], references: [id], onDelete: SetNull)
+  command            String
+  status             WorkflowRunStatus @default(QUEUED)
+  input              Json?
+  output             Json?
+  logs               Json?
+  approvals          ApprovalRequest[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@index([status])
+  @@index([workflowTemplateId])
+  @@index([agentDefinitionId])
+}
+
+model ApprovalRequest {
+  id            String         @id @default(cuid())
+  workflowRunId String?
+  workflowRun   WorkflowRun?   @relation(fields: [workflowRunId], references: [id], onDelete: SetNull)
+  actionType    String
+  title         String
+  description   String
+  payload       Json?
+  status        ApprovalStatus @default(PENDING)
+  decidedAt     DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([status])
+}
+
+model ConnectorConfig {
+  id          String        @id @default(cuid())
+  type        ConnectorType
+  name        String
+  enabled     Boolean       @default(false)
+  status      String        @default("NOT_CONFIGURED")
+  scopes      String[]
+  metadata    Json?
+  connectedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([type, name])
+}
