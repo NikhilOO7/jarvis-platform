@@ -1,0 +1,3364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1440, initial-scale=1" />
+  <title>JARVIS · UI Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* ============================================================
+       THEME SYSTEM — switch via [data-theme] on <body>
+       PNG/JPG assets are recolored with CSS filters (--img-hue)
+       ============================================================ */
+    :root,
+    body[data-theme="cyan"] {
+      --accent:        #45e7ff;
+      --accent-hot:    #6df3ff;
+      --accent-2:      #ffbd55;
+      --accent-3:      #73ffbd;
+      --danger:        #ff5f6d;
+      --warn:          #ffbd55;
+      --line:          rgba(64, 218, 255, 0.32);
+      --line-strong:   rgba(86, 230, 255, 0.72);
+      --glow-rgb:      69, 231, 255;
+      --shadow-cyan:     0 0 22px rgba(69, 231, 255, 0.18);
+      --shadow-cyan-hot: 0 0 36px rgba(69, 231, 255, 0.35);
+      --shadow-amber:    0 0 20px rgba(255, 189, 85, 0.22);
+      --shadow-red:      0 0 22px rgba(255, 95, 109, 0.32);
+      --img-hue:       hue-rotate(0deg) saturate(1.05) brightness(1.02);
+      --img-dust:      hue-rotate(0deg) saturate(1.1) brightness(1.05);
+      --hero-glow-a:   rgba(69, 231, 255, 0.20);
+      --hero-glow-b:   rgba(36, 90, 200, 0.16);
+    }
+
+    body[data-theme="redgold"] {
+      --accent:        #ff7a5b;
+      --accent-hot:    #ffa066;
+      --accent-2:      #ffd24f;
+      --accent-3:      #ffe08a;
+      --danger:        #ff3a5e;
+      --warn:          #ffce4f;
+      --line:          rgba(255, 122, 91, 0.34);
+      --line-strong:   rgba(255, 160, 102, 0.78);
+      --glow-rgb:      255, 122, 91;
+      --shadow-cyan:     0 0 22px rgba(255, 122, 91, 0.22);
+      --shadow-cyan-hot: 0 0 36px rgba(255, 122, 91, 0.4);
+      --shadow-amber:    0 0 20px rgba(255, 210, 79, 0.28);
+      --shadow-red:      0 0 22px rgba(255, 58, 94, 0.4);
+      --img-hue:       hue-rotate(-160deg) saturate(1.5) brightness(1.05);
+      --img-dust:      hue-rotate(-160deg) saturate(1.4) brightness(1.1);
+      --hero-glow-a:   rgba(255, 122, 91, 0.22);
+      --hero-glow-b:   rgba(200, 60, 30, 0.18);
+    }
+
+    body[data-theme="stealth"] {
+      --accent:        #a8c4ff;
+      --accent-hot:    #c8d8ff;
+      --accent-2:      #8090c0;
+      --accent-3:      #c0d8ff;
+      --danger:        #ff5f6d;
+      --warn:          #ffbd55;
+      --line:          rgba(168, 196, 255, 0.32);
+      --line-strong:   rgba(200, 216, 255, 0.7);
+      --glow-rgb:      168, 196, 255;
+      --shadow-cyan:     0 0 22px rgba(168, 196, 255, 0.2);
+      --shadow-cyan-hot: 0 0 36px rgba(168, 196, 255, 0.36);
+      --shadow-amber:    0 0 20px rgba(160, 180, 220, 0.22);
+      --shadow-red:      0 0 22px rgba(255, 95, 109, 0.28);
+      --img-hue:       hue-rotate(20deg) saturate(0.5) brightness(1.1);
+      --img-dust:      hue-rotate(20deg) saturate(0.5) brightness(1.05);
+      --hero-glow-a:   rgba(168, 196, 255, 0.18);
+      --hero-glow-b:   rgba(70, 90, 150, 0.16);
+    }
+
+    body[data-theme="hulkbuster"] {
+      --accent:        #ffce4f;
+      --accent-hot:    #ffe080;
+      --accent-2:      #a86cff;
+      --accent-3:      #ffe9a0;
+      --danger:        #ff5f6d;
+      --warn:          #ffce4f;
+      --line:          rgba(255, 206, 79, 0.32);
+      --line-strong:   rgba(255, 224, 128, 0.78);
+      --glow-rgb:      255, 206, 79;
+      --shadow-cyan:     0 0 22px rgba(255, 206, 79, 0.22);
+      --shadow-cyan-hot: 0 0 36px rgba(255, 206, 79, 0.4);
+      --shadow-amber:    0 0 20px rgba(168, 108, 255, 0.24);
+      --shadow-red:      0 0 22px rgba(255, 95, 109, 0.32);
+      --img-hue:       hue-rotate(-200deg) saturate(1.4) brightness(1.1);
+      --img-dust:      hue-rotate(-200deg) saturate(1.3) brightness(1.1);
+      --hero-glow-a:   rgba(255, 206, 79, 0.2);
+      --hero-glow-b:   rgba(160, 90, 220, 0.18);
+    }
+
+    body[data-theme="warmachine"] {
+      --accent:        #d8dee6;
+      --accent-hot:    #ffffff;
+      --accent-2:      #ff5f4d;
+      --accent-3:      #c0c8d0;
+      --danger:        #ff3a5e;
+      --warn:          #ff8a5e;
+      --line:          rgba(216, 222, 230, 0.32);
+      --line-strong:   rgba(255, 255, 255, 0.6);
+      --glow-rgb:      216, 222, 230;
+      --shadow-cyan:     0 0 22px rgba(216, 222, 230, 0.18);
+      --shadow-cyan-hot: 0 0 36px rgba(255, 255, 255, 0.3);
+      --shadow-amber:    0 0 20px rgba(255, 95, 77, 0.24);
+      --shadow-red:      0 0 22px rgba(255, 58, 94, 0.34);
+      --img-hue:       hue-rotate(0deg) saturate(0.15) brightness(1.15) contrast(1.05);
+      --img-dust:      hue-rotate(0deg) saturate(0.15) brightness(1.1);
+      --hero-glow-a:   rgba(216, 222, 230, 0.18);
+      --hero-glow-b:   rgba(80, 90, 100, 0.18);
+    }
+
+    body[data-theme="vapor"] {
+      --accent:        #ff5cd2;
+      --accent-hot:    #ff8be0;
+      --accent-2:      #8b5cff;
+      --accent-3:      #ffb4f0;
+      --danger:        #ff3a5e;
+      --warn:          #ffce4f;
+      --line:          rgba(255, 92, 210, 0.34);
+      --line-strong:   rgba(255, 139, 224, 0.74);
+      --glow-rgb:      255, 92, 210;
+      --shadow-cyan:     0 0 22px rgba(255, 92, 210, 0.22);
+      --shadow-cyan-hot: 0 0 36px rgba(255, 92, 210, 0.4);
+      --shadow-amber:    0 0 20px rgba(139, 92, 255, 0.24);
+      --shadow-red:      0 0 22px rgba(255, 58, 94, 0.34);
+      --img-hue:       hue-rotate(-90deg) saturate(1.5) brightness(1.05);
+      --img-dust:      hue-rotate(-90deg) saturate(1.4) brightness(1.1);
+      --hero-glow-a:   rgba(255, 92, 210, 0.22);
+      --hero-glow-b:   rgba(139, 92, 255, 0.2);
+    }
+
+    :root {
+      --bg-0: #010407;
+      --bg-1: #03080d;
+      --bg-2: #061319;
+      --panel: rgba(6, 22, 29, 0.78);
+      --panel-strong: rgba(7, 32, 42, 0.92);
+      --panel-soft: rgba(13, 46, 55, 0.5);
+
+      --text: #e9fbff;
+      --text-dim: #b7d8e2;
+      --muted: #6fa6b6;
+      --muted-faint: #4d8090;
+
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --display: "Space Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-0);
+      color: var(--text);
+      font-family: var(--display);
+      font-feature-settings: "ss01", "cv11";
+      letter-spacing: 0.01em;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 56px 28px 80px;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(69, 231, 255, 0.10), transparent 28%),
+        radial-gradient(circle at 88% 92%, rgba(255, 189, 85, 0.06), transparent 24%),
+        linear-gradient(180deg, #01040a 0%, #04090f 60%, #02060c 100%);
+      overflow-x: hidden;
+    }
+
+    .mockup-header {
+      max-width: 1440px;
+      margin: 0 auto 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .mockup-header b { color: var(--accent); font-weight: 700; }
+
+    .screen-label {
+      max-width: 1440px;
+      margin: 0 auto 14px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .screen-label::before {
+      content: "";
+      width: 22px;
+      height: 1px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(69, 231, 255, 0.7);
+    }
+    .screen-label b { color: var(--accent-hot); letter-spacing: 0.1em; }
+
+    .frame {
+      max-width: 1440px;
+      margin: 0 auto 64px;
+      position: relative;
+      border: 1px solid rgba(69, 231, 255, 0.18);
+      border-radius: 4px;
+      overflow: hidden;
+      background: var(--bg-1);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(69, 231, 255, 0.08);
+    }
+
+    /* HUD BACKGROUND LAYERS (per frame) */
+    .hud-bg {
+      position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .hud-grid {
+      position: absolute; inset: -40px; opacity: 0.42;
+      background-image:
+        linear-gradient(rgba(69, 231, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(69, 231, 255, 0.07) 1px, transparent 1px);
+      background-size: 48px 48px;
+      transform: perspective(900px) rotateX(58deg) translateY(-12%);
+      transform-origin: center top;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 70%);
+    }
+    .hud-stars {
+      position: absolute; inset: 0; opacity: 0.55;
+      background-image:
+        radial-gradient(circle at 6% 18%, rgba(255, 255, 255, 0.62) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 22% 52%, rgba(69, 231, 255, 0.62) 0 1px, transparent 1.3px),
+        radial-gradient(circle at 41% 24%, rgba(255, 255, 255, 0.4) 0 1px, transparent 1.3px),
+        radial-gradient(circle at 61% 68%, rgba(69, 231, 255, 0.42) 0 1px, transparent 1.3px),
+        radial-gradient(circle at 82% 31%, rgba(255, 189, 85, 0.42) 0 1px, transparent 1.3px),
+        radial-gradient(circle at 92% 82%, rgba(255, 255, 255, 0.55) 0 1px, transparent 1.4px);
+      background-size: 240px 180px, 260px 220px, 310px 260px, 280px 240px, 340px 300px, 300px 260px;
+    }
+    .hud-scanlines {
+      position: absolute; inset: 0; opacity: 0.18;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px,
+        transparent 5px
+      );
+      mix-blend-mode: screen;
+    }
+    .hud-sweep {
+      position: absolute; left: 0; right: 0; top: 0; height: 100%;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent 0%, rgba(69, 231, 255, 0.06) 50%, transparent 100%);
+      animation: sweep 9s linear infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes sweep {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    .hud-corner {
+      position: absolute; width: 96px; height: 96px;
+      border: 1px solid rgba(69, 231, 255, 0.4);
+      filter: drop-shadow(0 0 12px rgba(69, 231, 255, 0.3));
+    }
+    .hud-corner.tl { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
+    .hud-corner.tr { top: 12px; right: 12px; border-left: 0; border-bottom: 0; }
+    .hud-corner.bl { bottom: 12px; left: 12px; border-right: 0; border-top: 0; }
+    .hud-corner.br { bottom: 12px; right: 12px; border-left: 0; border-top: 0; }
+    .hud-corner::before {
+      content: "";
+      position: absolute; top: 4px; left: 4px;
+      width: 8px; height: 8px; background: var(--accent);
+      box-shadow: 0 0 10px rgba(69, 231, 255, 0.8);
+    }
+    .hud-corner.tr::before { left: auto; right: 4px; }
+    .hud-corner.bl::before { top: auto; bottom: 4px; }
+    .hud-corner.br::before { top: auto; bottom: 4px; left: auto; right: 4px; }
+
+    /* TOP GLOBAL TELEMETRY RAIL */
+    .topbar {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto minmax(260px, 1fr);
+      align-items: center;
+      gap: 24px;
+      padding: 10px 24px;
+      border-bottom: 1px solid rgba(69, 231, 255, 0.2);
+      background: linear-gradient(180deg, rgba(4, 16, 22, 0.92), rgba(2, 8, 12, 0.7));
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .topbar-left { display: flex; gap: 18px; align-items: center; color: var(--muted); }
+    .topbar-left .crest {
+      width: 18px; height: 18px;
+      border: 1px solid var(--line-strong);
+      transform: rotate(45deg);
+      background: linear-gradient(135deg, rgba(69, 231, 255, 0.4), rgba(8, 31, 41, 0.2));
+      box-shadow: 0 0 12px rgba(69, 231, 255, 0.5);
+    }
+    .topbar-left b { color: var(--accent); }
+    .topbar-left .sep { color: var(--muted-faint); margin: 0 4px; }
+
+    .topbar-center {
+      display: flex; gap: 14px; align-items: center;
+      color: var(--text-dim); font-weight: 500;
+    }
+    .topbar-center .live-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent-3);
+      box-shadow: 0 0 10px var(--accent-3);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink { 0%, 60%, 100% { opacity: 1; } 75% { opacity: 0.3; } }
+
+    .topbar-right {
+      display: flex; gap: 14px; align-items: center; justify-content: flex-end;
+      color: var(--muted);
+    }
+    .topbar-right .metric {
+      display: inline-flex; gap: 6px; align-items: baseline;
+    }
+    .topbar-right .metric span { color: var(--muted-faint); font-size: 10px; }
+    .topbar-right .metric b { color: var(--accent); font-weight: 500; letter-spacing: 0.04em; }
+    .topbar-right .metric b.warn { color: var(--warn); }
+    .topbar-right .metric b.ok { color: var(--accent-3); }
+
+    /* SUB TELEMETRY RAIL */
+    .subrail {
+      position: relative; z-index: 2;
+      display: flex; gap: 0; align-items: center;
+      padding: 8px 24px;
+      border-bottom: 1px solid rgba(69, 231, 255, 0.12);
+      background: rgba(2, 8, 12, 0.6);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-faint);
+    }
+    .subrail .gauge { display: flex; gap: 8px; align-items: center; padding: 0 18px; border-right: 1px solid rgba(69, 231, 255, 0.08); }
+    .subrail .gauge:last-child { border-right: 0; }
+    .subrail .gauge:first-child { padding-left: 0; }
+    .subrail .gauge label { color: var(--muted-faint); }
+    .subrail .gauge .val { color: var(--accent); font-weight: 500; }
+    .subrail .gauge .val.warn { color: var(--warn); }
+    .subrail .gauge .bar {
+      width: 72px; height: 4px; background: rgba(69, 231, 255, 0.1);
+      position: relative; overflow: hidden; border-radius: 2px;
+    }
+    .subrail .gauge .bar::after {
+      content: ""; position: absolute; top: 0; left: 0; bottom: 0;
+      width: var(--w, 30%);
+      background: linear-gradient(90deg, var(--accent), var(--accent-hot));
+      box-shadow: 0 0 8px var(--accent);
+      transition: width 0.6s ease;
+    }
+    .subrail .gauge .bar.warn::after {
+      background: linear-gradient(90deg, var(--accent-2), #ff8b3a);
+      box-shadow: 0 0 8px var(--accent-2);
+    }
+    .subrail .spacer { flex: 1; }
+
+    /* APP SHELL LAYOUT */
+    .shell {
+      position: relative; z-index: 2;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr) 320px;
+      min-height: 760px;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      border-right: 1px solid rgba(69, 231, 255, 0.18);
+      padding: 22px 16px;
+      background: linear-gradient(180deg, rgba(4, 16, 22, 0.6), rgba(2, 7, 11, 0.4));
+      display: flex; flex-direction: column; gap: 16px;
+      position: relative;
+    }
+
+    .brand {
+      display: flex; gap: 12px; align-items: center;
+      padding: 4px 4px 16px;
+      border-bottom: 1px solid rgba(69, 231, 255, 0.14);
+    }
+    .brand-mark {
+      width: 40px; height: 40px;
+      display: grid; place-items: center;
+      border: 1px solid var(--line-strong);
+      background: linear-gradient(135deg, rgba(69, 231, 255, 0.22), rgba(5, 17, 23, 0.92));
+      box-shadow: inset 0 0 14px rgba(69, 231, 255, 0.2), 0 0 18px rgba(69, 231, 255, 0.24);
+      clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+      color: var(--accent);
+    }
+    .brand-text { display: flex; flex-direction: column; gap: 2px; }
+    .brand-text .name {
+      font-family: var(--display); font-weight: 700;
+      font-size: 18px; letter-spacing: 0.22em;
+      color: var(--text);
+      text-shadow: 0 0 12px rgba(69, 231, 255, 0.5);
+    }
+    .brand-text .tag {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em;
+      color: var(--muted); text-transform: uppercase;
+    }
+
+    .mini-core {
+      width: 168px; aspect-ratio: 1;
+      margin: 4px auto 8px;
+      position: relative; display: grid; place-items: center;
+    }
+    .mini-core .ring {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(69, 231, 255, 0.36);
+      box-shadow: inset 0 0 16px rgba(69, 231, 255, 0.12), 0 0 14px rgba(69, 231, 255, 0.18);
+    }
+    .mini-core .ring.outer {
+      animation: spin 22s linear infinite;
+      background: conic-gradient(from 0deg, transparent 0 12%, rgba(69, 231, 255, 0.6) 13% 16%, transparent 17% 36%, rgba(255, 189, 85, 0.55) 37% 39%, transparent 40% 70%, rgba(115, 255, 189, 0.5) 71% 73%, transparent 74% 100%);
+      mask: radial-gradient(circle, transparent 60%, #000 62%);
+      border: none;
+    }
+    .mini-core .ring.mid {
+      inset: 22px;
+      animation: spinR 14s linear infinite;
+      border-style: dashed;
+      border-color: rgba(255, 189, 85, 0.45);
+    }
+    .mini-core .ring.inn { inset: 46px; border-color: rgba(115, 255, 189, 0.45); }
+    .mini-core .pulse {
+      width: 36px; aspect-ratio: 1; border-radius: 50%;
+      background: radial-gradient(circle, var(--text) 0 8%, var(--accent-hot) 18%, rgba(69, 231, 255, 0.22) 56%, transparent 70%);
+      box-shadow: 0 0 28px rgba(69, 231, 255, 0.8), 0 0 56px rgba(69, 231, 255, 0.24);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    .mini-core .tick {
+      position: absolute; width: 12px; height: 1px; background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .mini-core .tick.t1 { top: 50%; left: -2px; }
+    .mini-core .tick.t2 { top: 50%; right: -2px; }
+    .mini-core .tick.t3 { top: -2px; left: 50%; width: 1px; height: 12px; }
+    .mini-core .tick.t4 { bottom: -2px; left: 50%; width: 1px; height: 12px; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spinR { to { transform: rotate(-360deg); } }
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.92); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+
+    .sys-stack { display: grid; gap: 6px; }
+    .sys-row {
+      display: grid;
+      grid-template-columns: 12px 1fr auto;
+      gap: 10px; align-items: center;
+      padding: 7px 10px;
+      border: 1px solid rgba(69, 231, 255, 0.16);
+      background: rgba(2, 11, 16, 0.6);
+      border-radius: 2px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+    .sys-row .led {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent-3); box-shadow: 0 0 8px var(--accent-3);
+    }
+    .sys-row .led.warn { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+    .sys-row .led.idle { background: var(--muted-faint); box-shadow: none; }
+    .sys-row b { color: var(--accent-3); font-weight: 500; font-size: 9px; }
+    .sys-row b.warn { color: var(--warn); }
+    .sys-row b.idle { color: var(--muted-faint); }
+
+    .nav-header {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--muted-faint);
+      padding: 12px 4px 6px;
+      display: flex; justify-content: space-between;
+    }
+    .nav-header b { color: var(--accent); }
+
+    .nav { display: grid; gap: 4px; }
+    .nav a {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 10px;
+      border: 1px solid rgba(69, 231, 255, 0.08);
+      background: rgba(3, 10, 14, 0.35);
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 2px;
+      position: relative;
+      transition: 140ms ease;
+    }
+    .nav a .cmd {
+      color: var(--muted-faint);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+    }
+    .nav a .chev { color: var(--muted-faint); font-size: 10px; }
+    .nav a:hover {
+      background: rgba(20, 60, 72, 0.45);
+      border-color: var(--line);
+      color: var(--text);
+      transform: translateX(2px);
+    }
+    .nav a.active {
+      background: linear-gradient(90deg, rgba(69, 231, 255, 0.16), transparent);
+      border-color: var(--accent);
+      color: var(--text);
+      box-shadow: inset 3px 0 0 var(--accent), var(--shadow-cyan);
+    }
+    .nav a.active .cmd { color: var(--accent); }
+    .nav a.active .chev { color: var(--accent); }
+
+    /* MAIN STAGE */
+    .stage {
+      padding: 28px 32px;
+      min-width: 0;
+      position: relative;
+      display: flex; flex-direction: column; gap: 22px;
+    }
+
+    .stage-head {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 24px;
+    }
+    .stage-head .eyebrow {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex; gap: 10px; align-items: center;
+    }
+    .stage-head .eyebrow::before { content: "◇"; color: var(--accent-2); }
+    .stage-head h1 {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(28px, 3.4vw, 44px);
+      line-height: 1.02;
+      letter-spacing: -0.01em;
+      margin: 0 0 8px;
+      max-width: 720px;
+      color: var(--text);
+      text-shadow: 0 0 20px rgba(69, 231, 255, 0.18);
+    }
+    .stage-head h1 b { color: var(--accent); font-weight: 500; }
+    .stage-head .sub {
+      color: var(--muted); max-width: 560px;
+      font-size: 14px; line-height: 1.55;
+    }
+    .stage-head .meta {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted-faint);
+      text-align: right;
+      display: grid; gap: 6px;
+      min-width: 200px;
+    }
+    .stage-head .meta b { color: var(--accent); font-weight: 500; }
+
+    /* HERO CORE */
+    .hero {
+      position: relative;
+      min-height: 520px;
+      border: 1px solid rgba(69, 231, 255, 0.22);
+      border-radius: 4px;
+      background:
+        radial-gradient(circle at 50% 46%, rgba(69, 231, 255, 0.18), transparent 38%),
+        radial-gradient(circle at 50% 50%, rgba(20, 100, 200, 0.12), transparent 48%),
+        linear-gradient(180deg, rgba(2, 8, 14, 0.6), rgba(0, 0, 0, 0.5));
+      box-shadow: inset 0 0 60px rgba(69, 231, 255, 0.08);
+      display: grid;
+      grid-template-columns: 220px 1fr 220px;
+      grid-template-rows: auto 1fr auto;
+      padding: 18px 22px 22px;
+      gap: 16px;
+      overflow: hidden;
+    }
+
+    .hero-rail-top {
+      grid-column: 1 / -1;
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .hero-rail-top span { display: inline-flex; gap: 8px; align-items: center; }
+    .hero-rail-top b { color: var(--accent); }
+    .hero-rail-top .pill {
+      padding: 6px 10px;
+      border: 1px solid rgba(69, 231, 255, 0.24);
+      background: rgba(2, 12, 16, 0.7);
+      border-radius: 2px;
+    }
+
+    /* COMMAND PILLS LEFT/RIGHT */
+    .hero-side {
+      display: flex; flex-direction: column; gap: 12px;
+      align-self: center;
+      z-index: 2;
+    }
+    .cmd-pill {
+      display: grid;
+      grid-template-columns: 26px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      min-height: 58px;
+      padding: 10px 14px;
+      border: 1px solid rgba(69, 231, 255, 0.4);
+      background: linear-gradient(180deg, rgba(8, 38, 50, 0.92), rgba(4, 18, 24, 0.92));
+      color: var(--text);
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      border-radius: 2px;
+      box-shadow: 0 0 18px rgba(69, 231, 255, 0.16);
+      position: relative;
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+    .cmd-pill::before {
+      content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 60%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+    .cmd-pill .ic { color: var(--accent); display: grid; place-items: center; }
+    .cmd-pill .lbl { display: flex; flex-direction: column; gap: 2px; }
+    .cmd-pill .lbl .cmdid {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: 0.2em; color: var(--muted-faint);
+      text-transform: uppercase;
+    }
+    .cmd-pill .lbl .ttl { font-weight: 500; }
+    .cmd-pill .ch { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+    .cmd-pill:hover {
+      border-color: var(--accent-hot);
+      box-shadow: 0 0 28px rgba(69, 231, 255, 0.32);
+      background: linear-gradient(180deg, rgba(12, 60, 78, 0.94), rgba(6, 28, 36, 0.94));
+    }
+    .cmd-pill.primary {
+      background: linear-gradient(180deg, #45f7ff, #1fc8de);
+      color: #02151c;
+    }
+    .cmd-pill.primary .ic,
+    .cmd-pill.primary .ch,
+    .cmd-pill.primary .lbl .cmdid { color: #053240; }
+
+    /* CORE STAGE (orb + waveform + reactor) */
+    .hero-core {
+      position: relative;
+      display: grid; place-items: center;
+      align-self: stretch;
+    }
+
+    .orb-system {
+      width: min(54vw, 460px);
+      aspect-ratio: 1;
+      position: relative;
+      display: grid; place-items: center;
+      filter: drop-shadow(0 0 28px rgba(69, 231, 255, 0.38));
+    }
+    .orb-system .ring {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(69, 231, 255, 0.4);
+    }
+    .orb-system .ring.r1 {
+      width: 92%; height: 92%;
+      animation: spin 28s linear infinite;
+      border-top-color: rgba(255, 255, 255, 0.85);
+      border-right-color: rgba(69, 231, 255, 0.8);
+      border-bottom-color: rgba(36, 112, 255, 0.7);
+    }
+    .orb-system .ring.r2 {
+      width: 72%; height: 32%;
+      transform: rotate(-12deg);
+      border-color: rgba(69, 231, 255, 0.7);
+      box-shadow: 0 0 20px rgba(69, 231, 255, 0.28);
+      animation: tilt 16s ease-in-out infinite;
+    }
+    @keyframes tilt {
+      0%, 100% { transform: rotate(-12deg); }
+      50% { transform: rotate(12deg); }
+    }
+    .orb-system .ring.r3 {
+      width: 36%; height: 92%;
+      transform: rotate(72deg);
+      border-color: rgba(129, 245, 255, 0.55);
+    }
+    .orb-system .ring.r4 {
+      width: 110%; height: 110%;
+      border-style: dashed;
+      border-color: rgba(255, 189, 85, 0.28);
+      animation: spinR 60s linear infinite;
+    }
+    .orb-sphere {
+      width: 38%; aspect-ratio: 1; border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 42%, #f3ffff 0 6%, #6df3ff 7% 19%, rgba(30, 104, 255, 0.7) 40%, rgba(6, 21, 35, 0.92) 70%);
+      box-shadow: 0 0 60px rgba(69, 231, 255, 0.7), inset 0 0 36px rgba(255, 255, 255, 0.28);
+      position: relative;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .waveform {
+      position: absolute; left: 8%; right: 8%; bottom: 64px;
+      height: 56px;
+      display: flex; align-items: center; justify-content: center; gap: 3px;
+      z-index: 2;
+    }
+    .waveform span {
+      width: 2px; max-height: 52px;
+      background: linear-gradient(180deg, transparent, var(--accent-hot), transparent);
+      box-shadow: 0 0 10px rgba(69, 231, 255, 0.7);
+      animation: wave 1.4s ease-in-out infinite;
+    }
+    @keyframes wave {
+      0%, 100% { transform: scaleY(0.3); opacity: 0.4; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .reactor {
+      position: absolute; bottom: 0;
+      width: 140px; aspect-ratio: 1;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6, 24, 38, 0.98), rgba(0, 4, 9, 0.98));
+      box-shadow: 0 0 42px rgba(69, 231, 255, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.8);
+      z-index: 2;
+    }
+    .reactor::before {
+      content: ""; position: absolute; inset: 14px; border-radius: 50%;
+      border: 3px solid rgba(69, 231, 255, 0.74);
+      box-shadow: inset 0 0 22px rgba(69, 231, 255, 0.4), 0 0 26px rgba(69, 231, 255, 0.6);
+      animation: pulse 2.6s ease-in-out infinite;
+    }
+    .reactor::after {
+      content: ""; position: absolute; inset: 28px; border-radius: 50%;
+      border: 1px dashed rgba(69, 231, 255, 0.4);
+      animation: spinR 9s linear infinite;
+    }
+    .reactor .label {
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.28em;
+      color: var(--accent-hot);
+      text-shadow: 0 0 12px rgba(69, 231, 255, 0.8);
+      font-weight: 500;
+      position: relative; z-index: 2;
+    }
+
+    .hero-status {
+      position: absolute; bottom: -28px;
+      left: 50%; transform: translateX(-50%);
+      display: inline-flex; gap: 10px; align-items: center;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: var(--muted);
+      z-index: 2;
+    }
+    .hero-status .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 14px rgba(255, 95, 109, 0.7);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+
+    .hero-rail-bottom {
+      grid-column: 1 / -1;
+      display: flex; justify-content: center; gap: 12px; align-items: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+      z-index: 2;
+    }
+    .chip {
+      display: inline-flex; gap: 8px; align-items: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(69, 231, 255, 0.28);
+      background: rgba(2, 12, 16, 0.7);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      border-radius: 2px;
+    }
+    .chip .ico { color: var(--accent); }
+    .btn-danger {
+      display: inline-flex; gap: 10px; align-items: center;
+      padding: 10px 18px;
+      border: 1px solid rgba(255, 95, 109, 0.6);
+      background: linear-gradient(180deg, #ff6f7c, #ff3a5e);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      box-shadow: 0 0 24px rgba(255, 95, 109, 0.4);
+      cursor: pointer;
+      clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    }
+
+    /* RIGHT RAIL */
+    .rightrail {
+      border-left: 1px solid rgba(69, 231, 255, 0.18);
+      padding: 22px 18px;
+      background: linear-gradient(180deg, rgba(2, 10, 14, 0.5), rgba(2, 6, 10, 0.3));
+      display: flex; flex-direction: column; gap: 18px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .panel {
+      border: 1px solid rgba(69, 231, 255, 0.2);
+      background:
+        linear-gradient(145deg, rgba(8, 31, 41, 0.7), rgba(3, 12, 16, 0.6)),
+        repeating-linear-gradient(90deg, rgba(69, 231, 255, 0.03) 0 1px, transparent 1px 24px);
+      border-radius: 4px;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel::before {
+      content: ""; position: absolute; top: 0; left: 0;
+      width: 36px; height: 2px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(69, 231, 255, 0.8);
+    }
+    .panel::after {
+      content: ""; position: absolute; top: 8px; right: 8px;
+      width: 8px; height: 8px;
+      border-top: 1px solid var(--accent-2);
+      border-right: 1px solid var(--accent-2);
+    }
+
+    .panel-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed rgba(69, 231, 255, 0.18);
+    }
+    .panel-head h3 {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .panel-head .tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      color: var(--muted-faint);
+      text-transform: uppercase;
+    }
+
+    .file-card {
+      padding: 12px;
+      border: 1px solid rgba(69, 231, 255, 0.16);
+      background: rgba(3, 14, 18, 0.6);
+      border-radius: 2px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .file-card::before {
+      content: ""; position: absolute; left: 0; top: 10px; bottom: 10px;
+      width: 2px; background: var(--accent-2);
+      box-shadow: 0 0 10px rgba(255, 189, 85, 0.6);
+    }
+    .file-card .fhead {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .file-card .fhead b { color: var(--accent); }
+    .file-card .ftitle {
+      font-family: var(--display);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin: 4px 0 6px;
+      letter-spacing: 0.01em;
+    }
+    .file-card .fdesc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .file-card .fmeta {
+      display: flex; gap: 8px; margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .file-card .fmeta span {
+      padding: 3px 6px;
+      border: 1px solid rgba(69, 231, 255, 0.2);
+      color: var(--muted);
+      border-radius: 2px;
+    }
+    .file-card .fmeta span.alpha { color: var(--accent-3); border-color: rgba(115, 255, 189, 0.32); }
+    .file-card .fmeta span.warn { color: var(--warn); border-color: rgba(255, 189, 85, 0.32); }
+
+    .sector-row {
+      display: grid;
+      grid-template-columns: 14px 1fr auto auto;
+      gap: 12px; align-items: center;
+      padding: 9px 10px;
+      border: 1px solid rgba(69, 231, 255, 0.12);
+      background: rgba(2, 10, 14, 0.5);
+      border-radius: 2px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: 140ms;
+    }
+    .sector-row:hover {
+      border-color: var(--line);
+      background: rgba(14, 40, 50, 0.5);
+    }
+    .sector-row .ic { color: var(--accent); }
+    .sector-row .ct {
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .sector-row .arr {
+      color: var(--muted-faint);
+    }
+
+    /* SCREEN 2: AGENTS */
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .module {
+      border: 1px solid rgba(69, 231, 255, 0.22);
+      background:
+        linear-gradient(145deg, rgba(10, 42, 53, 0.7), rgba(3, 12, 16, 0.7)),
+        radial-gradient(circle at 0 0, rgba(69, 231, 255, 0.12), transparent 50%);
+      border-radius: 4px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      min-height: 220px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .module::before {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent 55%, var(--accent-2));
+      opacity: 0.65;
+    }
+    .module::after {
+      content: ""; position: absolute; top: 8px; right: 8px;
+      width: 10px; height: 10px;
+      border-top: 1px solid var(--accent);
+      border-right: 1px solid var(--accent);
+      box-shadow: 0 0 8px rgba(69, 231, 255, 0.4);
+    }
+
+    .module-head {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 12px;
+    }
+    .module-id {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex; gap: 6px; align-items: center;
+    }
+    .module-id .bracket { color: var(--muted-faint); }
+    .module-id .open { color: var(--accent-3); font-size: 9px; }
+
+    .module-status {
+      display: inline-flex; gap: 6px; align-items: center;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-3);
+    }
+    .module-status .led {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent-3); box-shadow: 0 0 8px var(--accent-3);
+      animation: blink 1.6s ease-in-out infinite;
+    }
+    .module-status.warn { color: var(--warn); }
+    .module-status.warn .led { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+    .module-status.idle { color: var(--muted-faint); }
+    .module-status.idle .led { background: var(--muted-faint); box-shadow: none; }
+
+    .module h3 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+    .module .desc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .module .caps {
+      display: flex; flex-wrap: wrap; gap: 5px;
+      margin-top: auto;
+    }
+    .module .caps span {
+      padding: 3px 7px;
+      border: 1px solid rgba(69, 231, 255, 0.2);
+      background: rgba(4, 14, 19, 0.7);
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      border-radius: 2px;
+    }
+    .module .telemetry {
+      display: flex; gap: 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      padding-top: 8px;
+      border-top: 1px dashed rgba(69, 231, 255, 0.14);
+    }
+    .module .telemetry b { color: var(--accent); font-weight: 500; }
+
+    /* SCREEN 3: COMMAND TERMINAL */
+    .cmd-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) 340px;
+      gap: 18px;
+    }
+    .terminal {
+      border: 1px solid rgba(69, 231, 255, 0.22);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(69, 231, 255, 0.08), transparent 50%),
+        #020608;
+      border-radius: 4px;
+      padding: 18px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: #b7eefa;
+      min-height: 480px;
+      position: relative;
+      overflow: hidden;
+    }
+    .terminal::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 26px;
+      background: linear-gradient(180deg, rgba(69, 231, 255, 0.08), transparent);
+      border-bottom: 1px dashed rgba(69, 231, 255, 0.18);
+    }
+    .terminal .line { margin: 4px 0; }
+    .terminal .prompt { color: var(--accent); }
+    .terminal .you { color: var(--text); }
+    .terminal .ai { color: var(--accent-hot); }
+    .terminal .sys { color: var(--muted-faint); font-size: 11px; letter-spacing: 0.06em; }
+    .terminal .ok { color: var(--accent-3); }
+    .terminal .warn { color: var(--warn); }
+    .terminal .err { color: var(--danger); }
+    .terminal .cite {
+      display: inline-block;
+      padding: 1px 5px;
+      border: 1px solid rgba(69, 231, 255, 0.32);
+      color: var(--accent);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      margin: 0 2px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+    .cursor {
+      display: inline-block; width: 8px; height: 14px;
+      background: var(--accent-hot); vertical-align: middle;
+      margin-left: 4px;
+      animation: blink 1s steps(1) infinite;
+      box-shadow: 0 0 8px var(--accent-hot);
+    }
+    .input-bar {
+      margin-top: 14px;
+      display: flex; gap: 10px; align-items: center;
+      padding: 12px 14px;
+      border: 1px solid var(--accent);
+      background: rgba(2, 14, 20, 0.92);
+      border-radius: 2px;
+      box-shadow: 0 0 18px rgba(69, 231, 255, 0.2), inset 0 0 14px rgba(69, 231, 255, 0.06);
+    }
+    .input-bar .chev { color: var(--accent); font-weight: 700; font-size: 16px; }
+    .input-bar .placeholder { color: var(--muted); font-family: var(--mono); font-size: 13px; }
+    .input-bar .mic {
+      margin-left: auto;
+      display: inline-flex; gap: 8px; align-items: center;
+      color: var(--accent-3);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .input-bar .mic .led {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent-3);
+      box-shadow: 0 0 10px var(--accent-3);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+
+    .routing-stack { display: flex; flex-direction: column; gap: 14px; }
+    .routing-card {
+      border: 1px solid rgba(69, 231, 255, 0.22);
+      background: linear-gradient(145deg, rgba(8, 31, 41, 0.8), rgba(3, 12, 16, 0.7));
+      border-radius: 4px;
+      padding: 14px;
+      position: relative;
+    }
+    .routing-card::before {
+      content: ""; position: absolute; top: 0; left: 0;
+      width: 36px; height: 2px; background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+    .routing-card h4 {
+      margin: 0 0 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .kv {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 6px 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+    .kv dt {
+      color: var(--muted-faint);
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+    }
+    .kv dd {
+      margin: 0;
+      color: var(--text);
+    }
+    .kv dd b { color: var(--accent); font-weight: 500; }
+    .kv dd b.ok { color: var(--accent-3); }
+    .kv dd b.warn { color: var(--warn); }
+    .kv dd b.danger { color: var(--danger); }
+    .risk-meter {
+      display: flex; gap: 3px; margin-top: 4px;
+    }
+    .risk-meter span {
+      flex: 1; height: 6px; background: rgba(69, 231, 255, 0.1);
+      border-radius: 1px;
+    }
+    .risk-meter span.on { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+    .risk-meter span.on.hi { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+
+    .approval-bar {
+      display: flex; gap: 8px; margin-top: 12px;
+    }
+    .approval-bar button {
+      flex: 1;
+      padding: 9px 12px;
+      border: 1px solid;
+      background: transparent;
+      color: inherit;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .approval-bar .approve {
+      border-color: rgba(115, 255, 189, 0.6);
+      color: var(--accent-3);
+      background: rgba(8, 34, 30, 0.4);
+    }
+    .approval-bar .reject {
+      border-color: rgba(255, 95, 109, 0.6);
+      color: var(--danger);
+      background: rgba(34, 8, 16, 0.4);
+    }
+
+    /* BOOT OVERLAY */
+    .boot-overlay {
+      position: fixed; inset: 0;
+      z-index: 9999;
+      background: radial-gradient(circle at 50% 50%, #04101a, #000);
+      display: grid; place-items: center;
+      pointer-events: none;
+      animation: bootFade 4.5s ease-out forwards;
+    }
+    @keyframes bootFade {
+      0%, 70% { opacity: 1; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+    .boot-inner {
+      font-family: var(--mono);
+      color: var(--accent);
+      font-size: 14px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      text-align: center;
+      max-width: 520px;
+      line-height: 1.9;
+    }
+    .boot-inner .big {
+      font-family: var(--display);
+      font-size: 56px;
+      font-weight: 500;
+      letter-spacing: 0.36em;
+      color: var(--text);
+      text-shadow: 0 0 24px rgba(69, 231, 255, 0.8);
+      margin-bottom: 18px;
+    }
+    .boot-inner .line {
+      opacity: 0;
+      animation: bootLine 0.5s forwards;
+    }
+    .boot-inner .line:nth-child(2) { animation-delay: 0.4s; }
+    .boot-inner .line:nth-child(3) { animation-delay: 0.9s; }
+    .boot-inner .line:nth-child(4) { animation-delay: 1.4s; }
+    .boot-inner .line:nth-child(5) { animation-delay: 1.9s; }
+    .boot-inner .line:nth-child(6) { animation-delay: 2.4s; }
+    .boot-inner .line:nth-child(7) { animation-delay: 2.9s; color: var(--accent-3); font-weight: 600; }
+    @keyframes bootLine {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* MISC */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* =========================================================
+       SCREEN 04 — JARVIS STANDBY DESKTOP (Iron Man OS feel)
+       ========================================================= */
+    .desk {
+      position: relative;
+      min-height: 900px;
+      padding: 0;
+      background:
+        radial-gradient(ellipse at 50% 48%, rgba(69, 231, 255, 0.16), transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(10, 60, 120, 0.18), transparent 60%),
+        linear-gradient(180deg, #02080e 0%, #04101a 55%, #010609 100%);
+      overflow: hidden;
+    }
+    .desk .hud-bg { z-index: 0; }
+
+    /* Day calendar rail */
+    .day-rail {
+      position: relative; z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(30, 1fr) auto;
+      gap: 0;
+      padding: 8px 18px;
+      border-bottom: 1px solid rgba(69, 231, 255, 0.25);
+      background: linear-gradient(180deg, rgba(4, 16, 22, 0.85), rgba(2, 8, 12, 0.5));
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+    .day-rail .day {
+      text-align: center;
+      padding: 6px 0;
+      border-right: 1px solid rgba(69, 231, 255, 0.06);
+      color: var(--muted-faint);
+      position: relative;
+    }
+    .day-rail .day:last-child { border-right: 0; }
+    .day-rail .day.today {
+      color: #02151c;
+      background: linear-gradient(180deg, var(--accent-hot), var(--accent));
+      box-shadow: 0 0 16px rgba(69, 231, 255, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.4);
+      font-weight: 700;
+    }
+    .day-rail .day.today::after {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: -8px;
+      height: 2px; background: var(--accent-hot);
+      box-shadow: 0 0 8px var(--accent-hot);
+    }
+    .day-rail .stark {
+      padding: 6px 14px 6px 18px;
+      border-left: 1px solid rgba(69, 231, 255, 0.25);
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.32em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .day-rail .stark::before {
+      content: "▲"; color: var(--accent-hot);
+      filter: drop-shadow(0 0 6px var(--accent-hot));
+    }
+
+    /* Music / status secondary rail */
+    .music-rail {
+      position: relative; z-index: 3;
+      display: flex; align-items: center; justify-content: center; gap: 18px;
+      padding: 6px 18px;
+      border-bottom: 1px solid rgba(69, 231, 255, 0.12);
+      background: rgba(2, 8, 12, 0.6);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted-faint);
+    }
+    .music-rail .now {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .music-rail .eq {
+      display: flex; gap: 2px; align-items: flex-end; height: 14px;
+    }
+    .music-rail .eq span {
+      width: 3px; background: linear-gradient(180deg, var(--accent-hot), var(--accent));
+      box-shadow: 0 0 6px var(--accent);
+      animation: eq 1.1s ease-in-out infinite;
+    }
+    .music-rail .eq span:nth-child(1) { height: 6px; animation-delay: 0.0s; }
+    .music-rail .eq span:nth-child(2) { height: 12px; animation-delay: 0.15s; }
+    .music-rail .eq span:nth-child(3) { height: 9px; animation-delay: 0.3s; }
+    .music-rail .eq span:nth-child(4) { height: 14px; animation-delay: 0.45s; }
+    .music-rail .eq span:nth-child(5) { height: 7px; animation-delay: 0.6s; }
+    @keyframes eq {
+      0%, 100% { transform: scaleY(0.4); }
+      50% { transform: scaleY(1); }
+    }
+    .music-rail b { color: var(--accent); }
+
+    /* Desktop body grid */
+    .desk-body {
+      position: relative; z-index: 2;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr) 280px;
+      min-height: 760px;
+      gap: 0;
+    }
+
+    .desk-col {
+      padding: 18px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .desk-col.left { border-right: 1px dashed rgba(69, 231, 255, 0.14); }
+    .desk-col.right { border-left: 1px dashed rgba(69, 231, 255, 0.14); }
+
+    /* Big date widget */
+    .date-orb {
+      position: relative;
+      width: 180px; height: 180px;
+      margin: 4px auto;
+      display: grid; place-items: center;
+    }
+    .date-orb .ring {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(69, 231, 255, 0.36);
+      box-shadow: inset 0 0 22px rgba(69, 231, 255, 0.18), 0 0 18px rgba(69, 231, 255, 0.22);
+    }
+    .date-orb .ring.mid {
+      inset: 14px;
+      border: 1px dashed rgba(69, 231, 255, 0.4);
+      animation: spinR 24s linear infinite;
+    }
+    .date-orb .ring.in {
+      inset: 28px;
+      border: 1px solid rgba(115, 255, 189, 0.36);
+      background: radial-gradient(circle, rgba(4, 16, 22, 0.7), rgba(0, 0, 0, 0.4));
+    }
+    .date-orb .month {
+      position: absolute; top: 12px; left: 0; right: 0; text-align: center;
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.32em;
+      color: var(--accent); text-transform: uppercase;
+    }
+    .date-orb .num {
+      font-family: var(--display);
+      font-size: 64px; font-weight: 500;
+      color: var(--text);
+      text-shadow: 0 0 24px rgba(69, 231, 255, 0.7);
+      letter-spacing: -0.02em;
+      z-index: 2;
+    }
+    .date-orb .dow {
+      position: absolute; bottom: 12px; left: 0; right: 0; text-align: center;
+      font-family: var(--mono); font-size: 9px; letter-spacing: 0.32em;
+      color: var(--muted); text-transform: uppercase;
+    }
+
+    /* Energy gauge */
+    .energy-gauge {
+      width: 130px; height: 130px;
+      margin: 0 auto;
+      position: relative; display: grid; place-items: center;
+    }
+    .energy-gauge .ring-bg {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 6px solid rgba(69, 231, 255, 0.1);
+    }
+    .energy-gauge .ring-fg {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent) 0deg, var(--accent-hot) 270deg, rgba(69, 231, 255, 0.08) 270deg, rgba(69, 231, 255, 0.08) 360deg);
+      mask: radial-gradient(circle, transparent 56%, #000 57%, #000 70%, transparent 71%);
+      filter: drop-shadow(0 0 10px rgba(69, 231, 255, 0.6));
+    }
+    .energy-gauge .core {
+      width: 70%; height: 70%; border-radius: 50%;
+      background: radial-gradient(circle, rgba(4, 16, 22, 0.9), rgba(0, 0, 0, 0.7));
+      border: 1px solid rgba(69, 231, 255, 0.36);
+      display: grid; place-items: center;
+      font-family: var(--display);
+      font-size: 22px; font-weight: 500;
+      color: var(--accent-hot);
+      text-shadow: 0 0 14px rgba(69, 231, 255, 0.7);
+    }
+    .energy-gauge .lbl {
+      position: absolute; bottom: -18px; left: 0; right: 0; text-align: center;
+      font-family: var(--mono); font-size: 9px; letter-spacing: 0.32em;
+      color: var(--muted); text-transform: uppercase;
+    }
+
+    /* Mini gauges (CPU/RAM/SWAP small dials) */
+    .dial-row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .dial {
+      position: relative; aspect-ratio: 1;
+      display: grid; place-items: center;
+    }
+    .dial .ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 4px solid rgba(69, 231, 255, 0.1);
+    }
+    .dial .fill {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(var(--accent) var(--p, 30%), rgba(69, 231, 255, 0.08) var(--p, 30%));
+      mask: radial-gradient(circle, transparent 60%, #000 61%, #000 76%, transparent 77%);
+      filter: drop-shadow(0 0 6px var(--accent));
+    }
+    .dial.warn .fill {
+      background: conic-gradient(var(--accent-2) var(--p, 30%), rgba(255, 189, 85, 0.08) var(--p, 30%));
+      filter: drop-shadow(0 0 6px var(--accent-2));
+    }
+    .dial.hot .fill {
+      background: conic-gradient(var(--danger) var(--p, 30%), rgba(255, 95, 109, 0.08) var(--p, 30%));
+      filter: drop-shadow(0 0 6px var(--danger));
+    }
+    .dial .v {
+      font-family: var(--mono);
+      font-size: 14px; font-weight: 600;
+      color: var(--text);
+      z-index: 2;
+    }
+    .dial .l {
+      position: absolute; bottom: -14px; left: 0; right: 0; text-align: center;
+      font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em;
+      color: var(--muted-faint); text-transform: uppercase;
+    }
+
+    /* Disk/storage bar */
+    .storage {
+      padding: 12px;
+      border: 1px solid rgba(69, 231, 255, 0.18);
+      background: rgba(2, 11, 16, 0.6);
+      border-radius: 2px;
+    }
+    .storage .row {
+      display: flex; justify-content: space-between;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.16em; color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .storage .row b { color: var(--accent); }
+    .storage .seg {
+      height: 8px;
+      display: flex; gap: 2px;
+      background: rgba(69, 231, 255, 0.06);
+      border-radius: 1px;
+      margin: 6px 0 8px;
+      padding: 1px;
+    }
+    .storage .seg span {
+      flex: 1; background: rgba(69, 231, 255, 0.12); border-radius: 1px;
+    }
+    .storage .seg span.on {
+      background: linear-gradient(90deg, var(--accent), var(--accent-hot));
+      box-shadow: 0 0 4px var(--accent);
+    }
+    .storage .seg span.warn {
+      background: var(--accent-2);
+      box-shadow: 0 0 4px var(--accent-2);
+    }
+
+    /* Center stage: huge reactor with silhouette */
+    .desk-center {
+      position: relative;
+      display: grid; place-items: center;
+      min-height: 760px;
+      padding: 24px;
+    }
+    .silhouette {
+      position: absolute;
+      width: 360px; height: 460px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.22;
+      z-index: 1;
+      filter: drop-shadow(0 0 24px rgba(69, 231, 255, 0.4));
+    }
+
+    .mega-reactor {
+      position: relative;
+      width: min(640px, 80%); aspect-ratio: 1;
+      display: grid; place-items: center;
+      z-index: 2;
+    }
+    .mega-reactor .ring {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(69, 231, 255, 0.4);
+    }
+    .mega-reactor .r-out {
+      width: 100%; height: 100%;
+      border: 1px dashed rgba(255, 189, 85, 0.32);
+      animation: spinR 80s linear infinite;
+    }
+    .mega-reactor .r-1 {
+      width: 92%; height: 92%;
+      animation: spin 32s linear infinite;
+      border-top-color: rgba(255, 255, 255, 0.85);
+      border-right-color: rgba(69, 231, 255, 0.85);
+      border-bottom-color: rgba(36, 112, 255, 0.7);
+      box-shadow: inset 0 0 30px rgba(69, 231, 255, 0.1);
+    }
+    .mega-reactor .r-2 {
+      width: 82%; height: 82%;
+      animation: spinR 22s linear infinite;
+      border-style: dotted;
+      border-color: rgba(69, 231, 255, 0.5);
+    }
+    .mega-reactor .r-3 {
+      width: 70%; height: 70%;
+      animation: spin 18s linear infinite;
+      border-color: rgba(69, 231, 255, 0.7);
+      box-shadow: 0 0 16px rgba(69, 231, 255, 0.2);
+    }
+    .mega-reactor .r-4 {
+      width: 56%; height: 56%;
+      border-color: rgba(115, 255, 189, 0.5);
+      animation: spinR 14s linear infinite;
+      border-style: dashed;
+    }
+    .mega-reactor .r-5 {
+      width: 42%; height: 42%;
+      border-color: rgba(69, 231, 255, 0.7);
+      box-shadow: 0 0 12px rgba(69, 231, 255, 0.4);
+    }
+    .mega-reactor .r-6 {
+      width: 28%; height: 28%;
+      border-color: rgba(255, 255, 255, 0.6);
+      animation: spin 9s linear infinite;
+      border-top-color: rgba(255, 189, 85, 0.7);
+    }
+    .mega-reactor .core-orb {
+      width: 18%; aspect-ratio: 1; border-radius: 50%;
+      background: radial-gradient(circle at 50% 40%, #f3ffff 0 8%, #6df3ff 14% 28%, rgba(30, 120, 220, 0.7) 50%, rgba(6, 21, 35, 0.95) 75%);
+      box-shadow: 0 0 60px rgba(69, 231, 255, 0.9), inset 0 0 30px rgba(255, 255, 255, 0.3);
+      animation: pulse 3.4s ease-in-out infinite;
+      z-index: 3;
+    }
+
+    /* Tick marks around outer ring */
+    .tick-ring {
+      position: absolute; inset: -2%;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .tick-ring .tk {
+      position: absolute; top: 50%; left: 50%;
+      width: 100%; height: 1px;
+      transform-origin: 0 0;
+    }
+    .tick-ring .tk::before {
+      content: "";
+      position: absolute;
+      right: 0;
+      width: 10px; height: 2px;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      opacity: 0.7;
+    }
+    .tick-ring .tk.major::before {
+      width: 18px; height: 2px;
+      background: var(--accent-hot);
+      box-shadow: 0 0 10px var(--accent-hot);
+      opacity: 1;
+    }
+
+    /* Arc text labels */
+    .arc-label {
+      position: absolute;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-shadow: 0 0 8px rgba(var(--glow-rgb), 0.7);
+      z-index: 5;
+    }
+    .arc-label.tl { top: 26%; left: 12%; transform: rotate(-30deg); }
+    .arc-label.tr { top: 26%; right: 12%; transform: rotate(30deg); }
+    .arc-label.bl { bottom: 28%; left: 8%; transform: rotate(30deg); }
+    .arc-label.br { bottom: 28%; right: 8%; transform: rotate(-30deg); }
+
+    /* Mini sub-gauges around reactor */
+    .sub-gauge {
+      position: absolute;
+      width: 110px; height: 110px;
+      z-index: 5;
+      display: grid; place-items: center;
+    }
+    .sub-gauge.tl { top: 8%; left: 6%; }
+    .sub-gauge.tr { top: 8%; right: 6%; }
+    .sub-gauge.bl { bottom: 8%; left: 6%; }
+    .sub-gauge.br { bottom: 8%; right: 6%; }
+    .sub-gauge .ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 1px solid rgba(69, 231, 255, 0.36);
+      box-shadow: inset 0 0 10px rgba(69, 231, 255, 0.18), 0 0 10px rgba(69, 231, 255, 0.16);
+    }
+    .sub-gauge .ring.dotted { border-style: dotted; }
+    .sub-gauge .arc {
+      position: absolute; inset: 6px; border-radius: 50%;
+      background: conic-gradient(var(--accent-hot) var(--p, 60%), transparent var(--p, 60%));
+      mask: radial-gradient(circle, transparent 52%, #000 53%, #000 70%, transparent 71%);
+      filter: drop-shadow(0 0 5px var(--accent));
+    }
+    .sub-gauge .lbl {
+      font-family: var(--mono);
+      font-size: 9px; letter-spacing: 0.22em;
+      color: var(--accent); text-align: center;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+    .sub-gauge .lbl b { color: var(--text); font-size: 14px; font-weight: 600; display: block; margin-top: 2px; }
+
+    /* Bottom info panels (USB, DISK) */
+    .info-panels {
+      position: absolute; bottom: 24px; left: 0; right: 0;
+      display: flex; justify-content: space-between; gap: 16px;
+      padding: 0 8%;
+      z-index: 6;
+    }
+    .info-panel {
+      flex: 1; max-width: 240px;
+      padding: 10px 12px;
+      border: 1px solid rgba(69, 231, 255, 0.22);
+      background: rgba(2, 12, 16, 0.78);
+      border-radius: 2px;
+      font-family: var(--mono);
+      font-size: 10px; letter-spacing: 0.12em;
+      color: var(--text-dim);
+      clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    }
+    .info-panel h5 {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .info-panel .row {
+      display: flex; justify-content: space-between;
+      margin-bottom: 3px;
+    }
+    .info-panel .row b { color: var(--accent-3); font-weight: 500; }
+    .info-panel .row b.warn { color: var(--warn); }
+
+    /* Right column widgets */
+    .weather {
+      padding: 14px;
+      border: 1px solid rgba(69, 231, 255, 0.18);
+      background: rgba(2, 11, 16, 0.6);
+      border-radius: 2px;
+      position: relative;
+    }
+    .weather .head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+      font-family: var(--mono);
+      font-size: 10px; letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted-faint);
+    }
+    .weather .head b { color: var(--accent); }
+    .weather .now {
+      display: flex; align-items: center; gap: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed rgba(69, 231, 255, 0.14);
+    }
+    .weather .temp-orb {
+      width: 70px; height: 70px;
+      position: relative; display: grid; place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(69, 231, 255, 0.4);
+      box-shadow: inset 0 0 14px rgba(69, 231, 255, 0.12), 0 0 14px rgba(69, 231, 255, 0.2);
+    }
+    .weather .temp-orb::before {
+      content: ""; position: absolute; inset: 6px; border-radius: 50%;
+      border: 1px dashed rgba(69, 231, 255, 0.3);
+    }
+    .weather .temp-orb b {
+      font-family: var(--display);
+      font-size: 26px; font-weight: 500;
+      color: var(--text);
+      text-shadow: 0 0 12px rgba(69, 231, 255, 0.6);
+    }
+    .weather .temp-orb b sup { font-size: 12px; color: var(--accent); }
+    .weather .loc {
+      font-family: var(--display); font-size: 14px;
+      color: var(--text);
+    }
+    .weather .loc .sub {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; color: var(--muted);
+      text-transform: uppercase; margin-top: 4px;
+    }
+    .forecast {
+      display: grid; gap: 6px;
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+    .forecast .day-row {
+      display: grid;
+      grid-template-columns: 70px 18px 1fr auto;
+      gap: 8px; align-items: center;
+      padding: 4px 0;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .forecast .day-row span.lbl { color: var(--muted); font-size: 10px; }
+    .forecast .day-row .ic { color: var(--accent); }
+    .forecast .day-row .t { color: var(--text); font-weight: 500; }
+    .forecast .day-row .delta { color: var(--muted-faint); font-size: 10px; }
+
+    .news {
+      padding: 14px;
+      border: 1px solid rgba(69, 231, 255, 0.18);
+      background: rgba(2, 11, 16, 0.6);
+      border-radius: 2px;
+    }
+    .news h4 {
+      margin: 0 0 10px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      display: flex; justify-content: space-between;
+    }
+    .news h4 b { color: var(--accent-3); font-weight: 500; }
+    .news .item {
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(69, 231, 255, 0.1);
+    }
+    .news .item:last-child { border-bottom: 0; }
+    .news .item .when {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-faint);
+      margin-bottom: 3px;
+    }
+    .news .item .title {
+      font-family: var(--display);
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .news .item .title b { color: var(--accent); font-weight: 500; }
+
+    /* Bottom HUD dock */
+    .dock {
+      position: relative; z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 14px;
+      padding: 18px 28px 24px;
+      border-top: 1px solid rgba(69, 231, 255, 0.22);
+      background: linear-gradient(0deg, rgba(2, 8, 12, 0.92), rgba(4, 16, 22, 0.4));
+    }
+    .dock .btn {
+      position: relative;
+      aspect-ratio: 1;
+      max-width: 100px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid; place-items: center;
+      cursor: pointer;
+    }
+    .dock .btn .ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 1px solid rgba(69, 231, 255, 0.5);
+      background: radial-gradient(circle at 50% 40%, rgba(69, 231, 255, 0.18), rgba(4, 16, 22, 0.7) 70%);
+      box-shadow: inset 0 0 22px rgba(69, 231, 255, 0.12), 0 0 18px rgba(69, 231, 255, 0.18);
+      transition: 200ms;
+    }
+    .dock .btn .ring.inner {
+      inset: 14%;
+      border: 1px solid rgba(69, 231, 255, 0.6);
+      background: radial-gradient(circle, rgba(8, 38, 50, 0.85), rgba(2, 12, 16, 0.95));
+      box-shadow: inset 0 0 14px rgba(69, 231, 255, 0.25);
+    }
+    .dock .btn .ic {
+      position: relative; z-index: 2;
+      color: var(--accent-hot);
+      font-size: 24px;
+      text-shadow: 0 0 12px rgba(69, 231, 255, 0.8);
+    }
+    .dock .btn .lbl {
+      position: absolute;
+      bottom: -16px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .dock .btn:hover .ring {
+      border-color: var(--accent-hot);
+      box-shadow: inset 0 0 28px rgba(69, 231, 255, 0.22), 0 0 32px rgba(69, 231, 255, 0.4);
+      transform: scale(1.04);
+    }
+
+    /* Apps list (left column) */
+    .apps-list {
+      padding: 12px;
+      border: 1px solid rgba(69, 231, 255, 0.14);
+      background: rgba(2, 11, 16, 0.4);
+      border-radius: 2px;
+    }
+    .apps-list h5 {
+      margin: 0 0 8px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .apps-list .app {
+      display: grid;
+      grid-template-columns: 12px 1fr auto;
+      gap: 8px; align-items: center;
+      padding: 5px 4px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+    .apps-list .app .arr { color: var(--accent); }
+    .apps-list .app .ct { color: var(--muted-faint); font-size: 10px; }
+    .apps-list .app:hover { color: var(--text); }
+    .apps-list .app:hover .arr { color: var(--accent-hot); }
+
+    /* =========================================================
+       THEME PICKER (floating, persistent)
+       ========================================================= */
+    .theme-picker {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 10000;
+      padding: 10px 12px;
+      border: 1px solid var(--line-strong);
+      background: linear-gradient(180deg, rgba(4, 14, 20, 0.94), rgba(2, 8, 12, 0.92));
+      backdrop-filter: blur(8px);
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6), 0 0 18px rgba(var(--glow-rgb), 0.18);
+      display: flex; flex-direction: column; gap: 10px;
+      min-width: 220px;
+      transition: 200ms;
+    }
+    .theme-picker .tp-head {
+      display: flex; justify-content: space-between; align-items: center;
+      color: var(--accent);
+    }
+    .theme-picker .tp-head b { color: var(--text); font-weight: 600; }
+    .theme-picker .tp-swatches {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .theme-picker .sw {
+      cursor: pointer;
+      padding: 8px 6px;
+      border: 1px solid rgba(var(--glow-rgb), 0.2);
+      background: rgba(2, 11, 16, 0.6);
+      border-radius: 2px;
+      display: flex; flex-direction: column; gap: 5px;
+      align-items: center;
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      color: var(--muted-faint);
+      transition: 160ms;
+      position: relative;
+    }
+    .theme-picker .sw:hover {
+      border-color: var(--line-strong);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+    .theme-picker .sw.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(var(--glow-rgb), 0.12);
+      box-shadow: inset 0 0 10px rgba(var(--glow-rgb), 0.2);
+    }
+    .theme-picker .sw.active::after {
+      content: ""; position: absolute; top: 2px; right: 2px;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+    .theme-picker .sw .dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .theme-picker .sw[data-th="cyan"] .dot {
+      background: radial-gradient(circle, #fff 0 8%, #6df3ff 12% 50%, #1f6da0 100%);
+      box-shadow: 0 0 10px rgba(69, 231, 255, 0.7);
+    }
+    .theme-picker .sw[data-th="redgold"] .dot {
+      background: radial-gradient(circle, #fff7c8 0 8%, #ffd24f 16% 50%, #ff5f4d 100%);
+      box-shadow: 0 0 10px rgba(255, 122, 91, 0.7);
+    }
+    .theme-picker .sw[data-th="stealth"] .dot {
+      background: radial-gradient(circle, #ffffff 0 8%, #c8d8ff 20% 50%, #404870 100%);
+      box-shadow: 0 0 10px rgba(168, 196, 255, 0.6);
+    }
+    .theme-picker .sw[data-th="hulkbuster"] .dot {
+      background: radial-gradient(circle, #fff7c8 0 8%, #ffce4f 16% 50%, #6a3eb0 100%);
+      box-shadow: 0 0 10px rgba(255, 206, 79, 0.7);
+    }
+    .theme-picker .sw[data-th="warmachine"] .dot {
+      background: radial-gradient(circle, #ffffff 0 12%, #b8bec8 30% 50%, #20242b 100%);
+      box-shadow: 0 0 10px rgba(216, 222, 230, 0.6);
+    }
+    .theme-picker .sw[data-th="vapor"] .dot {
+      background: radial-gradient(circle, #fff 0 8%, #ff8be0 18% 50%, #8b5cff 100%);
+      box-shadow: 0 0 10px rgba(255, 92, 210, 0.7);
+    }
+    .theme-picker .tp-foot {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      color: var(--muted-faint);
+      text-align: center;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(var(--glow-rgb), 0.18);
+    }
+
+    /* =========================================================
+       ASSET-BACKED COMPONENTS (PNG/JPG references)
+       ========================================================= */
+    .asset, .themed-asset {
+      filter: var(--img-hue);
+      transition: filter 360ms ease;
+    }
+    .asset-dust {
+      filter: var(--img-dust);
+      transition: filter 360ms ease;
+    }
+
+    /* Iron Man hologram on Screen 04 */
+    .hologram-stage {
+      position: absolute;
+      inset: 0;
+      display: grid; place-items: center;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .hologram-stage .bg-ring {
+      position: absolute;
+      width: 90%; max-width: 760px;
+      aspect-ratio: 1;
+      object-fit: contain;
+      opacity: 0.45;
+      mix-blend-mode: screen;
+      filter: var(--img-hue) brightness(1.1);
+      animation: spin 48s linear infinite;
+      z-index: 1;
+    }
+    .hologram-stage .bg-ring.reverse {
+      animation: spinR 36s linear infinite;
+      opacity: 0.32;
+      width: 70%; max-width: 560px;
+    }
+    .hologram-stage .chest-reactor {
+      position: absolute;
+      width: 280px; height: 280px;
+      object-fit: contain;
+      opacity: 0.85;
+      mix-blend-mode: screen;
+      filter: var(--img-hue) brightness(1.1) drop-shadow(0 0 24px rgba(var(--glow-rgb), 0.7));
+      animation: pulse 3.2s ease-in-out infinite;
+      z-index: 3;
+      transform: translateY(-10%);
+    }
+    .hologram-stage .dust {
+      position: absolute;
+      width: 80%; max-width: 700px;
+      aspect-ratio: 1;
+      object-fit: contain;
+      opacity: 0.4;
+      mix-blend-mode: screen;
+      filter: var(--img-dust);
+      animation: dustFloat 12s ease-in-out infinite alternate;
+      z-index: 2;
+    }
+    @keyframes dustFloat {
+      0% { transform: translate(-2%, -1%) scale(1); opacity: 0.35; }
+      100% { transform: translate(2%, 1%) scale(1.04); opacity: 0.5; }
+    }
+    .hologram-stage .iron-man {
+      position: relative;
+      width: auto;
+      height: 78%;
+      max-height: 580px;
+      object-fit: contain;
+      filter: var(--img-hue) drop-shadow(0 0 20px rgba(var(--glow-rgb), 0.45));
+      animation: holoBob 5.6s ease-in-out infinite alternate;
+      z-index: 4;
+    }
+    @keyframes holoBob {
+      0% { transform: translateY(-4px); }
+      100% { transform: translateY(4px); }
+    }
+    .hologram-stage .iron-man::after {
+      content: "";
+    }
+    .hologram-base {
+      position: absolute;
+      bottom: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 320px; height: 60px;
+      pointer-events: none;
+      z-index: 2;
+      background: radial-gradient(ellipse at center, rgba(var(--glow-rgb), 0.65), transparent 60%);
+      filter: blur(6px);
+    }
+
+    /* Big JARVIS logo PNG (jarvis1.png) — replaces hero reactor on Screen 01 */
+    .jarvis-logo-asset {
+      position: relative;
+      width: 200px; height: 200px;
+      display: grid; place-items: center;
+      filter: var(--img-hue) drop-shadow(0 0 24px rgba(var(--glow-rgb), 0.55));
+      animation: logoFloat 6s ease-in-out infinite alternate;
+      z-index: 3;
+    }
+    .jarvis-logo-asset img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      position: relative;
+      z-index: 3;
+    }
+    .jarvis-logo-asset .logo-glow {
+      position: absolute;
+      inset: -22%;
+      width: 144%; height: 144%;
+      object-fit: contain;
+      opacity: 0.55;
+      mix-blend-mode: screen;
+      filter: var(--img-hue) brightness(1.2);
+      animation: spinR 30s linear infinite;
+      z-index: 1;
+    }
+    @keyframes logoFloat {
+      0% { transform: translateY(-3px); }
+      100% { transform: translateY(3px); }
+    }
+    .jarvis-logo-asset .halo {
+      position: absolute;
+      inset: -10%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(var(--glow-rgb), 0.22), transparent 60%);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    /* Decorative ornament (jarvis 2.png) */
+    .deco-ornament {
+      position: absolute;
+      width: 140px; height: 140px;
+      opacity: 0.6;
+      filter: var(--img-hue);
+      pointer-events: none;
+      animation: spinR 60s linear infinite;
+    }
+    .deco-ornament.tl { top: 14px; left: 14px; }
+    .deco-ornament.br { bottom: 14px; right: 14px; animation: spin 60s linear infinite; }
+
+    /* Reactor glyph ornament (jarvis 3.png) */
+    .reactor-glyph {
+      position: absolute;
+      width: 180px; height: 180px;
+      opacity: 0.5;
+      mix-blend-mode: screen;
+      filter: var(--img-hue) brightness(1.15);
+      pointer-events: none;
+      animation: spin 80s linear infinite;
+      z-index: 1;
+    }
+    .reactor-glyph.tr { top: 90px; right: -40px; }
+    .reactor-glyph.bl { bottom: 30px; left: -40px; animation: spinR 90s linear infinite; }
+
+    /* Background HUD assets (jarvis 4 / 6) blended for ambient texture */
+    .bg-asset {
+      position: absolute;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0.18;
+      filter: var(--img-hue) brightness(1.2);
+    }
+
+    /* Bottom corner status (uptime, IP) */
+    .corner-status {
+      padding: 10px 12px;
+      border: 1px solid rgba(69, 231, 255, 0.16);
+      background: rgba(2, 11, 16, 0.5);
+      border-radius: 2px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+    .corner-status .row {
+      display: flex; justify-content: space-between;
+      padding: 2px 0;
+    }
+    .corner-status .row b { color: var(--accent-hot); }
+
+    /* compact font-size override for tighter HUD */
+    .mono { font-family: var(--mono); }
+    .ucase { text-transform: uppercase; letter-spacing: 0.18em; font-family: var(--mono); }
+  </style>
+</head>
+<body data-theme="cyan">
+
+  <!-- THEME PICKER -->
+  <aside class="theme-picker" aria-label="Theme picker">
+    <div class="tp-head">
+      <span>◇ THEME</span>
+      <b id="tp-current">MARK XLII · CYAN</b>
+    </div>
+    <div class="tp-swatches">
+      <div class="sw active" data-th="cyan"><div class="dot"></div>MK XLII</div>
+      <div class="sw" data-th="redgold"><div class="dot"></div>RED · GOLD</div>
+      <div class="sw" data-th="stealth"><div class="dot"></div>STEALTH</div>
+      <div class="sw" data-th="hulkbuster"><div class="dot"></div>HULKBUST</div>
+      <div class="sw" data-th="warmachine"><div class="dot"></div>WAR · MCH</div>
+      <div class="sw" data-th="vapor"><div class="dot"></div>VAPOR</div>
+    </div>
+    <div class="tp-foot">SUIT · REACTOR · GLOW · LIVE-SWAP</div>
+  </aside>
+
+  <!-- BOOT SEQUENCE OVERLAY -->
+  <div class="boot-overlay" id="boot">
+    <div class="boot-inner">
+      <div class="big">J.A.R.V.I.S</div>
+      <div class="line">› Initializing Personal Intelligence Core</div>
+      <div class="line">› Mounting Knowledge Graph · 2,481 nodes loaded</div>
+      <div class="line">› Spinning AI Cores · OpenAI / Embeddings online</div>
+      <div class="line">› Calibrating Voice Channel · sub-200ms latency</div>
+      <div class="line">› Verifying Approval Gates · 3 pending</div>
+      <div class="line">› Synchronizing Memory Buffer · OK</div>
+      <div class="line">▮ System ready · welcome back, Nikhil.</div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="mockup-header">
+    <div><b>JARVIS</b> · UI MOCKUP · v0.1-preview</div>
+    <div>3 SCREENS · DASHBOARD · AGENTS · COMMAND</div>
+    <div>HYBRID MONO + DISPLAY · CINEMATIC LIVE</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SCREEN 1: DASHBOARD STANDBY                                  -->
+  <!-- ============================================================ -->
+  <div class="screen-label">SCREEN 01 / 03 · <b>Dashboard · Standby</b> · capture, retrieve, brief</div>
+  <div class="frame">
+    <div class="hud-bg">
+      <div class="hud-grid"></div>
+      <div class="hud-stars"></div>
+      <div class="hud-scanlines"></div>
+      <div class="hud-sweep"></div>
+      <div class="hud-corner tl"></div>
+      <div class="hud-corner tr"></div>
+      <div class="hud-corner bl"></div>
+      <div class="hud-corner br"></div>
+    </div>
+
+    <!-- TOP GLOBAL RAIL -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="crest"></div>
+        <span><b>J.A.R.V.I.S</b> <span class="sep">·</span> v4.7</span>
+        <span>SYS.UPLINK<b>::stable</b></span>
+        <span>PWR <b>1.21 GW</b></span>
+      </div>
+      <div class="topbar-center">
+        <span class="live-dot"></span>
+        <span class="ucase" style="color: var(--accent-3); font-weight: 600;">ONLINE · LISTENING STANDBY</span>
+        <span class="live-dot"></span>
+      </div>
+      <div class="topbar-right">
+        <div class="metric"><span>SES</span><b class="ok" id="ses">A3-7F</b></div>
+        <div class="metric"><span>USR</span><b>NIKHIL</b></div>
+        <div class="metric"><span>UPTIME</span><b id="uptime">00:02:14</b></div>
+      </div>
+    </div>
+
+    <!-- SUB TELEMETRY RAIL -->
+    <div class="subrail">
+      <div class="gauge"><label>CPU</label><div class="bar" style="--w: 18%;"></div><span class="val" id="cpu">18.0%</span></div>
+      <div class="gauge"><label>MEM</label><div class="bar warn" style="--w: 42%;"></div><span class="val warn" id="mem">42.0%</span></div>
+      <div class="gauge"><label>NET ↓</label><div class="bar" style="--w: 24%;"></div><span class="val" id="netd">12.4 MB/s</span></div>
+      <div class="gauge"><label>NET ↑</label><div class="bar" style="--w: 11%;"></div><span class="val" id="netu">4.1 MB/s</span></div>
+      <div class="gauge"><label>CORE LOAD</label><span class="val" id="core">14</span></div>
+      <div class="gauge"><label>ENV</label><span class="val" style="color: var(--muted);">darwin · 25.4.0</span></div>
+      <div class="spacer"></div>
+      <div class="gauge"><label>RAW</label><span class="val">2,481</span></div>
+      <div class="gauge"><label>KNOWLEDGE</label><span class="val">1,206</span></div>
+      <div class="gauge"><label>DEDUPED</label><span class="val">312</span></div>
+    </div>
+
+    <!-- SHELL -->
+    <div class="shell">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">▲</div>
+          <div class="brand-text">
+            <div class="name">JARVIS</div>
+            <div class="tag">PERSONAL · CORE</div>
+          </div>
+        </div>
+
+        <div class="mini-core">
+          <div class="ring outer"></div>
+          <div class="ring mid"></div>
+          <div class="ring inn"></div>
+          <span class="tick t1"></span>
+          <span class="tick t2"></span>
+          <span class="tick t3"></span>
+          <span class="tick t4"></span>
+          <div class="pulse"></div>
+        </div>
+
+        <div class="sys-stack">
+          <div class="sys-row"><span class="led"></span><span>INGESTION</span><b>ARMED</b></div>
+          <div class="sys-row"><span class="led warn"></span><span>AI CORE</span><b class="warn">STANDBY</b></div>
+          <div class="sys-row"><span class="led"></span><span>BRIEFING</span><b>LIVE</b></div>
+          <div class="sys-row"><span class="led idle"></span><span>VOICE</span><b class="idle">IDLE</b></div>
+        </div>
+
+        <div class="nav-header"><span>COMMANDS</span><b>11</b></div>
+        <nav class="nav">
+          <a class="active" href="#"><span class="cmd">CMD·01</span><span>DASHBOARD</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·02</span><span>CAPTURE</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·03</span><span>KNOWLEDGE</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·04</span><span>AGENTS</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·05</span><span>WORKFLOWS</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·06</span><span>RUNS</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·07</span><span>COMMAND</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·08</span><span>APPROVALS</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·09</span><span>CHAT</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·10</span><span>BRIEFING</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·11</span><span>SETTINGS</span><span class="chev">›</span></a>
+        </nav>
+      </aside>
+
+      <!-- STAGE -->
+      <main class="stage">
+        <div class="stage-head">
+          <div>
+            <div class="eyebrow">COMMAND CENTER // MAINFRAME · OPERATOR-1</div>
+            <h1>Personal intelligence core <b>online</b>.</h1>
+            <p class="sub">Capture, classify, deduplicate, retrieve, brief, and convert your saved universe into decisions. Standing by for instructions.</p>
+          </div>
+          <div class="meta">
+            <div>FILE-Δ001</div>
+            <div>CLASS::<b>ALPHA</b></div>
+            <div>2026-05-18 · 14:21:33Z</div>
+            <div>LOC <b>40.71° N · 74.00° W</b></div>
+          </div>
+        </div>
+
+        <!-- HERO -->
+        <section class="hero">
+          <div class="hero-rail-top">
+            <span><span class="pill">AUTO STARTUP</span></span>
+            <span><b>SYSTEM 2.0</b> · INTERFACE ACTIVE</span>
+            <span><span class="pill">VOICE READY</span></span>
+          </div>
+
+          <div class="hero-side">
+            <div class="cmd-pill primary">
+              <span class="ic">✸</span>
+              <div class="lbl"><span class="cmdid">CMD · 01</span><span class="ttl">GREETING</span></div>
+              <span class="ch">›</span>
+            </div>
+            <div class="cmd-pill">
+              <span class="ic">⚡</span>
+              <div class="lbl"><span class="cmdid">CMD · 02</span><span class="ttl">BATTERY</span></div>
+              <span class="ch">›</span>
+            </div>
+            <div class="cmd-pill">
+              <span class="ic">▤</span>
+              <div class="lbl"><span class="cmdid">CMD · 03</span><span class="ttl">SYSTEM INFO</span></div>
+              <span class="ch">›</span>
+            </div>
+          </div>
+
+          <div class="hero-core">
+            <div class="orb-system">
+              <div class="ring r4"></div>
+              <div class="ring r1"></div>
+              <div class="ring r2"></div>
+              <div class="ring r3"></div>
+            </div>
+            <div class="waveform" id="waveform"></div>
+            <!-- JARVIS logo asset (jarvis1.png) + arc reactor halo (jarvis 6.png) -->
+            <div class="jarvis-logo-asset" style="position: absolute; bottom: 0;">
+              <div class="halo"></div>
+              <img class="logo-glow" src="../images/jarvis%206.png" alt="" aria-hidden="true" />
+              <img src="../images/jarvis1.png" alt="JARVIS core" />
+            </div>
+            <div class="hero-status">
+              <span class="dot"></span> LISTENING STANDBY
+            </div>
+          </div>
+
+          <div class="hero-side" style="align-items: flex-end;">
+            <div class="cmd-pill">
+              <span class="ic">❝</span>
+              <div class="lbl"><span class="cmdid">CMD · 04</span><span class="ttl">QUOTES</span></div>
+              <span class="ch">›</span>
+            </div>
+            <div class="cmd-pill">
+              <span class="ic">⟨/⟩</span>
+              <div class="lbl"><span class="cmdid">CMD · 05</span><span class="ttl">BACKGROUND</span></div>
+              <span class="ch">›</span>
+            </div>
+            <div class="cmd-pill">
+              <span class="ic">ⓘ</span>
+              <div class="lbl"><span class="cmdid">CMD · 06</span><span class="ttl">VERSION</span></div>
+              <span class="ch">›</span>
+            </div>
+          </div>
+
+          <div class="hero-rail-bottom">
+            <div class="chip"><span class="ico">◉</span> VOICE CHANNEL ARMED</div>
+            <button class="btn-danger">◆ ACTIVATE COMMAND MODE</button>
+            <div class="chip"><span class="ico">🎙</span> SPEECH INPUT QUEUED</div>
+            <div class="chip"><span class="ico">♪</span> VOICE OUTPUT OPTIONAL</div>
+          </div>
+        </section>
+
+        <!-- STATS BELOW HERO -->
+        <section class="grid-2" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+          <div class="panel">
+            <div class="panel-head"><h3>RAW ITEMS</h3><span class="tag">Δ +28</span></div>
+            <div style="font-size: 32px; color: var(--accent); font-weight: 500; text-shadow: 0 0 18px rgba(69,231,255,0.4); font-family: var(--display);">2,481</div>
+            <div class="ucase" style="color: var(--muted); font-size: 10px; margin-top: 4px;">CAPTURED SIGNALS</div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>KNOWLEDGE</h3><span class="tag">Δ +14</span></div>
+            <div style="font-size: 32px; color: var(--accent-3); font-weight: 500; text-shadow: 0 0 18px rgba(115,255,189,0.4); font-family: var(--display);">1,206</div>
+            <div class="ucase" style="color: var(--muted); font-size: 10px; margin-top: 4px;">MEMORY NODES</div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>DUPLICATES</h3><span class="tag">Δ +3</span></div>
+            <div style="font-size: 32px; color: var(--accent-2); font-weight: 500; text-shadow: 0 0 18px rgba(255,189,85,0.4); font-family: var(--display);">312</div>
+            <div class="ucase" style="color: var(--muted); font-size: 10px; margin-top: 4px;">SIGNAL ECHOES</div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>CHANNELS</h3><span class="tag">ALL OK</span></div>
+            <div style="font-size: 32px; color: var(--text); font-weight: 500; font-family: var(--display);">4 / 4</div>
+            <div class="ucase" style="color: var(--muted); font-size: 10px; margin-top: 4px;">INPUT PATHS</div>
+          </div>
+        </section>
+      </main>
+
+      <!-- RIGHT RAIL -->
+      <aside class="rightrail">
+        <div class="panel">
+          <div class="panel-head"><h3>MISSION BRIEFING</h3><span class="tag">FILE-001</span></div>
+          <div class="file-card">
+            <div class="fhead"><span>FILE-001</span> <span><b>ACTIVE</b></span></div>
+            <div class="ftitle">Recipe stack ready for meal plan</div>
+            <div class="fdesc">12 saved recipes match this week's protein target. Plan?</div>
+            <div class="fmeta">
+              <span class="alpha">CLASS::ALPHA</span>
+              <span>FOOD</span>
+              <span>CONF 0.92</span>
+            </div>
+          </div>
+          <div class="file-card">
+            <div class="fhead"><span>FILE-002</span> <span><b>PENDING</b></span></div>
+            <div class="ftitle">3 saved jobs match profile</div>
+            <div class="fdesc">Senior AI eng roles · resume gap detected on infra.</div>
+            <div class="fmeta">
+              <span class="warn">REVIEW</span>
+              <span>JOBS</span>
+              <span>CONF 0.87</span>
+            </div>
+          </div>
+          <div class="file-card">
+            <div class="fhead"><span>FILE-003</span> <span><b>QUEUED</b></span></div>
+            <div class="ftitle">Creatine claims need updating</div>
+            <div class="fdesc">5 saved posts; newer evidence available. Research?</div>
+            <div class="fmeta">
+              <span>HEALTH</span>
+              <span>5 SOURCES</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>KNOWLEDGE SECTORS</h3><span class="tag">6 LIVE</span></div>
+          <div class="sector-row"><span class="ic">◈</span><span>FOOD</span><span class="ct">412</span><span class="arr">›</span></div>
+          <div class="sector-row"><span class="ic">◉</span><span>WORKOUT</span><span class="ct">198</span><span class="arr">›</span></div>
+          <div class="sector-row"><span class="ic">◆</span><span>TECH</span><span class="ct">624</span><span class="arr">›</span></div>
+          <div class="sector-row"><span class="ic">◇</span><span>PRODUCTS</span><span class="ct">256</span><span class="arr">›</span></div>
+          <div class="sector-row"><span class="ic">▲</span><span>JOBS</span><span class="ct">73</span><span class="arr">›</span></div>
+          <div class="sector-row"><span class="ic">▢</span><span>MISC</span><span class="ct">144</span><span class="arr">›</span></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SCREEN 2: AGENTS CONTROL ROOM                                -->
+  <!-- ============================================================ -->
+  <div class="screen-label">SCREEN 02 / 04 · <b>Agents · Control Room</b> · delegated workflow command layer</div>
+  <div class="frame">
+    <div class="hud-bg">
+      <div class="hud-grid"></div>
+      <div class="hud-stars"></div>
+      <div class="hud-scanlines"></div>
+      <div class="hud-sweep"></div>
+      <div class="hud-corner tl"></div>
+      <div class="hud-corner tr"></div>
+      <div class="hud-corner bl"></div>
+      <div class="hud-corner br"></div>
+    </div>
+    <img class="reactor-glyph tr" src="../images/jarvis%203.png" alt="" aria-hidden="true" />
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="crest"></div>
+        <span><b>J.A.R.V.I.S</b> <span class="sep">·</span> AGENT BAY</span>
+        <span>ROUTING<b>::active</b></span>
+        <span>6 AGENTS · 4 ONLINE</span>
+      </div>
+      <div class="topbar-center">
+        <span class="live-dot"></span>
+        <span class="ucase" style="color: var(--accent-3); font-weight: 600;">DELEGATION READY</span>
+        <span class="live-dot"></span>
+      </div>
+      <div class="topbar-right">
+        <div class="metric"><span>QUEUE</span><b class="warn">3</b></div>
+        <div class="metric"><span>RUNNING</span><b class="ok">2</b></div>
+        <div class="metric"><span>FAILED</span><b>0</b></div>
+      </div>
+    </div>
+
+    <div class="subrail">
+      <div class="gauge"><label>P50 LATENCY</label><div class="bar" style="--w: 22%;"></div><span class="val">220ms</span></div>
+      <div class="gauge"><label>P95</label><div class="bar warn" style="--w: 56%;"></div><span class="val warn">812ms</span></div>
+      <div class="gauge"><label>TOKENS/MIN</label><span class="val">14,302</span></div>
+      <div class="gauge"><label>APPROVALS PENDING</label><span class="val warn">3</span></div>
+      <div class="spacer"></div>
+      <div class="gauge"><label>ROUTER MODEL</label><span class="val">gpt-4o</span></div>
+      <div class="gauge"><label>EMBEDDINGS</label><span class="val">text-embedding-3-large</span></div>
+    </div>
+
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">▲</div>
+          <div class="brand-text">
+            <div class="name">JARVIS</div>
+            <div class="tag">AGENT · BAY</div>
+          </div>
+        </div>
+        <div class="mini-core">
+          <div class="ring outer"></div>
+          <div class="ring mid"></div>
+          <div class="ring inn"></div>
+          <span class="tick t1"></span><span class="tick t2"></span>
+          <span class="tick t3"></span><span class="tick t4"></span>
+          <div class="pulse"></div>
+        </div>
+        <div class="sys-stack">
+          <div class="sys-row"><span class="led"></span><span>EMAIL AGT</span><b>ONLINE</b></div>
+          <div class="sys-row"><span class="led"></span><span>CALENDAR</span><b>ONLINE</b></div>
+          <div class="sys-row"><span class="led warn"></span><span>CONTACTS</span><b class="warn">DEGRADED</b></div>
+          <div class="sys-row"><span class="led"></span><span>RESEARCH</span><b>ONLINE</b></div>
+          <div class="sys-row"><span class="led idle"></span><span>EXPENSE</span><b class="idle">IDLE</b></div>
+          <div class="sys-row"><span class="led"></span><span>CALC/LOGIC</span><b>ONLINE</b></div>
+        </div>
+        <div class="nav-header"><span>COMMANDS</span><b>11</b></div>
+        <nav class="nav">
+          <a href="#"><span class="cmd">CMD·01</span><span>DASHBOARD</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·02</span><span>CAPTURE</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·03</span><span>KNOWLEDGE</span><span class="chev">›</span></a>
+          <a class="active" href="#"><span class="cmd">CMD·04</span><span>AGENTS</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·05</span><span>WORKFLOWS</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·06</span><span>RUNS</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·07</span><span>COMMAND</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·08</span><span>APPROVALS</span><span class="chev">›</span></a>
+        </nav>
+      </aside>
+
+      <main class="stage" style="grid-column: 2 / -1;">
+        <div class="stage-head">
+          <div>
+            <div class="eyebrow">AGENT ECOSYSTEM // EXPANSION BAY</div>
+            <h1>Delegated <b>workflow command</b> layer.</h1>
+            <p class="sub">Six modules online. Approval gates engaged on impactful actions. Voice channel and Telegram bridge optional.</p>
+          </div>
+          <div class="meta">
+            <div>BAY · 04 / EXP</div>
+            <div>CLASS::<b>ALPHA</b></div>
+            <div>OPS · 6 / 6 ARMED</div>
+            <div>ROUTING <b>gpt-4o</b></div>
+          </div>
+        </div>
+
+        <section class="module-grid">
+          <article class="module">
+            <div class="module-head">
+              <div class="module-id"><span class="bracket">⟦</span> MODULE-01 <span class="bracket">⟧</span> <span class="open">› OPEN</span></div>
+              <div class="module-status"><span class="led"></span>ONLINE</div>
+            </div>
+            <h3>Email Automation</h3>
+            <p class="desc">Draft, summarize, categorize, and route email after approval. Never sends without your nod.</p>
+            <div class="caps">
+              <span>DRAFT</span><span>SUMMARIZE</span><span>CATEGORIZE</span><span>ROUTE</span><span>FOLLOW-UP</span>
+            </div>
+            <div class="telemetry"><span>P50 <b>180ms</b></span><span>RUNS <b>42</b></span><span>APPROVALS <b>2</b></span></div>
+          </article>
+
+          <article class="module">
+            <div class="module-head">
+              <div class="module-id"><span class="bracket">⟦</span> MODULE-02 <span class="bracket">⟧</span> <span class="open">› OPEN</span></div>
+              <div class="module-status"><span class="led"></span>ONLINE</div>
+            </div>
+            <h3>Calendar Management</h3>
+            <p class="desc">Check availability, propose times, prepare meeting briefs. Confirms before any change.</p>
+            <div class="caps">
+              <span>AVAILABILITY</span><span>SCHEDULE</span><span>AGENDA</span><span>CONFLICT</span>
+            </div>
+            <div class="telemetry"><span>P50 <b>210ms</b></span><span>RUNS <b>18</b></span><span>APPROVALS <b>1</b></span></div>
+          </article>
+
+          <article class="module">
+            <div class="module-head">
+              <div class="module-id"><span class="bracket">⟦</span> MODULE-03 <span class="bracket">⟧</span> <span class="open">› OPEN</span></div>
+              <div class="module-status warn"><span class="led"></span>DEGRADED</div>
+            </div>
+            <h3>Contact Management</h3>
+            <p class="desc">Search, track relationships, prep context before outreach. Read-only by default.</p>
+            <div class="caps">
+              <span>SEARCH</span><span>NOTES</span><span>CONTEXT</span><span>OUTREACH</span>
+            </div>
+            <div class="telemetry"><span>P50 <b>340ms</b></span><span>RUNS <b>9</b></span><span>RETRIES <b class="warn">2</b></span></div>
+          </article>
+
+          <article class="module">
+            <div class="module-head">
+              <div class="module-id"><span class="bracket">⟦</span> MODULE-04 <span class="bracket">⟧</span> <span class="open">› OPEN</span></div>
+              <div class="module-status"><span class="led"></span>ONLINE</div>
+            </div>
+            <h3>AI Research</h3>
+            <p class="desc">Compare saved claims to current evidence. Separates external from saved knowledge.</p>
+            <div class="caps">
+              <span>WEB</span><span>EVIDENCE</span><span>COMPARE</span><span>CITE</span><span>GRAPH-ATTACH</span>
+            </div>
+            <div class="telemetry"><span>P50 <b>1.2s</b></span><span>RUNS <b>27</b></span><span>SOURCES <b>198</b></span></div>
+          </article>
+
+          <article class="module">
+            <div class="module-head">
+              <div class="module-id"><span class="bracket">⟦</span> MODULE-05 <span class="bracket">⟧</span> <span class="open">› IDLE</span></div>
+              <div class="module-status idle"><span class="led"></span>IDLE</div>
+            </div>
+            <h3>Expense Tracking</h3>
+            <p class="desc">Parse receipts, categorize, surface recurring spend. Sensitive data — never transmitted.</p>
+            <div class="caps">
+              <span>PARSE</span><span>CATEGORIZE</span><span>SUBSCRIPTIONS</span><span>MONTHLY</span>
+            </div>
+            <div class="telemetry"><span>P50 <b>—</b></span><span>RUNS <b>0</b></span><span>CONNECTOR <b>OFF</b></span></div>
+          </article>
+
+          <article class="module">
+            <div class="module-head">
+              <div class="module-id"><span class="bracket">⟦</span> MODULE-06 <span class="bracket">⟧</span> <span class="open">› OPEN</span></div>
+              <div class="module-status"><span class="led"></span>ONLINE</div>
+            </div>
+            <h3>Calculator &amp; Logic</h3>
+            <p class="desc">Deterministic math, conversions, business calculations. No LLM guesses where exactness matters.</p>
+            <div class="caps">
+              <span>MATH</span><span>UNITS</span><span>FX</span><span>MACROS</span><span>VOLUME</span>
+            </div>
+            <div class="telemetry"><span>P50 <b>12ms</b></span><span>RUNS <b>156</b></span><span>FAILED <b>0</b></span></div>
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><h3>EXECUTION TIMELINE · LIVE</h3><span class="tag">LAST 60s</span></div>
+          <div style="font-family: var(--mono); font-size: 12px; line-height: 1.9; color: var(--text-dim);">
+            <div><span style="color: var(--muted-faint);">14:21:02</span> <span style="color: var(--accent);">› ROUTE</span> command → <span style="color: var(--accent-3);">EMAIL AGT</span> · risk:LOW · approval:none</div>
+            <div><span style="color: var(--muted-faint);">14:21:07</span> <span style="color: var(--accent);">› DRAFT</span> reply to <span class="cite">acme.contracts</span> · 184 tokens · <span style="color: var(--accent-3);">OK</span></div>
+            <div><span style="color: var(--muted-faint);">14:21:14</span> <span style="color: var(--warn);">⚠ APPROVAL</span> required: send email · <span style="color: var(--accent-2);">awaiting operator</span></div>
+            <div><span style="color: var(--muted-faint);">14:21:33</span> <span style="color: var(--accent);">› ROUTE</span> "research creatine" → <span style="color: var(--accent-3);">RESEARCH AGT</span> · risk:LOW</div>
+            <div><span style="color: var(--muted-faint);">14:21:34</span> <span style="color: var(--accent);">› FETCH</span> 12 sources · saved:5 / external:7 · embeddings ready</div>
+            <div><span style="color: var(--muted-faint);">14:21:48</span> <span style="color: var(--accent-3);">✓ COMPLETE</span> · evidence summary attached to graph (FILE-003)</div>
+            <div><span style="color: var(--accent-hot);">›</span> awaiting next command<span class="cursor"></span></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SCREEN 3: COMMAND INTERFACE                                  -->
+  <!-- ============================================================ -->
+  <div class="screen-label">SCREEN 03 / 04 · <b>Command Interface</b> · natural-language router · approval gates</div>
+  <div class="frame">
+    <div class="hud-bg">
+      <div class="hud-grid"></div>
+      <div class="hud-stars"></div>
+      <div class="hud-scanlines"></div>
+      <div class="hud-sweep"></div>
+      <div class="hud-corner tl"></div>
+      <div class="hud-corner tr"></div>
+      <div class="hud-corner bl"></div>
+      <div class="hud-corner br"></div>
+    </div>
+    <img class="reactor-glyph bl" src="../images/jarvis%203.png" alt="" aria-hidden="true" />
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="crest"></div>
+        <span><b>J.A.R.V.I.S</b> · COMMAND</span>
+        <span>NLU<b>::ready</b></span>
+        <span>CTX BUFFER <b>14 turns</b></span>
+      </div>
+      <div class="topbar-center">
+        <span class="live-dot"></span>
+        <span class="ucase" style="color: var(--accent-3); font-weight: 600;">LISTENING · TYPE OR SPEAK</span>
+        <span class="live-dot"></span>
+      </div>
+      <div class="topbar-right">
+        <div class="metric"><span>TURN</span><b>03</b></div>
+        <div class="metric"><span>TOKENS</span><b>1,284</b></div>
+        <div class="metric"><span>CACHE</span><b class="ok">HIT</b></div>
+      </div>
+    </div>
+
+    <div class="subrail">
+      <div class="gauge"><label>INTENT</label><span class="val">RESEARCH</span></div>
+      <div class="gauge"><label>RISK</label><span class="val">LOW</span></div>
+      <div class="gauge"><label>CONFIDENCE</label><div class="bar" style="--w: 88%;"></div><span class="val ok">0.88</span></div>
+      <div class="gauge"><label>APPROVAL</label><span class="val">NONE</span></div>
+      <div class="spacer"></div>
+      <div class="gauge"><label>AGENT</label><span class="val">RESEARCH</span></div>
+      <div class="gauge"><label>MEMORY</label><span class="val">2,481 nodes</span></div>
+    </div>
+
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">▲</div>
+          <div class="brand-text">
+            <div class="name">JARVIS</div>
+            <div class="tag">COMMAND · ROUTER</div>
+          </div>
+        </div>
+        <div class="mini-core">
+          <div class="ring outer"></div>
+          <div class="ring mid"></div>
+          <div class="ring inn"></div>
+          <span class="tick t1"></span><span class="tick t2"></span>
+          <span class="tick t3"></span><span class="tick t4"></span>
+          <div class="pulse"></div>
+        </div>
+        <div class="sys-stack">
+          <div class="sys-row"><span class="led"></span><span>NLU</span><b>READY</b></div>
+          <div class="sys-row"><span class="led"></span><span>MEMORY</span><b>LIVE</b></div>
+          <div class="sys-row"><span class="led idle"></span><span>VOICE STT</span><b class="idle">IDLE</b></div>
+          <div class="sys-row"><span class="led idle"></span><span>VOICE TTS</span><b class="idle">IDLE</b></div>
+        </div>
+        <div class="nav-header"><span>COMMANDS</span><b>11</b></div>
+        <nav class="nav">
+          <a href="#"><span class="cmd">CMD·01</span><span>DASHBOARD</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·03</span><span>KNOWLEDGE</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·04</span><span>AGENTS</span><span class="chev">›</span></a>
+          <a class="active" href="#"><span class="cmd">CMD·07</span><span>COMMAND</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·08</span><span>APPROVALS</span><span class="chev">›</span></a>
+          <a href="#"><span class="cmd">CMD·09</span><span>CHAT</span><span class="chev">›</span></a>
+        </nav>
+      </aside>
+
+      <main class="stage" style="grid-column: 2 / -1;">
+        <div class="stage-head">
+          <div>
+            <div class="eyebrow">COMMAND CHANNEL // OPERATOR INPUT</div>
+            <h1>Tell me what you need, <b>operator</b>.</h1>
+            <p class="sub">Natural-language commands route into agents, workflows, or research. Risky actions wait at the approval gate.</p>
+          </div>
+          <div class="meta">
+            <div>CHANNEL · WEB</div>
+            <div>BUFFER · 14 TURNS</div>
+            <div>VOICE · OPTIONAL</div>
+          </div>
+        </div>
+
+        <section class="cmd-layout">
+          <div class="terminal">
+            <div class="line"><span class="sys">[14:18:02] session A3-7F · operator authenticated · context loaded</span></div>
+            <div class="line"><span class="sys">[14:18:02] memory buffer: 14 turns · knowledge graph: 2,481 nodes · 6 agents online</span></div>
+            <div class="line">&nbsp;</div>
+            <div class="line"><span class="prompt">operator ›</span> <span class="you">summarize my unread important emails</span></div>
+            <div class="line"><span class="sys">› routing → EMAIL agent · intent:SUMMARIZE · risk:LOW · approval:none</span></div>
+            <div class="line"><span class="ai">Jarvis ›</span> <span class="ok">3 high-priority threads.</span> Acme renewal due Friday <span class="cite">EML-118</span>, vendor invoice mismatch <span class="cite">EML-122</span>, interview confirm from Replicate <span class="cite">EML-129</span>. Drafts queued — say "send" to release.</div>
+            <div class="line">&nbsp;</div>
+            <div class="line"><span class="prompt">operator ›</span> <span class="you">research what's new on creatine since I last saved</span></div>
+            <div class="line"><span class="sys">› routing → RESEARCH agent · intent:RESEARCH · risk:LOW · approval:none</span></div>
+            <div class="line"><span class="sys">› scanning 5 saved posts · fetching 7 external sources · running comparison</span></div>
+            <div class="line"><span class="ai">Jarvis ›</span> Your saved stack favors 5g/day mono. <span class="warn">Two newer reviews suggest 0.1g/kg for lean mass &gt; 80kg</span> — that's ~9g/day for you. Sources <span class="cite">SRC-04</span><span class="cite">SRC-07</span>. Attached to <span class="cite">FILE-003</span>.</div>
+            <div class="line">&nbsp;</div>
+            <div class="line"><span class="prompt">operator ›</span> <span class="you">schedule a 30-min sync with Alex on Tuesday afternoon</span></div>
+            <div class="line"><span class="sys">› routing → CALENDAR agent · intent:SCHEDULE · risk:MEDIUM · approval:REQUIRED</span></div>
+            <div class="line"><span class="ai">Jarvis ›</span> Proposed: <b style="color: var(--accent);">Tue May 20 · 14:30–15:00 PT</b> · Alex (alex@…) · Google Meet. <span class="warn">Awaiting your approval →</span></div>
+            <div class="line">&nbsp;</div>
+            <div class="line"><span class="prompt">operator ›</span><span class="cursor"></span></div>
+          </div>
+
+          <div class="routing-stack">
+            <div class="routing-card">
+              <h4>ACTIVE ROUTING</h4>
+              <dl class="kv">
+                <dt>Intent</dt><dd><b>SCHEDULE</b></dd>
+                <dt>Agent</dt><dd><b class="ok">CALENDAR</b></dd>
+                <dt>Workflow</dt><dd>book_meeting · v2</dd>
+                <dt>Risk</dt>
+                <dd>
+                  <b class="warn">MEDIUM</b>
+                  <div class="risk-meter">
+                    <span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span>
+                  </div>
+                </dd>
+                <dt>Confidence</dt><dd><b class="ok">0.92</b></dd>
+                <dt>Approval</dt><dd><b class="warn">REQUIRED</b></dd>
+                <dt>External</dt><dd>Google Calendar · alex@…</dd>
+              </dl>
+              <div class="approval-bar">
+                <button class="approve">◉ APPROVE &amp; SEND</button>
+                <button class="reject">✕ REJECT</button>
+              </div>
+            </div>
+
+            <div class="routing-card">
+              <h4>MEMORY CONTEXT</h4>
+              <div style="font-family: var(--mono); font-size: 11px; line-height: 1.7; color: var(--text-dim);">
+                <div><span style="color: var(--muted-faint);">[recall]</span> Alex = PM @ Acme · last sync 2 weeks ago</div>
+                <div><span style="color: var(--muted-faint);">[recall]</span> Tuesdays you block deep work until 13:00 PT</div>
+                <div><span style="color: var(--muted-faint);">[recall]</span> 14:30 PT is your usual sync window</div>
+              </div>
+            </div>
+
+            <div class="routing-card">
+              <h4>QUICK COMMANDS</h4>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <button class="approve" style="text-align: left; justify-content: flex-start;">› Brief me on today</button>
+                <button class="approve" style="text-align: left; justify-content: flex-start;">› Plan this week's workouts</button>
+                <button class="approve" style="text-align: left; justify-content: flex-start;">› Compare 3 saved laptops</button>
+                <button class="approve" style="text-align: left; justify-content: flex-start;">› Summarize unread important emails</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="input-bar">
+          <span class="chev">›</span>
+          <span class="placeholder">Tell Jarvis what to do… "draft a reply to acme", "find newer creatine evidence", "log this expense as software"</span>
+          <span class="mic"><span class="led"></span>VOICE READY</span>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SCREEN 04: JARVIS STANDBY DESKTOP (Iron Man OS feel)         -->
+  <!-- ============================================================ -->
+  <div class="screen-label">SCREEN 04 / 04 · <b>Jarvis Standby Desktop</b> · the full cinematic Iron Man feel</div>
+  <div class="frame desk">
+    <div class="hud-bg">
+      <div class="hud-grid"></div>
+      <div class="hud-stars"></div>
+      <div class="hud-scanlines"></div>
+      <div class="hud-sweep"></div>
+      <div class="hud-corner tl"></div>
+      <div class="hud-corner tr"></div>
+      <div class="hud-corner bl"></div>
+      <div class="hud-corner br"></div>
+    </div>
+
+    <!-- DAY-OF-MONTH CALENDAR RAIL -->
+    <div class="day-rail">
+      <div class="day">01</div><div class="day">02</div><div class="day">03</div>
+      <div class="day">04</div><div class="day">05</div><div class="day">06</div>
+      <div class="day">07</div><div class="day">08</div><div class="day">09</div>
+      <div class="day">10</div><div class="day">11</div><div class="day">12</div>
+      <div class="day">13</div><div class="day">14</div><div class="day">15</div>
+      <div class="day">16</div><div class="day">17</div>
+      <div class="day today">18</div>
+      <div class="day">19</div><div class="day">20</div><div class="day">21</div>
+      <div class="day">22</div><div class="day">23</div><div class="day">24</div>
+      <div class="day">25</div><div class="day">26</div><div class="day">27</div>
+      <div class="day">28</div><div class="day">29</div><div class="day">30</div>
+      <div class="stark">STARK · INDUSTRIES</div>
+    </div>
+
+    <!-- MUSIC / NOW PLAYING RAIL -->
+    <div class="music-rail">
+      <div class="now">
+        <span>NOW PLAYING</span>
+        <div class="eq"><span></span><span></span><span></span><span></span><span></span></div>
+        <b>Ambient Channel · 03</b>
+      </div>
+      <span>·</span>
+      <span>VOICE READY · LISTEN STANDBY</span>
+      <span>·</span>
+      <span id="deskClock">22 : 38</span>
+    </div>
+
+    <!-- BODY -->
+    <div class="desk-body">
+
+      <!-- LEFT COLUMN -->
+      <div class="desk-col left">
+        <div class="date-orb">
+          <div class="ring"></div>
+          <div class="ring mid"></div>
+          <div class="ring in"></div>
+          <div class="month">May · Mon</div>
+          <div class="num">18</div>
+          <div class="dow">2026 · WK 21</div>
+        </div>
+
+        <div class="energy-gauge">
+          <div class="ring-bg"></div>
+          <div class="ring-fg"></div>
+          <div class="core">100%</div>
+          <div class="lbl">ENERGY · CORE</div>
+        </div>
+
+        <div style="height: 14px;"></div>
+
+        <div class="storage">
+          <div class="row"><span>VOL · C</span><b>450 G</b></div>
+          <div class="seg">
+            <span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span>
+            <span class="on"></span><span class="on"></span><span class="on"></span><span></span>
+            <span></span><span></span>
+          </div>
+          <div class="row"><span>FREE</span><b>209 G</b></div>
+        </div>
+
+        <div class="storage">
+          <div class="row"><span>VOL · E</span><b>1.0 T</b></div>
+          <div class="seg">
+            <span class="on"></span><span class="on"></span><span class="warn"></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="row"><span>FREE</span><b>740 G</b></div>
+        </div>
+
+        <div class="apps-list">
+          <h5>QUICK ROUTINES</h5>
+          <div class="app"><span class="arr">›</span><span>BRIEF ME</span><span class="ct">CMD·B</span></div>
+          <div class="app"><span class="arr">›</span><span>PLAN WEEK</span><span class="ct">CMD·W</span></div>
+          <div class="app"><span class="arr">›</span><span>MEAL PLAN</span><span class="ct">CMD·F</span></div>
+          <div class="app"><span class="arr">›</span><span>WORKOUT SPLIT</span><span class="ct">CMD·X</span></div>
+          <div class="app"><span class="arr">›</span><span>JOB SCAN</span><span class="ct">CMD·J</span></div>
+        </div>
+
+        <div class="corner-status">
+          <div class="row"><span>UPTIME</span><b id="deskUp">04h 33m</b></div>
+          <div class="row"><span>IP</span><b>80.205.188.122</b></div>
+          <div class="row"><span>HOST</span><b>nikhil-core</b></div>
+          <div class="row"><span>SESSION</span><b>A3-7F</b></div>
+        </div>
+      </div>
+
+      <!-- CENTER STAGE -->
+      <div class="desk-center">
+        <!-- Iron Man hologram (PNG asset) + layered HUD rings + dust particles + base glow -->
+        <div class="hologram-stage">
+          <img class="bg-ring" src="../images/jarvis%204.png" alt="" aria-hidden="true" />
+          <img class="bg-ring reverse" src="../images/jarvis%206.png" alt="" aria-hidden="true" />
+          <img class="dust" src="../images/jarvis%205.webp" alt="" aria-hidden="true" />
+          <img class="chest-reactor" src="../images/jarvis%206.png" alt="" aria-hidden="true" />
+          <img class="iron-man" src="../images/iron-man-hologram.png" alt="Iron Man hologram standby" />
+          <div class="hologram-base"></div>
+        </div>
+
+        <!-- arc text labels (system diagnostics positioning) -->
+        <div class="arc-label tl">SYSTEM · DIAGNOSTICS</div>
+        <div class="arc-label tr">JARVIS · CORE · v4.7</div>
+        <div class="arc-label bl">AUX · FAN · OK</div>
+        <div class="arc-label br">FLIGHT · STABLE</div>
+
+        <!-- mega reactor -->
+        <div class="mega-reactor">
+          <div class="ring r-out"></div>
+          <div class="ring r-1"></div>
+          <div class="ring r-2"></div>
+          <div class="ring r-3"></div>
+          <div class="ring r-4"></div>
+          <div class="ring r-5"></div>
+          <div class="ring r-6"></div>
+          <div class="core-orb"></div>
+          <!-- tick marks generated by JS -->
+          <div class="tick-ring" id="tickRing"></div>
+        </div>
+
+        <!-- sub gauges in corners -->
+        <div class="sub-gauge tl">
+          <div class="ring"></div>
+          <div class="arc" style="--p: 36%;"></div>
+          <div class="lbl">CPU · FAN<b>36%</b></div>
+        </div>
+        <div class="sub-gauge tr">
+          <div class="ring dotted"></div>
+          <div class="arc" style="--p: 64%;"></div>
+          <div class="lbl">AUX · FAN<b>64%</b></div>
+        </div>
+        <div class="sub-gauge bl">
+          <div class="ring"></div>
+          <div class="arc" style="--p: 82%;"></div>
+          <div class="lbl">RPM · L<b>820</b></div>
+        </div>
+        <div class="sub-gauge br">
+          <div class="ring dotted"></div>
+          <div class="arc" style="--p: 88%;"></div>
+          <div class="lbl">RPM · R<b>880</b></div>
+        </div>
+
+        <!-- bottom info panels (USB INFO / DISK STATUS / DOWNLOAD UPLOAD) -->
+        <div class="info-panels">
+          <div class="info-panel">
+            <h5>USB INFO</h5>
+            <div class="row"><span>SLOT 1</span><b>OFFLINE</b></div>
+            <div class="row"><span>SLOT 2</span><b class="warn">SCANNING</b></div>
+            <div class="row"><span>BANDO EXT</span><b>4.7 G</b></div>
+          </div>
+          <div class="info-panel">
+            <h5>DISK STATUS</h5>
+            <div class="row"><span>READ</span><b>54%</b></div>
+            <div class="row"><span>WRITE</span><b class="warn">100%</b></div>
+            <div class="row"><span>HEALTH</span><b>OK</b></div>
+          </div>
+          <div class="info-panel">
+            <h5>NETWORK</h5>
+            <div class="row"><span>UP</span><b id="dUp">4.1 MB/s</b></div>
+            <div class="row"><span>DOWN</span><b id="dDn">12.4 MB/s</b></div>
+            <div class="row"><span>IP</span><b>80.205.188.122</b></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="desk-col right">
+        <div class="weather">
+          <div class="head"><span>WEATHER · LOCATION</span><b>LIVE</b></div>
+          <div class="now">
+            <div class="temp-orb"><b>72<sup>°</sup></b></div>
+            <div class="loc">
+              New York, US
+              <div class="sub">CLEAR · WIND 6 MPH</div>
+            </div>
+          </div>
+          <div class="forecast">
+            <div class="day-row"><span class="lbl">TUE 19</span><span class="ic">☀</span><span class="t">74°</span><span class="delta">/ 58°</span></div>
+            <div class="day-row"><span class="lbl">WED 20</span><span class="ic">⛅</span><span class="t">68°</span><span class="delta">/ 54°</span></div>
+            <div class="day-row"><span class="lbl">THU 21</span><span class="ic">☁</span><span class="t">62°</span><span class="delta">/ 50°</span></div>
+            <div class="day-row"><span class="lbl">FRI 22</span><span class="ic">☂</span><span class="t">58°</span><span class="delta">/ 49°</span></div>
+            <div class="day-row"><span class="lbl">SAT 23</span><span class="ic">☀</span><span class="t">66°</span><span class="delta">/ 52°</span></div>
+          </div>
+        </div>
+
+        <div class="panel" style="padding: 12px;">
+          <div class="panel-head"><h3>SYSTEM · CPU · MEM · SWAP</h3><span class="tag">LIVE</span></div>
+          <div class="dial-row" style="margin-top: 4px;">
+            <div class="dial"><div class="ring"></div><div class="fill" style="--p: 18%;"></div><span class="v" id="dialCpu">18%</span><span class="l">CPU</span></div>
+            <div class="dial warn"><div class="ring"></div><div class="fill" style="--p: 42%;"></div><span class="v" id="dialMem">42%</span><span class="l">MEM</span></div>
+            <div class="dial"><div class="ring"></div><div class="fill" style="--p: 16%;"></div><span class="v" id="dialSwap">16%</span><span class="l">SWAP</span></div>
+          </div>
+          <div style="height: 18px;"></div>
+          <div style="display: grid; gap: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase;">
+            <div style="display: flex; justify-content: space-between;"><span>TEMP · CORE</span><b style="color: var(--accent);">42°C</b></div>
+            <div style="display: flex; justify-content: space-between;"><span>POWER · DRAW</span><b style="color: var(--accent);">12.4 W</b></div>
+            <div style="display: flex; justify-content: space-between;"><span>UPTIME</span><b style="color: var(--accent);" id="deskUp2">04h 33m 12s</b></div>
+          </div>
+        </div>
+
+        <div class="news">
+          <h4>RECENT · CAPTURES <b>+ 28 TODAY</b></h4>
+          <div class="item">
+            <div class="when">14:21 · FOOD</div>
+            <div class="title"><b>Recipe</b> · High-protein chicken bowls</div>
+          </div>
+          <div class="item">
+            <div class="when">13:48 · TECH</div>
+            <div class="title"><b>Article</b> · Embedding model benchmarks</div>
+          </div>
+          <div class="item">
+            <div class="when">12:32 · JOBS</div>
+            <div class="title"><b>Role</b> · Senior AI Engineer · Replicate</div>
+          </div>
+          <div class="item">
+            <div class="when">11:09 · HEALTH</div>
+            <div class="title"><b>Post</b> · Updated creatine dosing evidence</div>
+          </div>
+          <div class="item">
+            <div class="when">09:14 · PRODUCT</div>
+            <div class="title"><b>Wishlist</b> · Mechanical keyboard alternatives</div>
+          </div>
+        </div>
+
+        <div class="news">
+          <h4>NOTES · UPCOMING <b>3 PENDING</b></h4>
+          <div class="item">
+            <div class="when">› TODAY · 14:30 PT</div>
+            <div class="title">Sync with Alex (Acme) — agenda pre-loaded</div>
+          </div>
+          <div class="item">
+            <div class="when">› TUE · DUE</div>
+            <div class="title">Reply to acme renewal · draft ready</div>
+          </div>
+          <div class="item">
+            <div class="when">› WED · BLOCK</div>
+            <div class="title">Deep work · 08:00 – 13:00 PT</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decorative HUD ornaments overlay -->
+    <img class="deco-ornament tl" src="../images/jarvis%202.png" alt="" aria-hidden="true" />
+    <img class="deco-ornament br" src="../images/jarvis%202.png" alt="" aria-hidden="true" />
+
+    <!-- HUD DOCK -->
+    <div class="dock">
+      <div class="btn" title="Capture">
+        <div class="ring"></div><div class="ring inner"></div>
+        <span class="ic">⊕</span>
+        <span class="lbl">CAPTURE</span>
+      </div>
+      <div class="btn" title="Knowledge">
+        <div class="ring"></div><div class="ring inner"></div>
+        <span class="ic">▦</span>
+        <span class="lbl">KNOWLEDGE</span>
+      </div>
+      <div class="btn" title="Agents">
+        <div class="ring"></div><div class="ring inner"></div>
+        <span class="ic">⌬</span>
+        <span class="lbl">AGENTS</span>
+      </div>
+      <div class="btn" title="Workflows">
+        <div class="ring"></div><div class="ring inner"></div>
+        <span class="ic">⇆</span>
+        <span class="lbl">WORKFLOWS</span>
+      </div>
+      <div class="btn" title="Command">
+        <div class="ring"></div><div class="ring inner"></div>
+        <span class="ic">›_</span>
+        <span class="lbl">COMMAND</span>
+      </div>
+      <div class="btn" title="Approvals">
+        <div class="ring"></div><div class="ring inner"></div>
+        <span class="ic">◉</span>
+        <span class="lbl">APPROVALS</span>
+      </div>
+      <div class="btn" title="Chat">
+        <div class="ring"></div><div class="ring inner"></div>
+        <span class="ic">◈</span>
+        <span class="lbl">CHAT</span>
+      </div>
+      <div class="btn" title="Briefing">
+        <div class="ring"></div><div class="ring inner"></div>
+        <span class="ic">▤</span>
+        <span class="lbl">BRIEFING</span>
+      </div>
+      <div class="btn" title="Settings">
+        <div class="ring"></div><div class="ring inner"></div>
+        <span class="ic">⚙</span>
+        <span class="lbl">SETTINGS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="mockup-header" style="margin-top: 32px; opacity: 0.6;">
+    <div>END OF MOCKUP · 04 SCREENS</div>
+    <div>OPEN IN BROWSER · FILE:// SUPPORTS GOOGLE FONTS · NO BUILD STEP</div>
+    <div>J.A.R.V.I.S · v0.1-preview</div>
+  </div>
+
+  <script>
+    // ===== Live telemetry tickers =====
+    const $ = (id) => document.getElementById(id);
+
+    function fmt(n, d = 1) { return n.toFixed(d); }
+
+    function jitter(base, range) {
+      return base + (Math.random() * 2 - 1) * range;
+    }
+
+    let cpu = 18, mem = 42, netD = 12.4, netU = 4.1, core = 14;
+
+    function tick() {
+      cpu = Math.max(6, Math.min(74, jitter(cpu, 3.5)));
+      mem = Math.max(28, Math.min(78, jitter(mem, 1.8)));
+      netD = Math.max(0.4, jitter(netD, 2.6));
+      netU = Math.max(0.2, jitter(netU, 1.1));
+      core = Math.max(2, Math.min(40, Math.round(jitter(core, 2.5))));
+
+      const cpuEl = $("cpu"), memEl = $("mem"), netdEl = $("netd"), netuEl = $("netu"), coreEl = $("core");
+      if (cpuEl) cpuEl.textContent = fmt(cpu, 1) + "%";
+      if (memEl) memEl.textContent = fmt(mem, 1) + "%";
+      if (netdEl) netdEl.textContent = fmt(netD, 1) + " MB/s";
+      if (netuEl) netuEl.textContent = fmt(netU, 1) + " MB/s";
+      if (coreEl) coreEl.textContent = core;
+
+      // Update bar fills for any subrail with matching gauges
+      document.querySelectorAll(".subrail .gauge").forEach((g) => {
+        const lbl = g.querySelector("label")?.textContent || "";
+        const bar = g.querySelector(".bar");
+        if (!bar) return;
+        if (lbl.includes("CPU")) bar.style.setProperty("--w", cpu + "%");
+        if (lbl.includes("MEM")) bar.style.setProperty("--w", mem + "%");
+        if (lbl.includes("NET ↓")) bar.style.setProperty("--w", Math.min(80, netD * 4) + "%");
+        if (lbl.includes("NET ↑")) bar.style.setProperty("--w", Math.min(80, netU * 8) + "%");
+      });
+    }
+
+    setInterval(tick, 900);
+
+    // ===== Uptime =====
+    const start = Date.now() - 134_000;
+    function uptime() {
+      const s = Math.floor((Date.now() - start) / 1000);
+      const h = String(Math.floor(s / 3600)).padStart(2, "0");
+      const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+      const ss = String(s % 60).padStart(2, "0");
+      const el = $("uptime");
+      if (el) el.textContent = `${h}:${m}:${ss}`;
+    }
+    setInterval(uptime, 1000);
+    uptime();
+
+    // ===== Waveform bars =====
+    const wf = document.getElementById("waveform");
+    if (wf) {
+      const N = 72;
+      for (let i = 0; i < N; i++) {
+        const s = document.createElement("span");
+        const h = 8 + ((i * 7) % 44);
+        s.style.height = h + "px";
+        s.style.animationDelay = (i * 0.04) + "s";
+        wf.appendChild(s);
+      }
+    }
+
+    // ===== Boot overlay auto-removes after fade =====
+    setTimeout(() => {
+      const b = document.getElementById("boot");
+      if (b) b.remove();
+    }, 4600);
+
+    // ===== Mega-reactor tick marks (60 around, every 5 is major) =====
+    const tr = document.getElementById("tickRing");
+    if (tr) {
+      const TICKS = 60;
+      for (let i = 0; i < TICKS; i++) {
+        const t = document.createElement("div");
+        t.className = "tk" + (i % 5 === 0 ? " major" : "");
+        t.style.transform = `rotate(${(360 / TICKS) * i}deg)`;
+        tr.appendChild(t);
+      }
+    }
+
+    // ===== Desk clock =====
+    function deskClock() {
+      const d = new Date();
+      const h = String(d.getHours()).padStart(2, "0");
+      const m = String(d.getMinutes()).padStart(2, "0");
+      const el = document.getElementById("deskClock");
+      if (el) el.textContent = `${h} : ${m}`;
+    }
+    setInterval(deskClock, 1000);
+    deskClock();
+
+    // ===== Desk uptime, network mirror, dial values =====
+    const deskStart = Date.now() - 16_392_000; // ~4h33m ago
+    function deskUp() {
+      const s = Math.floor((Date.now() - deskStart) / 1000);
+      const h = String(Math.floor(s / 3600)).padStart(2, "0");
+      const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+      const ss = String(s % 60).padStart(2, "0");
+      const up = document.getElementById("deskUp");
+      const up2 = document.getElementById("deskUp2");
+      if (up) up.textContent = `${h}h ${m}m`;
+      if (up2) up2.textContent = `${h}h ${m}m ${ss}s`;
+    }
+    setInterval(deskUp, 1000);
+    deskUp();
+
+    // ===== Theme picker =====
+    const THEME_LABELS = {
+      cyan:       "MARK XLII · CYAN",
+      redgold:    "MARK XLIII · RED · GOLD",
+      stealth:    "MARK VII · STEALTH",
+      hulkbuster: "MARK XLIV · HULKBUSTER",
+      warmachine: "WAR MACHINE · SILVER",
+      vapor:      "MARK L · VAPOR"
+    };
+
+    function applyTheme(theme) {
+      document.body.dataset.theme = theme;
+      const lbl = document.getElementById("tp-current");
+      if (lbl) lbl.textContent = THEME_LABELS[theme] || theme.toUpperCase();
+      document.querySelectorAll(".theme-picker .sw").forEach((el) => {
+        el.classList.toggle("active", el.dataset.th === theme);
+      });
+      try { localStorage.setItem("jarvis-theme", theme); } catch (e) {}
+    }
+
+    document.querySelectorAll(".theme-picker .sw").forEach((el) => {
+      el.addEventListener("click", () => applyTheme(el.dataset.th));
+    });
+
+    // Restore saved theme on load
+    try {
+      const saved = localStorage.getItem("jarvis-theme");
+      if (saved && THEME_LABELS[saved]) applyTheme(saved);
+    } catch (e) {}
+
+    // Keyboard shortcut: 1-6 to cycle themes
+    document.addEventListener("keydown", (e) => {
+      const keys = ["cyan", "redgold", "stealth", "hulkbuster", "warmachine", "vapor"];
+      const idx = parseInt(e.key, 10) - 1;
+      if (idx >= 0 && idx < keys.length) applyTheme(keys[idx]);
+    });
+
+    function mirrorDesk() {
+      const cpuEl = document.getElementById("dialCpu");
+      const memEl = document.getElementById("dialMem");
+      const swapEl = document.getElementById("dialSwap");
+      const dUp = document.getElementById("dUp");
+      const dDn = document.getElementById("dDn");
+      if (cpuEl) {
+        cpuEl.textContent = Math.round(cpu) + "%";
+        const fill = cpuEl.parentElement.querySelector(".fill");
+        if (fill) fill.style.setProperty("--p", cpu + "%");
+      }
+      if (memEl) {
+        memEl.textContent = Math.round(mem) + "%";
+        const fill = memEl.parentElement.querySelector(".fill");
+        if (fill) fill.style.setProperty("--p", mem + "%");
+      }
+      if (swapEl) {
+        const s = Math.max(4, Math.min(40, jitter(16, 1.5)));
+        swapEl.textContent = Math.round(s) + "%";
+        const fill = swapEl.parentElement.querySelector(".fill");
+        if (fill) fill.style.setProperty("--p", s + "%");
+      }
+      if (dUp) dUp.textContent = fmt(netU, 1) + " MB/s";
+      if (dDn) dDn.textContent = fmt(netD, 1) + " MB/s";
+    }
+    setInterval(mirrorDesk, 950);
+  </script>
+</body>
+</html>

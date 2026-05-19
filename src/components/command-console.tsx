@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Radio, Send } from "lucide-react";
 
 type RouteResult = {
   message: string;
@@ -36,105 +35,210 @@ const examples = [
   "Give me my daily executive briefing"
 ];
 
+type Turn =
+  | { kind: "operator"; text: string }
+  | { kind: "system"; text: string }
+  | { kind: "ai"; text: string; warn?: boolean };
+
 export function CommandConsole() {
   const [command, setCommand] = useState(examples[0]);
   const [result, setResult] = useState<RouteResult | null>(null);
-  const [status, setStatus] = useState("");
+  const [history, setHistory] = useState<Turn[]>([
+    { kind: "system", text: "[boot] session authenticated · context loaded · memory buffer ready" },
+    { kind: "system", text: "[boot] router model: gpt-4o · 6 agents online · approval gates engaged" }
+  ]);
+  const [busy, setBusy] = useState(false);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus("Routing command...");
+    if (!command.trim()) return;
+    setBusy(true);
     setResult(null);
+    setHistory((h) => [
+      ...h,
+      { kind: "operator", text: command },
+      { kind: "system", text: "› routing → analyzing intent · classifying risk · selecting agent" }
+    ]);
 
-    const response = await fetch("/api/command", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ command })
-    });
-    const data = await response.json();
-    setStatus(response.ok ? "Route locked." : data.error || "Unable to route command.");
-    if (response.ok) setResult(data);
+    try {
+      const response = await fetch("/api/command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command })
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setResult(data);
+        setHistory((h) => [
+          ...h,
+          {
+            kind: "system",
+            text: `› ${data.route.agentKind} agent · ${data.route.risk.toLowerCase()} risk · ${
+              data.route.approvalRequired ? "APPROVAL REQUIRED" : "no approval needed"
+            }`
+          },
+          {
+            kind: "ai",
+            text: data.route.suggestedResponse || data.message || "Route locked.",
+            warn: data.route.approvalRequired
+          }
+        ]);
+      } else {
+        setHistory((h) => [
+          ...h,
+          { kind: "system", text: `[error] ${data.error || "unable to route command"}` }
+        ]);
+      }
+    } catch (e) {
+      setHistory((h) => [
+        ...h,
+        { kind: "system", text: `[error] network failure: ${e instanceof Error ? e.message : String(e)}` }
+      ]);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
-    <div className="grid content-grid">
-      <div className="card">
-        <h2>Command Input</h2>
-        <form className="form" onSubmit={submit}>
-          <div className="field">
-            <label htmlFor="command">Text or transcribed voice command</label>
-            <textarea
-              className="textarea"
-              id="command"
-              value={command}
-              onChange={(event) => setCommand(event.target.value)}
-              placeholder="Tell Jarvis what to do..."
-            />
+    <div className="grid" style={{ gridTemplateColumns: "minmax(0, 1.4fr) 340px", gap: 18 }}>
+      <div>
+        <div className="terminal">
+          {history.map((t, i) => (
+            <div className="line" key={i}>
+              {t.kind === "operator" ? (
+                <>
+                  <span className="prompt">operator ›</span>{" "}
+                  <span className="you">{t.text}</span>
+                </>
+              ) : t.kind === "system" ? (
+                <span className="sys">{t.text}</span>
+              ) : (
+                <>
+                  <span className="ai">Jarvis ›</span>{" "}
+                  <span className={t.warn ? "warn" : ""}>{t.text}</span>
+                </>
+              )}
+            </div>
+          ))}
+          <div className="line">
+            <span className="prompt">operator ›</span>
+            <span className="cursor" />
           </div>
-          <div className="button-row">
-            <button className="button" type="submit">
-              <Send size={16} />
-              Route Command
-            </button>
-            <span className="muted">{status}</span>
-          </div>
+        </div>
+
+        <form className="input-bar" onSubmit={submit}>
+          <span className="chev">›</span>
+          <input
+            className="input"
+            value={command}
+            onChange={(e) => setCommand(e.target.value)}
+            placeholder="Tell Jarvis what to do..."
+            disabled={busy}
+          />
+          <button className="button" type="submit" disabled={busy}>
+            {busy ? "ROUTING…" : "ROUTE"}
+          </button>
         </form>
 
-        <div className="capability-list large">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
           {examples.map((example) => (
-            <button className="chip-button" key={example} type="button" onClick={() => setCommand(example)}>
-              {example}
+            <button
+              className="chip-button"
+              key={example}
+              type="button"
+              onClick={() => setCommand(example)}
+            >
+              › {example}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="card">
-        <h2>Routing Result</h2>
-        {result ? (
-          <div className="list">
-            <div className="list-item">
-              <div className="pill-row">
-                <span className="pill">{result.route.agentKind}</span>
-                <span className="pill">{Math.round(result.route.confidence * 100)}% confidence</span>
-                <span className="pill">{result.route.risk} risk</span>
-              </div>
-              <h3 style={{ marginTop: 12 }}>{result.route.workflow.name}</h3>
-              <p className="muted">{result.route.workflow.description}</p>
-              <div className="label">Rationale</div>
-              <p>{result.route.rationale}</p>
-              <div className="label">Approval</div>
-              <p>{result.route.approvalRequired ? "Required before external action." : "Not required for this dry run."}</p>
-              <div className="label">Workflow Run</div>
-              {result.workflowRun ? (
-                <div className="pill-row">
-                  <span className="pill">{result.workflowRun.status}</span>
-                  <span className="pill">{result.workflowRun.approvals?.length || 0} approval gates</span>
-                  <span className="pill">{result.workflowRun.id.slice(0, 10)}</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div className="routing-card">
+          <h4>ACTIVE ROUTING</h4>
+          {result ? (
+            <>
+              <dl className="kv">
+                <dt>Intent</dt>
+                <dd><b>{result.route.agentKind.toUpperCase()}</b></dd>
+                <dt>Agent</dt>
+                <dd><b className="ok">{result.route.agentKind.toUpperCase()}</b></dd>
+                <dt>Workflow</dt>
+                <dd>{result.route.workflow.name}</dd>
+                <dt>Risk</dt>
+                <dd>
+                  <b className={result.route.risk === "HIGH" ? "warn" : result.route.risk === "MEDIUM" ? "warn" : "ok"}>
+                    {result.route.risk}
+                  </b>
+                  <div className="risk-meter">
+                    {[0, 1, 2, 3, 4].map((i) => {
+                      const level = result.route.risk === "HIGH" ? 5 : result.route.risk === "MEDIUM" ? 3 : 1;
+                      return <span key={i} className={i < level ? `on${level >= 4 ? " hi" : ""}` : ""} />;
+                    })}
+                  </div>
+                </dd>
+                <dt>Confidence</dt>
+                <dd><b className="ok">{(result.route.confidence * 100).toFixed(0)}%</b></dd>
+                <dt>Approval</dt>
+                <dd>
+                  <b className={result.route.approvalRequired ? "warn" : "ok"}>
+                    {result.route.approvalRequired ? "REQUIRED" : "NOT REQUIRED"}
+                  </b>
+                </dd>
+              </dl>
+              {result.route.approvalRequired ? (
+                <div className="approval-bar">
+                  <button className="approve">◉ APPROVE</button>
+                  <button className="reject">✕ REJECT</button>
                 </div>
-              ) : (
-                <p className="muted">{result.message}</p>
-              )}
+              ) : null}
+            </>
+          ) : (
+            <div className="muted" style={{ fontFamily: "var(--font-mono)", fontSize: 11, lineHeight: 1.7 }}>
+              <div>› awaiting command vector</div>
+              <div>› router idle</div>
             </div>
-            {result.route.workflow.steps.map((step, index) => (
-              <div className="timeline-item" key={step.title}>
-                <div className="timeline-index">{index + 1}</div>
-                <div>
-                  <strong>{step.title}</strong>
-                  <p className="muted">{step.description}</p>
-                  {step.approvalRequired ? <span className="pill">Approval Gate</span> : null}
+          )}
+        </div>
+
+        <div className="routing-card">
+          <h4>EXECUTION STEPS</h4>
+          {result ? (
+            <div className="timeline-list" style={{ marginTop: 6 }}>
+              {result.route.workflow.steps.map((step, index) => (
+                <div className="timeline-item" key={step.title}>
+                  <div className="timeline-index">{index + 1}</div>
+                  <div className="module-icon compact">
+                    <span style={{ fontSize: 11 }}>›</span>
+                  </div>
+                  <div>
+                    <div className="mono" style={{ fontSize: 10, color: "var(--accent)", letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 3 }}>
+                      {step.title}
+                    </div>
+                    <div className="muted" style={{ fontSize: 12 }}>{step.description}</div>
+                    {step.approvalRequired ? <span className="pill" style={{ marginTop: 6, display: "inline-block" }}>APPROVAL GATE</span> : null}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <div>
-              <Radio size={28} />
-              <p>Awaiting command vector.</p>
+              ))}
             </div>
+          ) : (
+            <div className="muted" style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>
+              Route a command to see the pipeline.
+            </div>
+          )}
+        </div>
+
+        <div className="routing-card">
+          <h4>QUICK COMMANDS</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <button className="approve" style={{ textAlign: "left" }} type="button" onClick={() => setCommand("Brief me on today")}>› Brief me on today</button>
+            <button className="approve" style={{ textAlign: "left" }} type="button" onClick={() => setCommand("Plan this week's workouts")}>› Plan this week's workouts</button>
+            <button className="approve" style={{ textAlign: "left" }} type="button" onClick={() => setCommand("Compare 3 saved laptops")}>› Compare 3 saved laptops</button>
+            <button className="approve" style={{ textAlign: "left" }} type="button" onClick={() => setCommand("Summarize unread important emails")}>› Summarize unread important emails</button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

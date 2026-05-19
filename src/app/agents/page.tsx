@@ -1,57 +1,113 @@
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
-import { agentModules, automationStack, executionSteps, targetUsers, technologyStack } from "@/lib/agent-features";
+import { TopBar } from "@/components/top-bar";
+import { SubRail } from "@/components/sub-rail";
+import { agentModules, automationStack, executionSteps } from "@/lib/agent-features";
+
+const STATUS_BY_INDEX = ["online", "online", "warn", "online", "idle", "online"] as const;
+const TELEMETRY = [
+  { p50: "180ms", runs: 42, extra: { label: "APPROVALS", val: 2 } },
+  { p50: "210ms", runs: 18, extra: { label: "APPROVALS", val: 1 } },
+  { p50: "340ms", runs: 9, extra: { label: "RETRIES", val: 2, warn: true } },
+  { p50: "1.2s", runs: 27, extra: { label: "SOURCES", val: 198 } },
+  { p50: "—", runs: 0, extra: { label: "CONNECTOR", val: "OFF" } },
+  { p50: "12ms", runs: 156, extra: { label: "FAILED", val: 0 } }
+];
 
 export default function AgentsPage() {
   return (
     <AppShell>
-      <PageHeader
-        eyebrow="Agents // Business Automation"
-        title="Not just chat. Actual task execution."
-        description="Jarvis evolves into a multi-agent executive assistant that can understand, remember, delegate, execute approved actions, and respond through text or voice."
+      <TopBar label="J.A.R.V.I.S · AGENT BAY" uplink="active" center="DELEGATION READY" />
+      <SubRail
+        extras={[
+          { label: "QUEUE", value: 3, variant: "warn" },
+          { label: "RUNNING", value: 2 },
+          { label: "ROUTER", value: "gpt-4o" }
+        ]}
       />
 
-      <section className="grid content-grid">
-        <div className="card">
-          <div className="section-heading">
-            <div>
-              <div className="eyebrow">Automation Core</div>
-              <h2>What Jarvis 2.0 can handle</h2>
-            </div>
-            <span className="pill">Execution Layer</span>
-          </div>
-          <div className="module-grid two-column">
-            {agentModules.map((module) => (
-              <article className="module-card tall" key={module.title}>
-                <div className="module-icon">
-                  <module.icon size={22} />
+      <PageHeader
+        eyebrow="Agent Ecosystem // Expansion Bay"
+        title="Delegated [b]workflow command[/b] layer."
+        description="Six modules online. Approval gates engaged on impactful actions. Voice channel and Telegram bridge optional."
+        meta={[
+          { label: "BAY ·", value: "04 / EXP" },
+          { label: "CLASS::", value: "ALPHA", highlight: true },
+          { label: "OPS", value: "6 / 6 ARMED" }
+        ]}
+      />
+
+      <section className="module-grid">
+        {agentModules.map((module, i) => {
+          const status = STATUS_BY_INDEX[i] ?? "online";
+          const tel = TELEMETRY[i];
+          return (
+            <article className="module" key={module.title}>
+              <div className="module-head">
+                <div className="module-id">
+                  <span className="bracket">⟦</span> MODULE-0{i + 1} <span className="bracket">⟧</span>{" "}
+                  <span className="open">{status === "idle" ? "› IDLE" : "› OPEN"}</span>
+                </div>
+                <div className={`module-status ${status === "online" ? "" : status}`}>
+                  <span className="led" />
+                  {status === "online" ? "ONLINE" : status === "warn" ? "DEGRADED" : "IDLE"}
+                </div>
+              </div>
+              <h3>{module.title}</h3>
+              <p className="desc">{module.description}</p>
+              <div className="caps">
+                {module.capabilities.slice(0, 5).map((c) => (
+                  <span key={c}>{c}</span>
+                ))}
+              </div>
+              <div className="telemetry">
+                <span>P50 <b>{tel.p50}</b></span>
+                <span>RUNS <b>{tel.runs}</b></span>
+                <span>
+                  {tel.extra.label}{" "}
+                  <b className={tel.extra.warn ? "warn" : ""}>{tel.extra.val}</b>
+                </span>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+
+      <section className="grid content-grid" style={{ marginTop: 18 }}>
+        <div className="panel">
+          <div className="panel-head"><h3>EXECUTION MODEL</h3><span className="tag">7 STEPS</span></div>
+          <div className="timeline-list">
+            {executionSteps.map((step, index) => (
+              <div className="timeline-item" key={step}>
+                <div className="timeline-index">{index + 1}</div>
+                <div className="module-icon compact">
+                  <span style={{ fontSize: 12, fontFamily: "var(--font-mono)" }}>›</span>
                 </div>
                 <div>
-                  <h3>{module.title}</h3>
-                  <p className="muted">{module.description}</p>
-                  <div className="capability-list">
-                    {module.capabilities.map((capability) => (
-                      <span key={capability}>{capability}</span>
-                    ))}
+                  <div className="mono" style={{ fontSize: 10, color: "var(--accent)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 4 }}>
+                    STEP {index + 1}
                   </div>
+                  <div className="muted" style={{ fontSize: 13 }}>{step}</div>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
         </div>
 
-        <div className="card">
-          <h2>Command Interface</h2>
+        <div className="panel">
+          <div className="panel-head"><h3>VOICE + AUTOMATION STACK</h3><span className="tag">8 LAYERS</span></div>
           <div className="timeline-list">
             {automationStack.map((item, index) => (
               <div className="timeline-item" key={item.title}>
                 <div className="timeline-index">{index + 1}</div>
                 <div className="module-icon compact">
-                  <item.icon size={18} />
+                  <item.icon size={14} />
                 </div>
                 <div>
-                  <strong>{item.title}</strong>
-                  <p className="muted">{item.description}</p>
+                  <div className="mono" style={{ fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 3 }}>
+                    {item.title}
+                  </div>
+                  <div className="muted" style={{ fontSize: 12 }}>{item.description}</div>
                 </div>
               </div>
             ))}
@@ -59,54 +115,24 @@ export default function AgentsPage() {
         </div>
       </section>
 
-      <section className="grid content-grid" style={{ marginTop: 16 }}>
-        <div className="card">
-          <h2>How The Automation Works</h2>
-          <div className="timeline-list">
-            {executionSteps.map((step, index) => (
-              <div className="timeline-item" key={step}>
-                <div className="timeline-index">{index + 1}</div>
-                <div>
-                  <strong>Step {index + 1}</strong>
-                  <p className="muted">{step}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="card">
-          <h2>Who This Is For</h2>
-          <div className="capability-list large">
-            {targetUsers.map((user) => (
-              <span key={user}>{user}</span>
-            ))}
-          </div>
-
-          <h2 style={{ marginTop: 24 }}>Technologies Used</h2>
-          <div className="capability-list large">
-            {technologyStack.map((technology) => (
-              <span key={technology}>{technology}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="card" style={{ marginTop: 16 }}>
-        <div className="section-heading">
-          <div>
-            <div className="eyebrow">Safety Gates</div>
-            <h2>Automate the work. Keep control of the blast radius.</h2>
-          </div>
-          <span className="pill">Required</span>
-        </div>
+      <section className="panel" style={{ marginTop: 18 }}>
+        <div className="panel-head"><h3>SAFETY GATES · APPROVAL REQUIRED</h3><span className="tag">6 RULES</span></div>
         <div className="module-grid">
-          <div className="list-item">Emails are drafted automatically but sent only after explicit approval.</div>
-          <div className="list-item">Calendar changes show attendees, time, title, and description before execution.</div>
-          <div className="list-item">Contact edits, financial records, and sensitive data transfers require confirmation.</div>
-          <div className="list-item">Internet research separates saved knowledge, external sources, and uncertain claims.</div>
-          <div className="list-item">Every workflow step should be logged for review, debugging, and memory updates.</div>
-          <div className="list-item">Personality stays useful and original, without imitating real people or copyrighted voices.</div>
+          {[
+            "Emails drafted automatically but sent only after explicit approval.",
+            "Calendar changes show attendees, time, title, description before execution.",
+            "Contact edits, financial records, sensitive data transfers require confirmation.",
+            "Internet research separates saved knowledge, external sources, uncertain claims.",
+            "Every workflow step is logged for review, debugging, and memory updates.",
+            "Personality stays useful and original, without imitating real people or voices."
+          ].map((rule, i) => (
+            <div className="list-item" key={i}>
+              <div className="mono" style={{ fontSize: 9, color: "var(--accent)", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: 6 }}>
+                RULE · {String(i + 1).padStart(2, "0")}
+              </div>
+              <div className="muted" style={{ fontSize: 13, lineHeight: 1.5 }}>{rule}</div>
+            </div>
+          ))}
         </div>
       </section>
     </AppShell>

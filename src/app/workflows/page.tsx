@@ -1,47 +1,70 @@
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
+import { TopBar } from "@/components/top-bar";
+import { SubRail } from "@/components/sub-rail";
 import { workflowTemplates } from "@/lib/workflow-templates";
 
 export default function WorkflowsPage() {
   return (
     <AppShell>
+      <TopBar label="J.A.R.V.I.S · WORKFLOWS" uplink="armed" center="AUTOMATION MATRIX" />
+      <SubRail
+        extras={[
+          { label: "TEMPLATES", value: workflowTemplates.length },
+          { label: "STATUS", value: "READY" }
+        ]}
+      />
       <PageHeader
         eyebrow="Workflows // Automation Matrix"
-        title="Native Jarvis execution templates."
+        title="Native Jarvis [b]execution templates[/b]."
         description="Reusable automation plans for voice commands, email replies, scheduling, research, expenses, and daily briefings."
+        meta={[
+          { label: "MATRIX ·", value: `${workflowTemplates.length} TEMPLATES`, highlight: true }
+        ]}
       />
 
       <section className="workflow-grid">
-        {workflowTemplates.map((workflow) => (
-          <article className="card workflow-card" key={workflow.key}>
-            <div className="section-heading">
-              <div>
-                <div className="eyebrow">{workflow.trigger}</div>
-                <h2>{workflow.name}</h2>
+        {workflowTemplates.map((workflow, i) => (
+          <article className="panel workflow-card" key={workflow.key}>
+            <div className="module-head">
+              <div className="module-id">
+                <span className="bracket">⟦</span> WORKFLOW-{String(i + 1).padStart(2, "0")} <span className="bracket">⟧</span>{" "}
+                <span className="open">› {workflow.trigger.toUpperCase()}</span>
               </div>
-              <span className="pill">{workflow.risk} risk</span>
+              <span className={`module-status${workflow.risk === "high" ? " warn" : ""}`}>
+                <span className="led" />
+                {workflow.risk.toUpperCase()} RISK
+              </span>
             </div>
-            <p className="muted">{workflow.description}</p>
-            <div className="pill-row">
+            <h3 style={{ fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 500, margin: "10px 0 6px" }}>
+              {workflow.name}
+            </h3>
+            <p className="muted" style={{ fontSize: 13, lineHeight: 1.55 }}>{workflow.description}</p>
+            <div className="pill-row" style={{ marginTop: 10 }}>
               {workflow.agentKinds.map((kind) => (
-                <span className="pill" key={kind}>
-                  {kind}
-                </span>
+                <span className="pill" key={kind}>{kind}</span>
               ))}
             </div>
             <div className="timeline-list" style={{ marginTop: 14 }}>
               {workflow.steps.map((step, index) => (
                 <div className="timeline-item" key={step.title}>
                   <div className="timeline-index">{index + 1}</div>
+                  <div className="module-icon compact">
+                    <span style={{ fontSize: 11 }}>›</span>
+                  </div>
                   <div>
-                    <strong>{step.title}</strong>
-                    <p className="muted">{step.description}</p>
-                    {step.approvalRequired ? <span className="pill">Approval Gate</span> : null}
+                    <div className="mono" style={{ fontSize: 10, color: "var(--accent)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 3 }}>
+                      {step.title}
+                    </div>
+                    <div className="muted" style={{ fontSize: 12 }}>{step.description}</div>
+                    {step.approvalRequired ? (
+                      <span className="pill" style={{ marginTop: 6, display: "inline-block" }}>APPROVAL GATE</span>
+                    ) : null}
                   </div>
                 </div>
               ))}
             </div>
-            <div className="capability-list">
+            <div className="caps" style={{ marginTop: 14 }}>
               {workflow.requiredScopes.map((scope) => (
                 <span key={scope}>{scope}</span>
               ))}
