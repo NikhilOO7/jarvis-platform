@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Radio, Send } from "lucide-react";
 
 type RouteResult = {
+  message: string;
+  dryRun: boolean;
   route: {
     agentKind: string;
     confidence: number;
@@ -18,6 +20,11 @@ type RouteResult = {
       steps: Array<{ title: string; description: string; approvalRequired?: boolean }>;
     };
   };
+  workflowRun?: {
+    id: string;
+    status: string;
+    approvals?: Array<{ id: string; status: string }>;
+  } | null;
 };
 
 const examples = [
@@ -98,6 +105,16 @@ export function CommandConsole() {
               <p>{result.route.rationale}</p>
               <div className="label">Approval</div>
               <p>{result.route.approvalRequired ? "Required before external action." : "Not required for this dry run."}</p>
+              <div className="label">Workflow Run</div>
+              {result.workflowRun ? (
+                <div className="pill-row">
+                  <span className="pill">{result.workflowRun.status}</span>
+                  <span className="pill">{result.workflowRun.approvals?.length || 0} approval gates</span>
+                  <span className="pill">{result.workflowRun.id.slice(0, 10)}</span>
+                </div>
+              ) : (
+                <p className="muted">{result.message}</p>
+              )}
             </div>
             {result.route.workflow.steps.map((step, index) => (
               <div className="timeline-item" key={step.title}>

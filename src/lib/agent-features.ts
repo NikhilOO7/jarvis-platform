@@ -77,7 +77,7 @@ export const automationStack = [
   },
   {
     title: "Workflow Orchestrator",
-    description: "n8n-style flows execute multi-step tasks, log progress, and coordinate tools.",
+    description: "Native Jarvis workflows execute multi-step tasks, log progress, and coordinate tools.",
     icon: Workflow
   },
   {
@@ -102,7 +102,7 @@ export const executionSteps = [
   "Voice is transcribed into text when needed.",
   "Jarvis analyzes intent, urgency, required memory, target tool, and risk level.",
   "The memory buffer and knowledge graph provide context.",
-  "The agent router selects the correct internal agent or n8n-style workflow.",
+  "The agent router selects the correct internal agent or native workflow.",
   "The workflow executes, with approval gates before emails, calendar edits, contact changes, purchases, or sensitive data transfer.",
   "Jarvis responds with text, optional voice, execution status, and memory updates."
 ] as const;
@@ -118,7 +118,7 @@ export const targetUsers = [
 ] as const;
 
 export const technologyStack = [
-  "n8n workflow orchestration",
+  "Jarvis native workflow orchestration",
   "OpenAI GPT reasoning",
   "OpenAI Whisper or speech-to-text",
   "Optional Anthropic personality/reasoning model",

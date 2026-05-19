@@ -7,7 +7,7 @@ export default function WorkflowsPage() {
     <AppShell>
       <PageHeader
         eyebrow="Workflows // Automation Matrix"
-        title="n8n-style execution templates."
+        title="Native Jarvis execution templates."
         description="Reusable automation plans for voice commands, email replies, scheduling, research, expenses, and daily briefings."
       />
 

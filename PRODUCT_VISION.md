@@ -436,13 +436,13 @@ Example commands:
 - "Calculate the margin if I sell this at 49 dollars."
 - "Summarize my day and tell me what needs attention."
 
-#### n8n-Style Workflow Package
+#### Jarvis Native Workflow Package
 
 Jarvis should support importable, inspectable workflow definitions for automation.
 
 The long-term workflow package should include:
 
-- Complete workflow JSON definitions
+- Complete workflow definitions
 - Plug-and-play automation templates
 - Multi-agent delegation flows
 - Voice automation modules
@@ -453,7 +453,7 @@ The long-term workflow package should include:
 - Error handling and retry branches
 - Execution logs
 
-This does not replace the app. The app remains the command center, memory layer, and product interface. n8n-style workflows become the automation engine for external systems and repeatable task execution.
+This does not replace the app. The app remains the command center, memory layer, product interface, and automation engine. Native Jarvis workflows handle external systems and repeatable task execution through explicit connectors, approval gates, logs, and retries.
 
 #### Email Automation Agent
 
@@ -874,7 +874,7 @@ This agent should prefer deterministic tools over language-model guesses wheneve
 
 ### Workflow Orchestrator
 
-Jarvis should eventually include a workflow orchestration layer similar in spirit to n8n-style automation.
+Jarvis should include its own workflow orchestration layer for repeatable multi-step automation.
 
 The orchestrator should:
 
@@ -1215,7 +1215,7 @@ Future technical additions:
 - Telegram bot or chat-command connector
 - Speech-to-text provider
 - Text-to-speech provider
-- n8n-style workflow orchestration
+- Jarvis native workflow orchestration
 - Approval-gated tool execution
 - Contact connector
 - Expense ingestion
@@ -1302,7 +1302,7 @@ Future technical additions:
 - Memory buffer for ongoing assistant context
 - Personality engine controls
 - Multi-agent task delegation
-- n8n-style workflow templates
+- Jarvis native workflow templates
 
 ## Non-Goals For Early MVP
 

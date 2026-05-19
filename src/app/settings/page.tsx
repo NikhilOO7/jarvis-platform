@@ -19,9 +19,9 @@ const connectorChecks = [
     configured: Boolean(process.env.TELEGRAM_BOT_TOKEN)
   },
   {
-    name: "n8n Webhook",
-    description: "Future workflow orchestration endpoint for external automation runs.",
-    configured: Boolean(process.env.N8N_WEBHOOK_URL)
+    name: "Jarvis Workflow Runtime",
+    description: "Native orchestration layer for multi-step runs, approvals, retries, logs, and connector actions.",
+    configured: Boolean(env.DATABASE_URL)
   },
   {
     name: "Text-To-Speech",
@@ -70,7 +70,6 @@ export default function SettingsPage() {
           <span>DATABASE_URL</span>
           <span>OPENAI_API_KEY</span>
           <span>TELEGRAM_BOT_TOKEN</span>
-          <span>N8N_WEBHOOK_URL</span>
           <span>ELEVENLABS_API_KEY</span>
           <span>EMAIL_CONNECTOR_ENABLED</span>
           <span>CALENDAR_CONNECTOR_ENABLED</span>

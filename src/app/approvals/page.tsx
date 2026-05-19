@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { ApprovalActions } from "@/components/approval-actions";
 import { PageHeader } from "@/components/page-header";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
@@ -81,6 +82,7 @@ export default async function ApprovalsPage() {
                     <h3 style={{ marginTop: 12 }}>{approval.title}</h3>
                     <p className="muted">{approval.description}</p>
                     <div className="label">{approval.workflow}</div>
+                    <ApprovalActions initialStatus={approval.status} disabled />
                   </div>
                 </article>
               ))
@@ -95,6 +97,7 @@ export default async function ApprovalsPage() {
                     <h3 style={{ marginTop: 12 }}>{approval.title}</h3>
                     <p className="muted">{approval.description}</p>
                     <div className="label">{approval.workflowRun?.workflowTemplate?.name || "Workflow run"}</div>
+                    <ApprovalActions id={approval.id} initialStatus={approval.status} />
                   </div>
                 </article>
               ))}
