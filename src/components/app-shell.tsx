@@ -22,6 +22,7 @@ const navItems = [
   { href: "/knowledge", label: "Knowledge", icon: Database },
   { href: "/agents", label: "Agents", icon: Network },
   { href: "/workflows", label: "Workflows", icon: Workflow },
+  { href: "/runs", label: "Runs", icon: Activity },
   { href: "/command", label: "Command", icon: TerminalSquare },
   { href: "/approvals", label: "Approvals", icon: ShieldCheck },
   { href: "/chat", label: "Chat", icon: MessageSquare },

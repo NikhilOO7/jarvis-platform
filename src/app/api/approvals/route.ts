@@ -40,6 +40,10 @@ export async function PATCH(request: Request) {
         }
       });
 
+      if (!approval.workflowRunId) {
+        return { approval, workflowRun: null };
+      }
+
       const siblingApprovals = await tx.approvalRequest.findMany({
         where: { workflowRunId: approval.workflowRunId },
         select: { status: true }
@@ -74,10 +78,12 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({
       approval: result.approval,
-      workflowRun: {
-        id: result.workflowRun.id,
-        status: result.workflowRun.status
-      }
+      workflowRun: result.workflowRun
+        ? {
+            id: result.workflowRun.id,
+            status: result.workflowRun.status
+          }
+        : null
     });
   } catch (error) {
     return NextResponse.json(

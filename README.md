@@ -26,6 +26,7 @@ The detailed product vision, feature map, architecture, roadmap, and guiding pri
 - `/knowledge` - derived memory records
 - `/agents` - business automation agent console
 - `/workflows` - Jarvis native workflow template matrix
+- `/runs` - native workflow run monitor
 - `/command` - natural-language command router prototype
 - `/approvals` - approval queue and safety gate control room
 - `/chat` - chat with saved knowledge
