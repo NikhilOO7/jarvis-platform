@@ -109,9 +109,12 @@ records; retrieval quality eval set.
 
 ### Phase 3 — The Voice: presence beyond the browser
 *Pillars: 2, 6, 7.* Telegram bot (text first, then voice notes → Whisper STT); TTS responses
-(ElevenLabs); browser-extension capture UI (endpoint already exists); mobile share-sheet via
-PWA; a consistent persona layer (system-prompt library + response post-processor) so Jarvis
-sounds like Jarvis everywhere.
+(ElevenLabs); the **Jarvis Browser Companion** — a consent-first MV3 extension that proposes
+reading on-screen IG/FB/LinkedIn content, captures on approval, and transcribes/understands
+playing videos (audio + frames → vision model). Detailed spec:
+[BROWSER_COMPANION_PLAN.md](./BROWSER_COMPANION_PLAN.md). Plus mobile share-sheet via PWA and a
+consistent persona layer (system-prompt library + response post-processor) so Jarvis sounds
+like Jarvis everywhere.
 
 ### Phase 4 — Real Hands: connectors with teeth
 *Pillars: 3, 4.* OAuth-based email (read/summarize/draft/send-behind-approval), calendar

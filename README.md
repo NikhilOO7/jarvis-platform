@@ -4,7 +4,7 @@ A personal AI operating system for turning saved links, social exports, posts, v
 
 ## Product Truth Source
 
-The detailed product vision, feature map, architecture, roadmap, and guiding principles live in [PRODUCT_VISION.md](./PRODUCT_VISION.md). The founder/CTO execution program — capability pillars, target architecture, and the seven-phase plan to the full JARVIS vision — lives in [docs/MASTER_PLAN.md](./docs/MASTER_PLAN.md). Treat those documents as the reference for what we are building and in what order.
+The detailed product vision, feature map, architecture, roadmap, and guiding principles live in [PRODUCT_VISION.md](./PRODUCT_VISION.md). The founder/CTO execution program — capability pillars, target architecture, and the seven-phase plan to the full JARVIS vision — lives in [docs/MASTER_PLAN.md](./docs/MASTER_PLAN.md). The consent-first browser extension (read-on-approval capture from open Instagram/Facebook/LinkedIn tabs, video transcription and multimodal understanding) is specified in [docs/BROWSER_COMPANION_PLAN.md](./docs/BROWSER_COMPANION_PLAN.md). Treat those documents as the reference for what we are building and in what order.
 
 ## MVP v0.1
 
