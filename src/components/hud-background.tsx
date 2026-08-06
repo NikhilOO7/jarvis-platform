@@ -1,12 +1,18 @@
 export function HudBackground() {
   return (
     <div className="hud-background" aria-hidden="true">
+      <div className="hud-depth" />
+      <div className="hud-hex" />
       <div className="hud-grid" />
       <div className="hud-stars" />
       <div className="hud-scanlines" />
       <div className="hud-sweep" />
+      <div className="hud-flicker" />
       <div className="hud-corner hud-corner-tl" />
       <div className="hud-corner hud-corner-br" />
+      <div className="hud-reticle tr" />
+      <div className="hud-reticle gold rev bl" />
+      <div className="hud-vignette" />
     </div>
   );
 }

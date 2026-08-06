@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 export function JarvisLogoCore() {
   return (
     <div className="hero-core-stage">
@@ -9,10 +8,14 @@ export function JarvisLogoCore() {
         <div className="ring r3" />
       </div>
       <Waveform />
-      <div className="jarvis-logo-asset" aria-hidden="true">
-        <div className="halo" />
-        <img className="logo-glow" src="/images/jarvis%206.png" alt="" />
-        <img className="logo" src="/images/jarvis1.png" alt="JARVIS core" />
+      <div className="arc-reactor hero-reactor" aria-hidden="true">
+        <div className="ar-halo" />
+        <div className="ar-ring ar-ticks" />
+        <div className="ar-ring ar-outer" />
+        <div className="ar-ring ar-coils" />
+        <div className="ar-ring ar-dashed" />
+        <div className="ar-ring ar-inner" />
+        <div className="ar-core" />
       </div>
       <div className="hero-status">
         <span className="dot" /> LISTENING STANDBY

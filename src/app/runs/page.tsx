@@ -1,11 +1,23 @@
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
+import { RunActions } from "@/components/run-actions";
 import { TopBar } from "@/components/top-bar";
 import { SubRail } from "@/components/sub-rail";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 
 type RunLog = { at?: string; event?: string; message?: string };
+type RunOutputShape = {
+  summary?: string;
+  engine?: string;
+  artifacts?: Array<{ type?: string; title?: string }>;
+};
+
+function normalizeOutput(output: unknown): RunOutputShape | null {
+  return output && typeof output === "object" && !Array.isArray(output) ? (output as RunOutputShape) : null;
+}
+
+export const dynamic = "force-dynamic";
 
 async function getWorkflowRuns() {
   if (!env.DATABASE_URL) return [];
@@ -76,6 +88,7 @@ export default async function RunsPage() {
           {visibleRuns.map((run) => {
             const logs = normalizeLogs(run.logs);
             const isWaiting = run.status === "WAITING_FOR_APPROVAL";
+            const output = normalizeOutput("output" in run ? run.output : null);
 
             return (
               <article className="file-card" key={run.id}>
@@ -88,7 +101,25 @@ export default async function RunsPage() {
                 <div className="fmeta">
                   <span className={isWaiting ? "warn" : "alpha"}>{run.approvals.length} GATES</span>
                   <span>LOG · {logs.length}</span>
+                  {output?.engine ? <span>ENGINE · {output.engine.toUpperCase()}</span> : null}
                 </div>
+                {output?.summary ? (
+                  <div className="routing-card" style={{ marginTop: 12 }}>
+                    <h4>RESULT</h4>
+                    <div className="muted" style={{ fontSize: 12, lineHeight: 1.6 }}>{output.summary}</div>
+                    {output.artifacts && output.artifacts.length > 0 ? (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                        {output.artifacts.map((artifact, index) => (
+                          <span className="pill" key={`${run.id}-artifact-${index}`}>
+                            {(artifact.type || "artifact").replaceAll("_", " ").toUpperCase()}
+                            {artifact.title ? ` · ${artifact.title}` : ""}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+                <RunActions id={run.id} status={run.status} disabled={designMode} />
                 {logs.length > 0 ? (
                   <div className="timeline-list" style={{ marginTop: 12 }}>
                     {logs.slice(-4).map((log, index) => (

@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { classifyContent } from "@/lib/ai/classify";
 import { deriveKnowledgeRecord } from "@/lib/ai/knowledge";
+import { storeItemEmbeddings } from "@/lib/ai/retrieval";
 import { summarizeContent } from "@/lib/ai/summarize";
 import { normalizeUrl, stableHash } from "@/lib/hash";
 
@@ -75,6 +76,12 @@ export async function ingestItem(input: IngestInput) {
     include: {
       knowledgeItems: true
     }
+  });
+
+  await storeItemEmbeddings({
+    rawSourceItemId: item.id,
+    knowledgeItemId: item.knowledgeItems[0]?.id,
+    text: [item.title, summary, input.text].filter(Boolean).join("\n").slice(0, 8000)
   });
 
   return { item, duplicateOf: null };

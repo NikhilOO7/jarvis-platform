@@ -25,6 +25,7 @@ export function ChatBox() {
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,12 +47,19 @@ export function ChatBox() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question })
+        body: JSON.stringify({ question, sessionId: sessionId ?? undefined })
       });
       const data = await response.json();
+      if (data.sessionId) setSessionId(data.sessionId);
+      const sources = Array.isArray(data.sources)
+        ? (data.sources as Array<{ title: string }>).map((s) => s.title).slice(0, 3)
+        : [];
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: data.answer || data.error || "I could not answer that yet." }
+        { role: "assistant", content: data.answer || data.error || "I could not answer that yet." },
+        ...(sources.length
+          ? [{ role: "system" as const, content: `› grounded in: ${sources.join(" · ")}` }]
+          : [])
       ]);
     } catch (e) {
       setMessages((m) => [
@@ -115,13 +123,13 @@ export function ChatBox() {
           <h4>SESSION CONTEXT</h4>
           <dl className="kv">
             <dt>Mode</dt>
-            <dd><b className="ok">GROUNDED RAG</b></dd>
+            <dd><b className="ok">SEMANTIC RAG</b></dd>
             <dt>Source</dt>
             <dd>saved memory only</dd>
             <dt>Turns</dt>
             <dd><b>{messages.filter((m) => m.role !== "system").length}</b></dd>
-            <dt>Memory</dt>
-            <dd><b>LIVE</b></dd>
+            <dt>Session</dt>
+            <dd><b className={sessionId ? "ok" : ""}>{sessionId ? "PERSISTED" : "NEW"}</b></dd>
           </dl>
         </div>
 

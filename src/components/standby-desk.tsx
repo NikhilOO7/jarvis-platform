@@ -328,10 +328,8 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
         ))}
       </div>
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="deco-ornament tl" src="/images/jarvis%202.png" alt="" aria-hidden="true" />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="deco-ornament br" src="/images/jarvis%202.png" alt="" aria-hidden="true" />
+      <div className="hud-reticle tl" aria-hidden="true" />
+      <div className="hud-reticle gold rev br" aria-hidden="true" />
     </div>
   );
 }

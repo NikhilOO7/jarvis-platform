@@ -3,6 +3,21 @@ import { PageHeader } from "@/components/page-header";
 import { TopBar } from "@/components/top-bar";
 import { SubRail } from "@/components/sub-rail";
 import { agentModules, automationStack, executionSteps } from "@/lib/agent-features";
+import { env } from "@/lib/env";
+import { prisma } from "@/lib/prisma";
+
+async function getRunCounts() {
+  if (!env.DATABASE_URL) return { queued: 0, running: 0 };
+  try {
+    const [queued, running] = await Promise.all([
+      prisma.workflowRun.count({ where: { status: "QUEUED" } }),
+      prisma.workflowRun.count({ where: { status: "RUNNING" } })
+    ]);
+    return { queued, running };
+  } catch {
+    return { queued: 0, running: 0 };
+  }
+}
 
 const STATUS_BY_INDEX = ["online", "online", "warn", "online", "idle", "online"] as const;
 const TELEMETRY = [
@@ -14,15 +29,17 @@ const TELEMETRY = [
   { p50: "12ms", runs: 156, extra: { label: "FAILED", val: 0 } }
 ];
 
-export default function AgentsPage() {
+export default async function AgentsPage() {
+  const { queued, running } = await getRunCounts();
+
   return (
     <AppShell>
       <TopBar label="J.A.R.V.I.S · AGENT BAY" uplink="active" center="DELEGATION READY" />
       <SubRail
         extras={[
-          { label: "QUEUE", value: 3, variant: "warn" },
-          { label: "RUNNING", value: 2 },
-          { label: "ROUTER", value: "gpt-4o" }
+          { label: "QUEUE", value: queued, variant: queued > 0 ? "warn" : undefined },
+          { label: "RUNNING", value: running },
+          { label: "ROUTER", value: env.OPENAI_API_KEY ? env.OPENAI_CHAT_MODEL : "KEYWORDS" }
         ]}
       />
 

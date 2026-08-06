@@ -2,6 +2,7 @@ export function MiniCore() {
   return (
     <div className="mini-core" aria-hidden="true">
       <div className="ring outer" />
+      <div className="ring coil" />
       <div className="ring mid" />
       <div className="ring inn" />
       <span className="tick t1" />

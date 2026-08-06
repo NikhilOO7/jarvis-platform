@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 export type ThemeId =
+  | "jarvis"
   | "cyan"
   | "redgold"
   | "stealth"
@@ -17,6 +18,7 @@ export type ThemeId =
   | "neon";
 
 export const THEME_LABELS: Record<ThemeId, string> = {
+  jarvis: "J.A.R.V.I.S · CLASSIC",
   cyan: "MARK XLII · CYAN",
   redgold: "MARK XLIII · RED · GOLD",
   stealth: "MARK VII · STEALTH",
@@ -32,6 +34,7 @@ export const THEME_LABELS: Record<ThemeId, string> = {
 };
 
 export const THEMES: ThemeId[] = [
+  "jarvis",
   "cyan",
   "redgold",
   "stealth",
@@ -47,10 +50,10 @@ export const THEMES: ThemeId[] = [
 ];
 
 type ThemeCtx = { theme: ThemeId; setTheme: (t: ThemeId) => void };
-const Ctx = createContext<ThemeCtx>({ theme: "cyan", setTheme: () => {} });
+const Ctx = createContext<ThemeCtx>({ theme: "jarvis", setTheme: () => {} });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeId>("cyan");
+  const [theme, setThemeState] = useState<ThemeId>("jarvis");
 
   useEffect(() => {
     try {
@@ -66,7 +69,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // 1-9 → themes 0-8; 0 → theme 9; -/= → 10, 11
+      // 1-9 → themes 0-8; 0 → theme 9; -/= → 10, 11; remaining themes via ⌥/⌘ arrows
       let idx = -1;
       if (e.key >= "1" && e.key <= "9") idx = parseInt(e.key, 10) - 1;
       else if (e.key === "0") idx = 9;

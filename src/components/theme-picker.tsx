@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { THEMES, THEME_LABELS, useTheme } from "./theme-provider";
 
 const SHORT: Record<string, string> = {
+  jarvis: "J.A.R.V.I.S",
   cyan: "MK XLII",
   redgold: "RED·GOLD",
   stealth: "STEALTH",
@@ -70,7 +71,7 @@ export function ThemePicker() {
               </div>
             ))}
           </div>
-          <div className="tp-foot">12 SUITS · 1–9 0 − = · ⌥◄ ⌥► · ESC</div>
+          <div className="tp-foot">13 SUITS · 1–9 0 − = · ⌥◄ ⌥► · ESC</div>
         </aside>
       ) : null}
     </>

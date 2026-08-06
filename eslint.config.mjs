@@ -1,4 +1,5 @@
 import tsParser from "@typescript-eslint/parser";
+import nextPlugin from "@next/eslint-plugin-next";
 
 export default [
   {
@@ -15,6 +16,9 @@ export default [
           jsx: true
         }
       }
+    },
+    plugins: {
+      "@next/next": nextPlugin
     },
     rules: {
       "no-unused-vars": "off"

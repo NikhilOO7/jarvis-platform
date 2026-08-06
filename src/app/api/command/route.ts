@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { routeCommand } from "@/lib/command-router";
+import { routeCommandSmart } from "@/lib/command-router";
 import { env } from "@/lib/env";
+import { executeWorkflowRun } from "@/lib/agents/executor";
 import { createWorkflowRunFromRoute } from "@/lib/workflow-store";
 
 const commandSchema = z.object({
   command: z.string().min(1)
 });
 
+export const maxDuration = 120;
+
 export async function POST(request: Request) {
   try {
     const { command } = commandSchema.parse(await request.json());
-    const route = routeCommand(command);
-    const workflowRun = env.DATABASE_URL
+    const route = await routeCommandSmart(command);
+    const createdRun = env.DATABASE_URL
       ? await createWorkflowRunFromRoute({
           command,
           workflow: route.workflow,
@@ -25,14 +28,22 @@ export async function POST(request: Request) {
         })
       : null;
 
+    // No approval gates → the run is QUEUED; execute it right now and return the result.
+    const executedRun =
+      createdRun && createdRun.status === "QUEUED" ? await executeWorkflowRun(createdRun.id) : null;
+    const workflowRun = executedRun ?? createdRun;
+
     return NextResponse.json({
       command,
       route,
       workflowRun,
-      dryRun: !workflowRun,
-      message: workflowRun
-        ? "Command routed and workflow run created. External execution remains gated by connector setup and approvals."
-        : "Command routed. Execution is disabled until connectors and approval gates are configured."
+      executed: Boolean(executedRun),
+      dryRun: !createdRun,
+      message: !createdRun
+        ? "Command routed. Connect DATABASE_URL to create and execute real workflow runs."
+        : executedRun
+          ? `Run ${executedRun.status === "COMPLETED" ? "completed" : executedRun.status.toLowerCase()}.`
+          : "Workflow run created and armed. Clear the approval gate to execute."
     });
   } catch (error) {
     return NextResponse.json(

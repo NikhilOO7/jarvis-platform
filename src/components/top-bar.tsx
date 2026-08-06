@@ -8,12 +8,6 @@ interface TopBarProps {
   center?: string;
 }
 
-const SESSION_ID = (() => {
-  // Stable per-page mount; varied across reloads
-  const seg = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `${seg.slice(0, 2)}-${seg.slice(2, 4)}`;
-})();
-
 export function TopBar({
   label = "J.A.R.V.I.S",
   uplink = "stable",
@@ -21,6 +15,13 @@ export function TopBar({
 }: TopBarProps) {
   const [uptime, setUptime] = useState("00:00:00");
   const [start] = useState(() => Date.now());
+  // Randomized client-side only, so server and first client render match
+  const [sessionId, setSessionId] = useState("--");
+
+  useEffect(() => {
+    const seg = Math.random().toString(36).slice(2, 6).toUpperCase();
+    setSessionId(`${seg.slice(0, 2)}-${seg.slice(2, 4)}`);
+  }, []);
 
   useEffect(() => {
     const tick = () => {
@@ -57,7 +58,7 @@ export function TopBar({
       <div className="topbar-right">
         <div className="metric">
           <span>SES</span>
-          <b className="ok">{SESSION_ID}</b>
+          <b className="ok">{sessionId}</b>
         </div>
         <div className="metric">
           <span>USR</span>

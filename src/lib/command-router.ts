@@ -1,4 +1,7 @@
 import type { AgentKind } from "@prisma/client";
+import { z } from "zod";
+import { env } from "@/lib/env";
+import { getOpenAIClient } from "@/lib/openai";
 import { workflowTemplates, type WorkflowTemplateDefinition } from "@/lib/workflow-templates";
 
 export type CommandRoute = {
@@ -9,6 +12,7 @@ export type CommandRoute = {
   risk: WorkflowTemplateDefinition["risk"];
   rationale: string;
   suggestedResponse: string;
+  routedBy: "llm" | "keywords";
 };
 
 const routes: Array<{
@@ -78,6 +82,86 @@ export function routeCommand(command: string): CommandRoute {
     rationale: best.rationale,
     suggestedResponse: approvalRequired
       ? "I can prepare this, but I will require approval before making external changes."
-      : "I can route this into the workflow and report back with results."
+      : "I can route this into the workflow and report back with results.",
+    routedBy: "keywords"
   };
+}
+
+const llmRouteSchema = z.object({
+  workflowKey: z.string(),
+  agentKind: z.string(),
+  confidence: z.number().min(0).max(1),
+  rationale: z.string()
+});
+
+const knownAgentKinds: AgentKind[] = [
+  "EMAIL",
+  "CALENDAR",
+  "CONTACTS",
+  "RESEARCH",
+  "EXPENSES",
+  "CALCULATOR",
+  "KNOWLEDGE",
+  "VOICE",
+  "ORCHESTRATOR",
+  "CUSTOM"
+];
+
+/**
+ * LLM intent routing with the keyword router as the offline/error fallback.
+ */
+export async function routeCommandSmart(command: string): Promise<CommandRoute> {
+  const client = getOpenAIClient();
+  if (!client) return routeCommand(command);
+
+  try {
+    const catalog = workflowTemplates
+      .map(
+        (workflow) =>
+          `- key: ${workflow.key} | agents: ${workflow.agentKinds.join("/")} | risk: ${workflow.risk} | ${workflow.description}`
+      )
+      .join("\n");
+
+    const response = await client.chat.completions.create({
+      model: env.OPENAI_CHAT_MODEL,
+      temperature: 0,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: [
+            "You are the intent router of a personal AI assistant. Pick the single best workflow for the operator's command.",
+            "Available workflows:",
+            catalog,
+            'Reply with JSON only: {"workflowKey": string, "agentKind": string, "confidence": number 0-1, "rationale": string (one sentence)}.'
+          ].join("\n")
+        },
+        { role: "user", content: command }
+      ]
+    });
+
+    const parsed = llmRouteSchema.parse(JSON.parse(response.choices[0]?.message.content ?? "{}"));
+    const workflow = workflowTemplates.find((template) => template.key === parsed.workflowKey);
+    if (!workflow) return routeCommand(command);
+
+    const agentKind = knownAgentKinds.includes(parsed.agentKind as AgentKind)
+      ? (parsed.agentKind as AgentKind)
+      : workflow.agentKinds[0];
+    const approvalRequired = workflow.steps.some((step) => step.approvalRequired);
+
+    return {
+      agentKind,
+      workflow,
+      confidence: Math.min(0.99, Math.max(0.05, parsed.confidence)),
+      approvalRequired,
+      risk: workflow.risk,
+      rationale: parsed.rationale,
+      suggestedResponse: approvalRequired
+        ? "I can prepare this, but I will require approval before making external changes."
+        : "Executing now. I will report back with results.",
+      routedBy: "llm"
+    };
+  } catch {
+    return routeCommand(command);
+  }
 }

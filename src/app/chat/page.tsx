@@ -3,6 +3,7 @@ import { ChatBox } from "@/components/chat-box";
 import { PageHeader } from "@/components/page-header";
 import { TopBar } from "@/components/top-bar";
 import { SubRail } from "@/components/sub-rail";
+import { env } from "@/lib/env";
 
 export default function ChatPage() {
   return (
@@ -10,9 +11,9 @@ export default function ChatPage() {
       <TopBar label="J.A.R.V.I.S · DIALOGUE" uplink="ready" center="ASSISTANT CORE ONLINE" />
       <SubRail
         extras={[
-          { label: "MODEL", value: "gpt-4o" },
+          { label: "MODEL", value: env.OPENAI_API_KEY ? env.OPENAI_CHAT_MODEL : "OFFLINE" },
           { label: "MEMORY", value: "LIVE" },
-          { label: "RAG", value: "GROUNDED" }
+          { label: "RAG", value: "SEMANTIC" }
         ]}
       />
       <PageHeader

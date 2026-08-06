@@ -4,7 +4,7 @@ A personal AI operating system for turning saved links, social exports, posts, v
 
 ## Product Truth Source
 
-The detailed product vision, feature map, architecture, roadmap, and guiding principles live in [PRODUCT_VISION.md](./PRODUCT_VISION.md). Treat that document as the reference for what we are trying to build.
+The detailed product vision, feature map, architecture, roadmap, and guiding principles live in [PRODUCT_VISION.md](./PRODUCT_VISION.md). The founder/CTO execution program — capability pillars, target architecture, and the seven-phase plan to the full JARVIS vision — lives in [docs/MASTER_PLAN.md](./docs/MASTER_PLAN.md). Treat those documents as the reference for what we are building and in what order.
 
 ## MVP v0.1
 
@@ -35,16 +35,15 @@ The detailed product vision, feature map, architecture, roadmap, and guiding pri
 
 ## Automation Core
 
-The platform now includes a first-pass automation layer:
+The platform includes a working agent execution engine (Phase 1 of the master plan):
 
-- Agent definitions in Prisma
-- Workflow templates in Prisma
-- Workflow runs in Prisma
-- Approval requests in Prisma
-- Connector configuration records in Prisma
-- Static workflow template registry
-- Command router that selects agent, workflow, risk, confidence, and approval gates
-- API endpoint that can persist workflow runs when `DATABASE_URL` is configured
+- LLM intent router (`routeCommandSmart`) with a deterministic keyword fallback when no API key is set
+- Workflow run executor (`src/lib/agents/executor.ts`) that claims `QUEUED` runs, walks template steps through an OpenAI tool-calling loop, streams step logs into the run, and writes structured output
+- Agent tool registry (`src/lib/agents/tools.ts`): semantic knowledge search, note capture, briefing snapshot, run history, safe calculator, clock — plus draft-artifact tools (email draft, calendar proposal, expense record) that never touch external systems until connectors plus approvals exist
+- Semantic memory: embeddings are written on ingest and queried via pgvector similarity for chat and agent retrieval, with keyword/recency fallback
+- Approval gates: approving the final gate auto-fires the executor; rejecting cancels the run
+- Chat persistence into `ChatSession`/`ChatMessage` with retrieval sources returned per answer
+- Workflow templates, runs, approvals, agent definitions, and connector configs in Prisma
 
 ## API Endpoints
 
@@ -53,10 +52,12 @@ The platform now includes a first-pass automation layer:
 - `POST /api/extension/capture` - future browser extension capture endpoint
 - `POST /api/chat` - answer from saved knowledge
 - `GET /api/briefing` - generate briefing payload
-- `POST /api/command` - route natural-language command into an agent workflow
+- `POST /api/command` - route a natural-language command and execute it immediately when no approval gate applies
 - `GET /api/workflows` - list workflow templates
+- `GET /api/runs` - list workflow runs with logs and output
+- `POST /api/runs/execute` - execute a specific `QUEUED` workflow run
 - `GET /api/approvals` - list approval queue
-- `PATCH /api/approvals` - approve or reject an approval request
+- `PATCH /api/approvals` - approve or reject an approval request (clearing the last gate triggers execution)
 
 ## Safe Capture Principle
 

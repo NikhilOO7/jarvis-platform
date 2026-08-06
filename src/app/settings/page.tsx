@@ -14,6 +14,18 @@ const connectorChecks = [
   { name: "Calendar Connector", description: "Future availability checks, event drafting, meeting prep, and approval-gated scheduling.", configured: Boolean(process.env.CALENDAR_CONNECTOR_ENABLED) }
 ];
 
+const envKeys = [
+  "DATABASE_URL",
+  "OPENAI_API_KEY",
+  "OPENAI_CHAT_MODEL",
+  "OPENAI_EMBEDDING_MODEL",
+  "TELEGRAM_BOT_TOKEN",
+  "ELEVENLABS_API_KEY",
+  "ANTHROPIC_API_KEY",
+  "EMAIL_CONNECTOR_ENABLED",
+  "CALENDAR_CONNECTOR_ENABLED"
+];
+
 export default function SettingsPage() {
   const onlineCount = connectorChecks.filter((c) => c.configured).length;
 
@@ -54,9 +66,9 @@ export default function SettingsPage() {
       </section>
 
       <section className="panel" style={{ marginTop: 18 }}>
-        <div className="panel-head"><h3>ENVIRONMENT PLACEHOLDERS</h3><span className="tag">6 KEYS</span></div>
+        <div className="panel-head"><h3>ENVIRONMENT PLACEHOLDERS</h3><span className="tag">{envKeys.length} KEYS</span></div>
         <div className="caps">
-          {["DATABASE_URL", "OPENAI_API_KEY", "TELEGRAM_BOT_TOKEN", "ELEVENLABS_API_KEY", "EMAIL_CONNECTOR_ENABLED", "CALENDAR_CONNECTOR_ENABLED"].map((k) => (
+          {envKeys.map((k) => (
             <span key={k}>{k}</span>
           ))}
         </div>
