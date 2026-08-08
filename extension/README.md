@@ -31,6 +31,19 @@ by the chat model ("what is this video saying"), and saved to your knowledge bas
 `● REC mm:ss` chip shows the whole time; results appear in the panel and as a toast.
 Requires `OPENAI_API_KEY` in the app's `.env`.
 
+## Watch mode (Phase C — shipped)
+**"Understand video (audio + visuals)"** records the audio AND samples still frames of the
+playing video (every 3s, ≤20 frames, downscaled): frames come straight off the `<video>`
+element via canvas, with a visible-tab screenshot fallback when the media is cross-origin
+protected. Audio is transcribed, then a vision model produces the full brief — gist, claims,
+what the creator wants you to do, and what the visuals show that the audio doesn't. The REC
+chip counts frames live (`● REC 01:12 — audio + 14 frames`).
+
+## Ask anywhere (Phase D — shipped)
+The bottom of the panel has **ASK JARVIS**: type a question on any page and get an answer
+grounded in your saved knowledge (semantic retrieval), related to the page you're viewing.
+Only your question, the page title/URL, and any text you selected are sent — never the full
+page. Sources are cited under each answer.
+
 ## Coming next (per the plan)
-Phase C: "Watch" — multimodal video understanding (frames + audio → what they're trying to say).
-Phase D: Ask-Jarvis panel chat grounded in your knowledge base.
+Phase E: hotkeys, Firefox port, region capture, capture queue, polish.

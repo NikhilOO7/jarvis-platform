@@ -22,12 +22,16 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true;
   }
   if (message.type === "stop-recording") {
+    pendingFrames = Array.isArray(message.frames) ? message.frames.slice(0, 20) : [];
     stop();
     sendResponse({ ok: true });
     return false;
   }
   return false;
 });
+
+let pendingFrames = [];
+let keepaliveTimer = null;
 
 async function start(message) {
   if (recorder) throw new Error("Already recording");
@@ -56,10 +60,16 @@ async function start(message) {
   recorder.onstop = upload;
   recorder.start(1000);
   capTimer = setTimeout(stop, MAX_RECORD_MS);
+  // Ping the SW so it stays awake for frame requests during long recordings.
+  keepaliveTimer = setInterval(() => {
+    chrome.runtime.sendMessage({ type: "jarvis:keepalive" }).catch(() => {});
+  }, 20000);
 }
 
 function stop() {
   clearTimeout(capTimer);
+  clearInterval(keepaliveTimer);
+  keepaliveTimer = null;
   if (recorder && recorder.state === "recording") recorder.stop();
 }
 
@@ -72,6 +82,15 @@ async function upload() {
   const form = new FormData();
   form.append("audio", blob, "capture.webm");
   form.append("metadata", JSON.stringify({ ...meta, durationSec }));
+  for (let i = 0; i < pendingFrames.length; i++) {
+    try {
+      const frameBlob = await (await fetch(pendingFrames[i])).blob();
+      form.append("frames", frameBlob, `frame${i}.jpg`);
+    } catch {
+      // skip malformed frame
+    }
+  }
+  pendingFrames = [];
 
   let result;
   try {

@@ -113,10 +113,22 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
   if (message?.type === "jarvis:listen-stop") {
     chrome.runtime
-      .sendMessage({ target: "offscreen", type: "stop-recording" })
+      .sendMessage({ target: "offscreen", type: "stop-recording", frames: message.frames || [] })
       .then(() => sendResponse({ ok: true }))
       .catch((error) => sendResponse({ ok: false, error: String(error?.message || error) }));
     return true;
+  }
+  if (message?.type === "jarvis:frame-request") {
+    // Fallback when the page's canvas capture is tainted: screenshot the visible tab.
+    chrome.tabs
+      .captureVisibleTab(_sender.tab?.windowId, { format: "jpeg", quality: 60 })
+      .then((dataUrl) => sendResponse({ dataUrl }))
+      .catch(() => sendResponse({ dataUrl: null }));
+    return true;
+  }
+  if (message?.type === "jarvis:keepalive") {
+    sendResponse({ ok: true }); // resets the SW idle timer while a recording is running
+    return false;
   }
   if (message?.type === "jarvis:listen-result") {
     // Offscreen finished uploading — forward the verdict to the originating tab's HUD.
@@ -126,6 +138,16 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     chrome.offscreen.closeDocument().catch(() => {});
     sendResponse({ ok: true });
     return false;
+  }
+
+  if (message?.type === "jarvis:ask") {
+    appFetch("/api/extension/ask", {
+      method: "POST",
+      body: JSON.stringify(message.payload)
+    })
+      .then((result) => sendResponse(result))
+      .catch((error) => sendResponse({ ok: false, status: 0, body: { error: String(error?.message || error) } }));
+    return true;
   }
 
   if (message?.type === "jarvis:capture") {

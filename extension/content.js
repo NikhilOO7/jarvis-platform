@@ -161,16 +161,66 @@
     };
   }
 
-  function listenProposal() {
+  function listenProposals() {
     const video = Array.from(document.querySelectorAll("video")).find(isVisible);
-    if (!video) return null;
-    return {
-      id: "listen",
-      kind: "listen",
-      label: "Transcribe playing video",
-      preview:
-        "Records this tab's audio while you play the video (max 5 min), transcribes it, and saves the brief to your knowledge base."
-    };
+    if (!video) return [];
+    return [
+      {
+        id: "watch",
+        kind: "watch",
+        label: "Understand video (audio + visuals)",
+        preview:
+          "Records this tab's audio AND samples still frames of the video while it plays (max 5 min, ≤20 frames), then briefs you on what it's showing and saying."
+      },
+      {
+        id: "listen",
+        kind: "listen",
+        label: "Transcribe playing video (audio only)",
+        preview:
+          "Records this tab's audio while you play the video (max 5 min), transcribes it, and saves the brief to your knowledge base."
+      }
+    ];
+  }
+
+  /* --------------------------- frame sampling (watch) --------------------- */
+
+  const FRAME_INTERVAL_MS = 3000;
+  const MAX_FRAMES = 20;
+  const FRAME_MAX_WIDTH = 768;
+
+  function captureVideoFrame() {
+    const video = Array.from(document.querySelectorAll("video")).find(isVisible);
+    if (!video || !video.videoWidth) return null;
+    const scale = Math.min(1, FRAME_MAX_WIDTH / video.videoWidth);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.6); // throws SecurityError if tainted
+  }
+
+  function grabFrame() {
+    if (listenState.frames.length >= MAX_FRAMES) return;
+    try {
+      const frame = captureVideoFrame();
+      if (frame) listenState.frames.push(frame);
+    } catch {
+      // Tainted canvas (cross-origin media) — fall back to a tab screenshot via the SW.
+      chrome.runtime.sendMessage({ type: "jarvis:frame-request" }, (result) => {
+        if (result?.dataUrl && listenState.frames.length < MAX_FRAMES) listenState.frames.push(result.dataUrl);
+      });
+    }
+  }
+
+  function startFrameLoop() {
+    listenState.frames = [];
+    grabFrame();
+    listenState.frameTimer = setInterval(grabFrame, FRAME_INTERVAL_MS);
+  }
+
+  function stopFrameLoop() {
+    clearInterval(listenState.frameTimer);
+    listenState.frameTimer = null;
   }
 
   function collectProposals(mode) {
@@ -183,8 +233,7 @@
       // DM rule: never propose bulk reads on conversation pages.
       return proposals;
     }
-    const listen = listenProposal();
-    if (listen) proposals.push(listen);
+    proposals.push(...listenProposals());
     if (mode !== "page") {
       const platform = detectPlatform();
       if (platform === "instagram") proposals.push(...instagramProposals());
@@ -198,7 +247,16 @@
   /* ------------------------------ consent HUD ---------------------------- */
 
   let host = null;
-  const listenState = { active: false, statusEl: null, buttonEl: null, timer: null, startedAt: 0 };
+  const listenState = {
+    active: false,
+    mode: "listen",
+    statusEl: null,
+    buttonEl: null,
+    timer: null,
+    startedAt: 0,
+    frames: [],
+    frameTimer: null
+  };
 
   function startRecTimer(statusEl) {
     listenState.startedAt = Date.now();
@@ -207,7 +265,10 @@
       const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
       const ss = String(seconds % 60).padStart(2, "0");
       statusEl.className = "status err"; // red = recording indicator
-      statusEl.textContent = `● REC ${mm}:${ss} — audio only, this tab`;
+      statusEl.textContent =
+        listenState.mode === "watch"
+          ? `● REC ${mm}:${ss} — audio + ${listenState.frames.length} frames, this tab`
+          : `● REC ${mm}:${ss} — audio only, this tab`;
     };
     tick();
     listenState.timer = setInterval(tick, 1000);
@@ -316,6 +377,18 @@
       .status { font-size: 10px; letter-spacing: 0.1em; }
       .status.ok { color: #8be28b; }
       .status.err { color: #ffb4b4; }
+      .ask { border-top: 1px solid rgba(127, 212, 255, 0.25); padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; }
+      .ask-title { color: #ffd27a; font-size: 10px; letter-spacing: 0.18em; }
+      .ask-row { display: flex; gap: 6px; }
+      .ask input {
+        flex: 1; min-width: 0; padding: 7px 9px; font: inherit; color: #d7ecf7;
+        background: rgba(127, 212, 255, 0.07); border: 1px solid rgba(127, 212, 255, 0.35);
+        border-radius: 6px; outline: none;
+      }
+      .ask input:focus { border-color: rgba(127, 212, 255, 0.8); }
+      .answer { word-break: break-word; }
+      .answer .ai { color: #7fd4ff; }
+      .sources { font-size: 10px; opacity: 0.65; }
     `;
     shadow.appendChild(style);
 
@@ -378,31 +451,40 @@
 
       deny.addEventListener("click", () => item.remove());
 
-      if (proposal.kind === "listen") {
-        approve.textContent = "◉ START LISTENING";
+      if (proposal.kind === "listen" || proposal.kind === "watch") {
+        const isWatch = proposal.kind === "watch";
+        approve.textContent = isWatch ? "◉ START WATCHING" : "◉ START LISTENING";
         approve.addEventListener("click", () => {
           if (listenState.active) {
-            // Second click = stop & transcribe.
+            // Second click = stop & analyze.
             approve.disabled = true;
-            status.textContent = "TRANSCRIBING…";
-            chrome.runtime.sendMessage({ type: "jarvis:listen-stop" }, () => {});
+            status.textContent = "ANALYZING…";
+            stopFrameLoop();
+            chrome.runtime.sendMessage(
+              { type: "jarvis:listen-stop", frames: listenState.mode === "watch" ? listenState.frames : [] },
+              () => {}
+            );
             stopRecTimer();
             listenState.active = false;
+            listenState.frames = [];
             return;
           }
           status.textContent = "ARMING RECORDER…";
           const metadata = {
             url: location.href,
             title: clean(document.title),
-            platform: detectPlatform()
+            platform: detectPlatform(),
+            mode: proposal.kind
           };
           chrome.runtime.sendMessage({ type: "jarvis:listen-start", metadata }, (result) => {
             if (result?.ok) {
               listenState.active = true;
+              listenState.mode = proposal.kind;
               listenState.statusEl = status;
               listenState.buttonEl = approve;
               deny.disabled = true;
-              approve.textContent = "■ STOP & TRANSCRIBE";
+              approve.textContent = isWatch ? "■ STOP & ANALYZE" : "■ STOP & TRANSCRIBE";
+              if (isWatch) startFrameLoop();
               startRecTimer(status);
             } else {
               status.className = "status err";
@@ -434,9 +516,86 @@
     });
 
     panel.appendChild(body);
+    panel.appendChild(buildAskSection());
     shadow.appendChild(panel);
     document.documentElement.appendChild(host);
     document.addEventListener("keydown", onKeydown, true);
+  }
+
+  function buildAskSection() {
+    const ask = document.createElement("div");
+    ask.className = "ask";
+
+    const title = document.createElement("div");
+    title.className = "ask-title";
+    title.textContent = "ASK JARVIS · GROUNDED IN YOUR MEMORY";
+    ask.appendChild(title);
+
+    const row = document.createElement("div");
+    row.className = "ask-row";
+    const input = document.createElement("input");
+    input.placeholder = "e.g. how does this compare to what I saved?";
+    const button = document.createElement("button");
+    button.className = "act";
+    button.textContent = "ASK";
+    row.append(input, button);
+    ask.appendChild(row);
+
+    const note = document.createElement("div");
+    note.className = "note";
+    note.textContent = "Sends your question + this page's title/link" + (clean(String(window.getSelection() || "")) ? " + your selection." : ".");
+    ask.appendChild(note);
+
+    const answer = document.createElement("div");
+    answer.className = "answer";
+    ask.appendChild(answer);
+
+    const submit = () => {
+      const question = clean(input.value);
+      if (!question || button.disabled) return;
+      button.disabled = true;
+      input.disabled = true;
+      answer.innerHTML = "";
+      answer.textContent = "… consulting memory";
+
+      const payload = {
+        question,
+        page: {
+          url: location.href,
+          title: clean(document.title),
+          selection: clean(String(window.getSelection() || "")).slice(0, 1500) || undefined
+        }
+      };
+      chrome.runtime.sendMessage({ type: "jarvis:ask", payload }, (result) => {
+        button.disabled = false;
+        input.disabled = false;
+        answer.innerHTML = "";
+        if (result?.ok) {
+          const prefix = document.createElement("span");
+          prefix.className = "ai";
+          prefix.textContent = "Jarvis › ";
+          answer.appendChild(prefix);
+          answer.appendChild(document.createTextNode(result.body?.answer || "No answer."));
+          const sources = (result.body?.sources || []).map((source) => source.title).filter(Boolean);
+          if (sources.length) {
+            const sourcesEl = document.createElement("div");
+            sourcesEl.className = "sources";
+            sourcesEl.textContent = `grounded in: ${sources.slice(0, 3).join(" · ")}`;
+            answer.appendChild(sourcesEl);
+          }
+        } else {
+          answer.textContent = `✕ ${result?.body?.error || "Could not reach Jarvis."}`;
+        }
+      });
+    };
+
+    button.addEventListener("click", submit);
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") submit();
+      event.stopPropagation(); // keep site hotkeys away from the input
+    });
+
+    return ask;
   }
 
   chrome.runtime.onMessage.addListener((message) => {

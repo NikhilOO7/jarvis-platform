@@ -4,27 +4,12 @@ import type { Prisma } from "@prisma/client";
 import { getOpenAIClient } from "@/lib/openai";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
-import { searchKnowledge, type KnowledgeMatch } from "@/lib/ai/retrieval";
+import { getGroundingContext } from "@/lib/ai/retrieval";
 
 const chatSchema = z.object({
   question: z.string().min(1),
   sessionId: z.string().optional()
 });
-
-async function getContext(question: string): Promise<{ matches: KnowledgeMatch[]; mode: "semantic" | "recent" }> {
-  const matches = await searchKnowledge(question, 8);
-  if (matches.length > 0) return { matches, mode: "semantic" };
-
-  const recent = await prisma.knowledgeItem.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 12,
-    select: { id: true, title: true, summary: true, category: true, insights: true, actions: true }
-  });
-  return {
-    matches: recent.map((item) => ({ ...item, category: String(item.category), score: null })),
-    mode: "recent"
-  };
-}
 
 async function persistTurn(input: {
   sessionId?: string;
@@ -70,7 +55,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const { matches, mode } = await getContext(question);
+    const { matches, mode } = await getGroundingContext(question);
 
     if (matches.length === 0) {
       return NextResponse.json({

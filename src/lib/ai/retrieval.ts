@@ -94,3 +94,26 @@ export async function searchKnowledge(query: string, limit = 6): Promise<Knowled
     return [];
   }
 }
+
+/** Semantic matches for a question, falling back to the most recent knowledge. */
+export async function getGroundingContext(
+  question: string,
+  limit = 8
+): Promise<{ matches: KnowledgeMatch[]; mode: "semantic" | "recent" }> {
+  const matches = await searchKnowledge(question, limit);
+  if (matches.length > 0) return { matches, mode: "semantic" };
+
+  try {
+    const recent = await prisma.knowledgeItem.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 12,
+      select: { id: true, title: true, summary: true, category: true, insights: true, actions: true }
+    });
+    return {
+      matches: recent.map((item) => ({ ...item, category: String(item.category), score: null })),
+      mode: "recent"
+    };
+  } catch {
+    return { matches: [], mode: "recent" };
+  }
+}
