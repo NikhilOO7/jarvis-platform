@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Jarvis Companion",
+  "version": "0.1.0",
+  "description": "Consent-first capture into your local Jarvis knowledge base. Proposes what it can read; nothing is captured without your approval.",
+  "action": {
+    "default_title": "Summon Jarvis"
+  },
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "options_page": "options.html",
+  "permissions": ["storage", "activeTab", "scripting", "contextMenus", "tabCapture", "offscreen"],
+  "host_permissions": ["http://localhost:3000/*"],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.instagram.com/*",
+        "https://www.facebook.com/*",
+        "https://www.linkedin.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

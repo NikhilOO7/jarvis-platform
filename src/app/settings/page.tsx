@@ -3,6 +3,9 @@ import { PageHeader } from "@/components/page-header";
 import { TopBar } from "@/components/top-bar";
 import { SubRail } from "@/components/sub-rail";
 import { env } from "@/lib/env";
+import { ensureExtensionToken } from "@/lib/extension-auth";
+
+export const dynamic = "force-dynamic";
 
 const connectorChecks = [
   { name: "Postgres + pgvector", description: "Stores raw content, memory, graph records, agents, workflow runs, approvals, and vector search.", configured: Boolean(env.DATABASE_URL) },
@@ -26,8 +29,9 @@ const envKeys = [
   "CALENDAR_CONNECTOR_ENABLED"
 ];
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
   const onlineCount = connectorChecks.filter((c) => c.configured).length;
+  const extensionToken = await ensureExtensionToken();
 
   return (
     <AppShell>
@@ -63,6 +67,42 @@ export default function SettingsPage() {
             <p className="desc">{connector.description}</p>
           </article>
         ))}
+      </section>
+
+      <section className="panel" style={{ marginTop: 18 }}>
+        <div className="panel-head">
+          <h3>BROWSER COMPANION</h3>
+          <span className="tag">{extensionToken ? "PAIRING READY" : "AWAITING DATABASE"}</span>
+        </div>
+        <div className="muted" style={{ fontSize: 12, lineHeight: 1.7 }}>
+          <p style={{ marginBottom: 8 }}>
+            Consent-first capture from open tabs (see docs/BROWSER_COMPANION_PLAN.md). Install: open{" "}
+            <span className="mono">chrome://extensions</span>, enable Developer mode, choose{" "}
+            <b>Load unpacked</b>, and select the <span className="mono">extension/</span> folder of this repo.
+            Then paste this pairing token into the extension&apos;s options page:
+          </p>
+          {extensionToken ? (
+            <code
+              className="mono"
+              style={{
+                display: "block",
+                padding: "10px 12px",
+                border: "1px solid rgba(var(--glow-rgb), 0.35)",
+                borderRadius: 6,
+                fontSize: 12,
+                userSelect: "all",
+                wordBreak: "break-all"
+              }}
+            >
+              {extensionToken}
+            </code>
+          ) : (
+            <p>
+              Connect <span className="mono">DATABASE_URL</span> (or set{" "}
+              <span className="mono">JARVIS_EXTENSION_TOKEN</span> in .env) to mint a pairing token.
+            </p>
+          )}
+        </div>
       </section>
 
       <section className="panel" style={{ marginTop: 18 }}>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Jarvis Companion — Pairing</title>
+    <style>
+      body {
+        background: #04121f; color: #d7ecf7;
+        font: 13px/1.6 ui-monospace, Menlo, monospace;
+        max-width: 560px; margin: 40px auto; padding: 0 20px;
+      }
+      h1 { color: #7fd4ff; font-size: 15px; letter-spacing: 0.2em; margin-bottom: 4px; }
+      .sub { color: #ffd27a; font-size: 10px; letter-spacing: 0.18em; margin-bottom: 24px; }
+      label { display: block; font-size: 10px; letter-spacing: 0.16em; color: #7fd4ff; margin: 14px 0 4px; }
+      input {
+        width: 100%; padding: 9px 10px; font: inherit; color: #d7ecf7;
+        background: rgba(127, 212, 255, 0.06); border: 1px solid rgba(127, 212, 255, 0.35);
+        border-radius: 6px; outline: none;
+      }
+      input:focus { border-color: rgba(127, 212, 255, 0.8); }
+      button {
+        margin-top: 18px; margin-right: 8px; cursor: pointer; font: inherit; font-size: 11px;
+        letter-spacing: 0.14em; padding: 8px 16px; border-radius: 6px;
+        border: 1px solid rgba(127, 212, 255, 0.5);
+        background: rgba(127, 212, 255, 0.14); color: #bfeaff;
+      }
+      button:hover { background: rgba(127, 212, 255, 0.28); }
+      #status { margin-top: 16px; font-size: 12px; white-space: pre-line; }
+      .ok { color: #8be28b; }
+      .err { color: #ffb4b4; }
+      p.help { opacity: 0.65; font-size: 11px; margin-top: 24px; }
+    </style>
+  </head>
+  <body>
+    <h1>◉ JARVIS COMPANION</h1>
+    <div class="sub">PAIRING · CONSENT-FIRST CAPTURE</div>
+
+    <label for="appUrl">Jarvis app URL</label>
+    <input id="appUrl" placeholder="http://localhost:3000" />
+
+    <label for="token">Pairing token (from the app's /settings page)</label>
+    <input id="token" type="password" placeholder="jrv_…" />
+
+    <button id="save">SAVE</button>
+    <button id="test">TEST CONNECTION</button>
+    <div id="status"></div>
+
+    <p class="help">
+      The companion only reads page content you explicitly approve in the on-page panel, and only
+      talks to your own Jarvis app at the URL above. Kill it any time from the extensions menu.
+    </p>
+
+    <script src="options.js"></script>
+  </body>
+</html>
