@@ -59,6 +59,18 @@ The platform includes a working agent execution engine (Phase 1 of the master pl
 - `GET /api/approvals` - list approval queue
 - `PATCH /api/approvals` - approve or reject an approval request (clearing the last gate triggers execution)
 
+## Telegram Bridge
+
+Jarvis in your pocket: `npm run telegram` starts a zero-dependency long-polling bridge
+(`scripts/telegram-bridge.mjs`) that relays Telegram messages to your local app — free text
+becomes grounded answers from your knowledge base, `/run <command>` routes into agent
+workflows with **inline approve/reject buttons** for approval gates (execution results are
+reported back to the chat), `/save` captures links/notes, `/brief` runs the executive
+briefing. Setup: create a bot with @BotFather, set `TELEGRAM_BOT_TOKEN` and
+`JARVIS_EXTENSION_TOKEN` in `.env`, run `npm run telegram -- --check`, then message the bot
+once and pin the printed `TELEGRAM_ALLOWED_CHAT_ID` in `.env`. The bridge answers only that
+chat id and talks only to your local app.
+
 ## Safe Capture Principle
 
 Use explicit capture first: manual save, browser extension, share sheet, clipboard, iOS Shortcuts, Android share intent, exports, and official APIs where useful. Avoid stealth scraping and private API reverse engineering.
