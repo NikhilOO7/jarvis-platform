@@ -101,6 +101,10 @@ const listRunsArgs = z.object({
   limit: z.number().int().min(1).max(20).optional()
 });
 
+const exploreEntityArgs = z.object({
+  name: z.string().min(1)
+});
+
 const calculateArgs = z.object({
   expression: z.string().min(1)
 });
@@ -219,6 +223,45 @@ export const agentTools: AgentTool[] = [
         select: { id: true, command: true, status: true, createdAt: true }
       });
       return { ok: true, data: runs };
+    }
+  },
+  {
+    name: "explore_entity",
+    description:
+      "Look up a person, product, food, exercise, company, or concept in the operator's knowledge graph: where it was mentioned and what it co-occurs with. Use when a question centers on a specific thing or person.",
+    risk: "low",
+    parameters: {
+      type: "object",
+      properties: { name: { type: "string", description: "Entity name, e.g. 'creatine', 'Alex', 'Mark VII'" } },
+      required: ["name"]
+    },
+    execute: async (args) => {
+      const { name } = exploreEntityArgs.parse(args);
+      const entity = await prisma.entity.findFirst({
+        where: { name: { contains: name, mode: "insensitive" } },
+        include: {
+          mentions: {
+            take: 8,
+            orderBy: { createdAt: "desc" },
+            include: { knowledgeItem: { select: { id: true, title: true, category: true, summary: true } } }
+          },
+          outgoing: { take: 10, orderBy: { weight: "desc" }, include: { toEntity: { select: { name: true, type: true } } } },
+          incoming: { take: 10, orderBy: { weight: "desc" }, include: { fromEntity: { select: { name: true, type: true } } } }
+        }
+      });
+      if (!entity) return { ok: true, data: { found: false, message: `No entity matching "${name}" in the graph yet.` } };
+      return {
+        ok: true,
+        data: {
+          found: true,
+          entity: { type: entity.type, name: entity.name, description: entity.description },
+          mentionedIn: entity.mentions.map((mention) => mention.knowledgeItem),
+          relatedTo: [
+            ...entity.outgoing.map((relation) => ({ ...relation.toEntity, weight: relation.weight })),
+            ...entity.incoming.map((relation) => ({ ...relation.fromEntity, weight: relation.weight }))
+          ].sort((a, b) => b.weight - a.weight)
+        }
+      };
     }
   },
   {

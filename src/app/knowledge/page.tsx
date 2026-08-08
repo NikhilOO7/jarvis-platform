@@ -12,15 +12,24 @@ async function getKnowledge() {
     return await prisma.knowledgeItem.findMany({
       orderBy: { createdAt: "desc" },
       take: 30,
-      include: { source: true }
+      include: { source: true, entities: { include: { entity: true } } }
     });
   } catch {
     return [];
   }
 }
 
+async function getEntityCount() {
+  if (!env.DATABASE_URL) return 0;
+  try {
+    return await prisma.entity.count();
+  } catch {
+    return 0;
+  }
+}
+
 export default async function KnowledgePage() {
-  const items = await getKnowledge();
+  const [items, entityCount] = await Promise.all([getKnowledge(), getEntityCount()]);
 
   return (
     <AppShell>
@@ -28,6 +37,7 @@ export default async function KnowledgePage() {
       <SubRail
         extras={[
           { label: "NODES", value: items.length },
+          { label: "ENTITIES", value: entityCount },
           { label: "RECENT", value: items.length > 0 ? "LIVE" : "EMPTY" }
         ]}
       />
@@ -67,6 +77,15 @@ export default async function KnowledgePage() {
                   <span className="alpha">CONF {(item.confidence ?? 0.8).toFixed(2)}</span>
                   {item.actions[0] ? <span>NEXT · {item.actions[0].slice(0, 24)}</span> : null}
                 </div>
+                {item.entities.length > 0 ? (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+                    {item.entities.map((mention) => (
+                      <span className="pill" key={mention.id} title={mention.context ?? undefined}>
+                        {mention.entity.type} · {mention.entity.name}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </article>
             ))}
           </div>

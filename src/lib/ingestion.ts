@@ -1,7 +1,9 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { classifyContent } from "@/lib/ai/classify";
+import { extractEntities } from "@/lib/ai/entities";
 import { deriveKnowledgeRecord } from "@/lib/ai/knowledge";
+import { linkEntities } from "@/lib/ai/knowledge-graph";
 import { storeItemEmbeddings } from "@/lib/ai/retrieval";
 import { summarizeContent } from "@/lib/ai/summarize";
 import { normalizeUrl, stableHash } from "@/lib/hash";
@@ -83,6 +85,16 @@ export async function ingestItem(input: IngestInput) {
     knowledgeItemId: item.knowledgeItems[0]?.id,
     text: [item.title, summary, input.text].filter(Boolean).join("\n").slice(0, 8000)
   });
+
+  const knowledgeItem = item.knowledgeItems[0];
+  if (knowledgeItem) {
+    try {
+      const entities = await extractEntities({ title: input.title, summary, text: input.text });
+      await linkEntities(knowledgeItem.id, entities);
+    } catch {
+      // graph enrichment is best-effort
+    }
+  }
 
   return { item, duplicateOf: null };
 }
