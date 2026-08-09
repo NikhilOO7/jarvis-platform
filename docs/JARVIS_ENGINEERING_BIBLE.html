@@ -157,7 +157,41 @@
 
   .rule{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);border:0;margin:34px 0}
   ::selection{background:rgba(127,212,255,.25)}
-  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+  /* ---------- SVG figures (HUD flowcharts) ---------- */
+  figure.fig{margin:16px 0;background:#020a12;border:1px solid var(--line);border-radius:10px;overflow-x:auto;padding:10px 12px 8px}
+  figure.fig svg{display:block;min-width:900px;width:100%;height:auto}
+  figure.fig figcaption{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.05em;padding:8px 6px 4px;white-space:normal}
+  .svgd .nb{fill:#0b1a2a;stroke:#2c455e;stroke-width:1.2}
+  .svgd .nb.cyan{stroke:#7fd4ff;fill:#0b2233}
+  .svgd .nb.gold{stroke:#ffd27a;fill:#231d0f}
+  .svgd .nb.good{stroke:#8be28b;fill:#0e2416}
+  .svgd .nb.bad{stroke:#ff9d9d;fill:#2a1418}
+  .svgd .nb.dim{stroke:#31485e;fill:#081524}
+  .svgd .nb.ghost{stroke-dasharray:5 4}
+  .svgd .cont{fill:rgba(127,212,255,.03);stroke:#26405a;stroke-width:1;stroke-dasharray:7 5}
+  .svgd .cont.gold{stroke:rgba(255,210,122,.5)}
+  .svgd .lbl{fill:#eaf6ff;font:600 12.5px "Space Grotesk","Avenir Next",system-ui,sans-serif;text-anchor:middle}
+  .svgd .sub{fill:#7c93a6;font:10px "JetBrains Mono",ui-monospace,monospace;text-anchor:middle;letter-spacing:.02em}
+  .svgd .tag{fill:#54697a;font:700 9.5px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.22em;text-anchor:start}
+  .svgd .elbl{fill:#8fb4cc;font:9.5px "JetBrains Mono",ui-monospace,monospace;text-anchor:middle;letter-spacing:.03em}
+  .svgd .elbl.g{fill:#ffd27a}.svgd .elbl.ok{fill:#8be28b}.svgd .elbl.err{fill:#ff9d9d}
+  .svgd .edge{fill:none;stroke:#3d5a75;stroke-width:1.4}
+  .svgd .edge.c{stroke:#7fd4ff}.svgd .edge.g{stroke:#ffd27a}.svgd .edge.ok{stroke:#8be28b}
+  .svgd .edge.err{stroke:#ff9d9d}.svgd .edge.dash{stroke-dasharray:5 5}
+  .svgd .pulse{animation:nodeGlow 2.8s ease-in-out infinite}
+  @keyframes nodeGlow{0%,100%{filter:drop-shadow(0 0 0 rgba(127,212,255,0))}50%{filter:drop-shadow(0 0 9px rgba(127,212,255,.55))}}
+  .svgd .pulse.gold{animation-name:nodeGlowGold}
+  @keyframes nodeGlowGold{0%,100%{filter:drop-shadow(0 0 0 rgba(255,210,122,0))}50%{filter:drop-shadow(0 0 9px rgba(255,210,122,.5))}}
+  .svgd .dot{fill:#bfeaff;filter:drop-shadow(0 0 4px #7fd4ff);animation:flowDot 3.6s linear infinite}
+  .svgd .dot.g{fill:#ffe4ae;filter:drop-shadow(0 0 4px #ffd27a)}
+  @keyframes flowDot{from{offset-distance:0%}to{offset-distance:100%}}
+
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .svgd .pulse{animation:none}
+    .svgd .dot{display:none}
+  }
   @media print{.toc{display:none}.layout{grid-template-columns:1fr}body{background:#04101c}}
 </style>
 </head>
@@ -344,32 +378,68 @@
     JARVIS), cognition (how it decides), memory, safety, action, and proactivity. One database. One process — on purpose.
   </p>
 
-  <div class="term"><span class="hd">system map · six layers, one process, one postgres</span>
-┌────────────────────────────── <span class="k">PRESENCE</span> ────────────────────────────────┐
-│  Web HUD (Next.js pages)   Browser Companion (MV3)   Telegram bridge      │
-│  11 routes, RSC + islands  consent HUD · listen ·    long-poll daemon     │
-│                            watch · ask               inline approvals     │
-└──────────────┬────────────────────┬──────────────────────┬────────────────┘
-               │ fetch/RSC          │ token-authed HTTP     │ token-authed HTTP
-┌──────────────▼────────────────────▼──────────────────────▼────────────────┐
-│                        <span class="k">COGNITION</span> (Next.js route handlers)                 │
-│   Intent Router (LLM, keyword fallback) → Run creation → <span class="g">Executor</span>        │
-│   persona layer · tool-calling loop · step logs · structured output       │
-└──────┬──────────────────────┬───────────────────────────┬─────────────────┘
-       │                      │                           │
-┌──────▼───────┐   ┌──────────▼──────────┐   ┌────────────▼───────────────┐
-│  <span class="k">MEMORY</span>      │   │  <span class="k">SAFETY</span>             │   │  <span class="k">ACTION</span> (tool registry)     │
-│  ingestion   │   │  risk levels        │   │  search · save · briefing  │
-│  embeddings  │   │  approval gates     │   │  calc · clock · entity     │
-│  knowledge   │   │  audit logs         │   │  drafts: email · calendar  │
-│  graph       │   │  pairing tokens     │   │  · expense (never sends)   │
-└──────┬───────┘   └─────────────────────┘   └────────────────────────────┘
-       │
-┌──────▼────────────────────── <span class="k">PROACTIVITY</span> ────────────────────────────────┐
-│  /api/cron/briefing (token-authed) ← bridge scheduler (JARVIS_BRIEFING_TIME)│
-└───────────────────────────────────────────────────────────────────────────┘
-                    all state → <span class="g">Postgres + pgvector</span> (13 models)</div>
-  <p class="caption">Fig 3.1 — every arrow is plain HTTP or an in-process function call. No queues, no microservices, no message bus. Yet.</p>
+  <figure class="fig"><svg class="svgd" viewBox="0 0 960 560" role="img" aria-label="JARVIS system map: three presence surfaces call the cognition layer over HTTP; the router creates runs which the executor claims; the executor calls memory and action tools while safety arms gates; a scheduler triggers the same cognition layer; everything persists to one Postgres with pgvector.">
+    <defs>
+      <marker id="f1d" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#3d5a75"/></marker>
+      <marker id="f1c" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#7fd4ff"/></marker>
+      <marker id="f1g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#ffd27a"/></marker>
+    </defs>
+    <text class="tag" x="40" y="24">PRESENCE — HOW YOU REACH JARVIS</text>
+    <rect class="nb cyan" x="40" y="36" width="250" height="54" rx="8"/>
+    <text class="lbl" x="165" y="58">Web HUD</text><text class="sub" x="165" y="76">11 routes · RSC + islands</text>
+    <rect class="nb cyan" x="355" y="36" width="250" height="54" rx="8"/>
+    <text class="lbl" x="480" y="58">Browser Companion</text><text class="sub" x="480" y="76">consent · listen · watch · ask</text>
+    <rect class="nb cyan" x="670" y="36" width="250" height="54" rx="8"/>
+    <text class="lbl" x="795" y="58">Telegram bridge</text><text class="sub" x="795" y="76">long-poll · inline approvals</text>
+
+    <path class="edge c" d="M165,90 L165,150" marker-end="url(#f1c)"/><text class="elbl" x="165" y="122">fetch / RSC</text>
+    <path class="edge c" d="M480,90 L480,150" marker-end="url(#f1c)"/><text class="elbl" x="480" y="122">Bearer token</text>
+    <path class="edge c" d="M795,90 L795,150" marker-end="url(#f1c)"/><text class="elbl" x="795" y="122">Bearer token</text>
+    <circle class="dot" r="3" style="offset-path:path('M165,90 L165,150')"/>
+    <circle class="dot" r="3" style="offset-path:path('M795,90 L795,150')"/>
+
+    <rect class="cont" x="40" y="150" width="880" height="130" rx="10"/>
+    <text class="tag" x="52" y="170">COGNITION — ROUTE HANDLERS</text>
+    <rect class="nb" x="70" y="182" width="200" height="60" rx="8"/>
+    <text class="lbl" x="170" y="206">Intent Router</text><text class="sub" x="170" y="224">LLM · keyword fallback</text>
+    <rect class="nb" x="330" y="182" width="200" height="60" rx="8"/>
+    <text class="lbl" x="430" y="206">WorkflowRun row</text><text class="sub" x="430" y="224">status FSM · logs · gates</text>
+    <rect class="nb cyan pulse" x="600" y="182" width="280" height="60" rx="8"/>
+    <text class="lbl" x="740" y="206">Executor</text><text class="sub" x="740" y="224">tool loop · persona · step logs</text>
+    <path class="edge c" d="M270,212 L330,212" marker-end="url(#f1c)"/><text class="elbl" x="300" y="204">creates</text>
+    <path class="edge c" d="M530,212 L600,212" marker-end="url(#f1c)"/><text class="elbl" x="565" y="204">claims (CAS)</text>
+
+    <path class="edge" d="M640,242 L640,306 L175,306 L175,330" marker-end="url(#f1d)"/>
+    <text class="elbl" x="400" y="299">search · save · snapshot</text>
+    <path class="edge c" d="M740,242 L740,330" marker-end="url(#f1c)"/>
+    <text class="elbl" x="782" y="300">tool calls</text>
+    <circle class="dot" r="3" style="offset-path:path('M740,242 L740,330')"/>
+    <path class="edge g" d="M485,330 L485,280" marker-end="url(#f1g)"/>
+    <text class="elbl g" x="580" y="312">arms gates · flips QUEUED</text>
+
+    <rect class="nb" x="40" y="330" width="270" height="100" rx="8"/>
+    <text class="lbl" x="175" y="356">MEMORY</text>
+    <text class="sub" x="175" y="376">ingestion · embeddings</text><text class="sub" x="175" y="392">knowledge · graph</text>
+    <rect class="nb gold" x="350" y="330" width="270" height="100" rx="8"/>
+    <text class="lbl" x="485" y="356">SAFETY</text>
+    <text class="sub" x="485" y="376">risk · approval gates</text><text class="sub" x="485" y="392">audit logs · pairing tokens</text>
+    <rect class="nb" x="660" y="330" width="260" height="100" rx="8"/>
+    <text class="lbl" x="790" y="356">ACTION</text>
+    <text class="sub" x="790" y="376">9 tools · zod at every call</text><text class="sub" x="790" y="392">external effects = drafts only</text>
+
+    <text class="tag" x="40" y="462">PROACTIVITY</text>
+    <rect class="nb" x="40" y="470" width="280" height="54" rx="8"/>
+    <text class="lbl" x="180" y="492">Scheduler</text><text class="sub" x="180" y="510">bridge cron · any external cron</text>
+    <path class="edge dash" d="M180,470 L180,446 L24,446 L24,212 L40,212" marker-end="url(#f1d)"/>
+    <text class="elbl" transform="rotate(-90 14 330)" x="14" y="330">POST /api/cron/briefing</text>
+
+    <rect class="nb gold pulse gold" x="350" y="470" width="570" height="54" rx="8"/>
+    <text class="lbl" x="635" y="492">Postgres + pgvector</text><text class="sub" x="635" y="510">13 models · all state · the only source of truth</text>
+    <path class="edge dash" d="M175,430 L175,497 L350,497" marker-end="url(#f1d)"/>
+    <path class="edge dash" d="M485,430 L485,470" marker-end="url(#f1d)"/><text class="elbl" x="540" y="452">reads / writes</text>
+    <path class="edge dash" d="M790,430 L790,470" marker-end="url(#f1d)"/>
+  </svg>
+  <figcaption>Fig 3.1 — the whole system: every arrow is plain HTTP or an in-process function call. No queues, no microservices, no message bus. Yet.</figcaption></figure>
 
   <h3>Why a monolith — and why that's the senior answer</h3>
   <div class="why"><b>Why one process</b>
@@ -463,22 +533,66 @@
     plus connective tissue. Read this chapter slowly; every later system is just verbs on these nouns.
   </p>
 
-  <div class="term"><span class="hd">schema topology</span>
-<span class="k">KNOWLEDGE CORE</span>                              <span class="k">AUTOMATION CORE</span>
-RawSourceItem ──1:N──▶ KnowledgeItem        WorkflowTemplate ──1:N──▶ WorkflowRun
-  │ contentHash │        │ embedding          │ steps(Json)             │ status FSM
-  │ canonicalUrl│        │ vector(1536)       │ agentKinds[]            │ logs(Json)
-  │ embedding   │        ▼                    │ requiredScopes[]        │ output(Json)
-  │ duplicateOf ─┐     EntityMention ◀──N:1── Entity                    ▼
-  ▼  (self-FK)  │        │ context     ┌──────┤ @@unique(type,name)   ApprovalRequest
-status: PENDING │        ▼             ▼      ▼                        │ status FSM
-PROCESSED       │      EntityRelation(from,to,relation,weight)         │ decidedAt
-DUPLICATE ◀─────┘                                                      ▼
-FAILED                 ChatSession ──1:N──▶ ChatMessage      ConnectorConfig
-                                              │ metadata      │ @@unique(type,name)
-                                              ▼               │ metadata.token (pairing)
-                                            sourceIds[]       ▼ scopes[]</div>
-  <p class="caption">Fig 5.1 — arrows are foreign keys. FSM = finite state machine, enforced by enum columns.</p>
+  <figure class="fig"><svg class="svgd" viewBox="0 0 960 545" role="img" aria-label="Schema topology: RawSourceItem derives KnowledgeItem which links to Entity via EntityMention; entities connect through weighted EntityRelation; ChatMessage cites knowledge items; WorkflowTemplate spawns WorkflowRun which arms ApprovalRequest gates; ConnectorConfig holds pairing tokens; AgentDefinition is dormant.">
+    <defs>
+      <marker id="f2d" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#3d5a75"/></marker>
+      <marker id="f2c" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#7fd4ff"/></marker>
+      <marker id="f2g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#ffd27a"/></marker>
+    </defs>
+    <text class="tag" x="40" y="26">KNOWLEDGE CORE — WHAT JARVIS REMEMBERS</text>
+    <text class="tag" x="660" y="26">AUTOMATION CORE — WHAT IT DOES</text>
+
+    <rect class="nb cyan" x="40" y="40" width="240" height="70" rx="8"/>
+    <text class="lbl" x="160" y="62">RawSourceItem</text>
+    <text class="sub" x="160" y="80">contentHash · canonicalUrl</text><text class="sub" x="160" y="96">status: PENDING→PROCESSED</text>
+    <path class="edge" d="M280,58 C316,58 316,96 280,96" marker-end="url(#f2d)"/>
+    <text class="elbl" x="302" y="124">duplicateOf</text>
+
+    <rect class="nb cyan" x="40" y="180" width="240" height="70" rx="8"/>
+    <text class="lbl" x="160" y="202">KnowledgeItem</text>
+    <text class="sub" x="160" y="220">title · summary · insights</text><text class="sub" x="160" y="236">embedding vector(1536)</text>
+    <path class="edge c" d="M160,110 L160,180" marker-end="url(#f2c)"/><text class="elbl" x="212" y="148">derives 1:N</text>
+
+    <rect class="nb" x="40" y="320" width="240" height="60" rx="8"/>
+    <text class="lbl" x="160" y="344">EntityMention</text><text class="sub" x="160" y="362">unique(entity, item) · context</text>
+    <path class="edge" d="M160,250 L160,320" marker-end="url(#f2d)"/><text class="elbl" x="214" y="288">1:N mentions</text>
+
+    <rect class="nb" x="340" y="320" width="220" height="60" rx="8"/>
+    <text class="lbl" x="450" y="344">Entity</text><text class="sub" x="450" y="362">@@unique(type, name)</text>
+    <path class="edge" d="M280,350 L340,350" marker-end="url(#f2d)"/><text class="elbl" x="310" y="342">N:1</text>
+
+    <rect class="nb" x="40" y="440" width="240" height="60" rx="8"/>
+    <text class="lbl" x="160" y="464">EntityRelation</text><text class="sub" x="160" y="482">mentioned_with · weight++</text>
+    <path class="edge" d="M450,380 L450,412 L160,412 L160,440" marker-end="url(#f2d)"/>
+    <text class="elbl" x="312" y="405">from / to (sorted) · co-occurrence</text>
+
+    <rect class="nb" x="340" y="40" width="220" height="56" rx="8"/>
+    <text class="lbl" x="450" y="62">ChatSession</text><text class="sub" x="450" y="80">title · createdAt</text>
+    <rect class="nb" x="340" y="170" width="220" height="60" rx="8"/>
+    <text class="lbl" x="450" y="192">ChatMessage</text><text class="sub" x="450" y="210">metadata.sourceIds = provenance</text>
+    <path class="edge" d="M450,96 L450,170" marker-end="url(#f2d)"/><text class="elbl" x="468" y="136">1:N</text>
+    <path class="edge dash c" d="M340,200 L310,200 L310,215 L280,215" marker-end="url(#f2c)"/>
+    <text class="elbl" x="318" y="190">cites</text>
+
+    <rect class="nb" x="660" y="40" width="260" height="60" rx="8"/>
+    <text class="lbl" x="790" y="62">WorkflowTemplate</text><text class="sub" x="790" y="80">steps Json · agentKinds · scopes</text>
+    <rect class="nb cyan pulse" x="660" y="180" width="260" height="70" rx="8"/>
+    <text class="lbl" x="790" y="202">WorkflowRun</text>
+    <text class="sub" x="790" y="220">status FSM · input/output Json</text><text class="sub" x="790" y="236">logs Json · audit trail</text>
+    <path class="edge c" d="M790,100 L790,180" marker-end="url(#f2c)"/><text class="elbl" x="842" y="143">spawns 1:N</text>
+
+    <rect class="nb gold" x="660" y="320" width="260" height="60" rx="8"/>
+    <text class="lbl" x="790" y="344">ApprovalRequest</text><text class="sub" x="790" y="362">PENDING→APPROVED/REJECTED</text>
+    <path class="edge g" d="M790,250 L790,320" marker-end="url(#f2g)"/><text class="elbl g" x="848" y="288">arms gates 1:N</text>
+    <path class="edge g dash" d="M660,350 L628,350 L628,225 L660,225" marker-end="url(#f2g)"/>
+    <text class="elbl g" transform="rotate(-90 618 288)" x="618" y="288">all cleared → QUEUED</text>
+
+    <rect class="nb gold" x="660" y="440" width="260" height="60" rx="8"/>
+    <text class="lbl" x="790" y="464">ConnectorConfig</text><text class="sub" x="790" y="482">metadata.token — extension pairing</text>
+    <rect class="nb dim ghost" x="340" y="440" width="220" height="60" rx="8"/>
+    <text class="lbl" x="450" y="464">AgentDefinition</text><text class="sub" x="450" y="482">dormant by design · Phase 6</text>
+  </svg>
+  <figcaption>Fig 5.1 — arrows are foreign keys; gold marks the safety spine. FSM = finite state machine, enforced by enum columns.</figcaption></figure>
 
   <h3>The knowledge core, model by model</h3>
   <div class="mod">
@@ -714,17 +828,58 @@ LIMIT  $k;
   </p>
 
   <h3>The approval state machine</h3>
-  <div class="term"><span class="hd">approval flow · one transaction, three outcomes</span>
-Operator decides gate ──▶ <span class="k">PATCH /api/approvals</span>  {id, APPROVED|REJECTED}
-        └─ prisma.<span class="g">$transaction</span>:
-             1. update ApprovalRequest (+decidedAt)
-             2. read sibling gates of the same run
-             3. derive run status:
-                REJECTED any        → run <span class="r">CANCELLED</span>
-                all APPROVED        → run <span class="s">QUEUED</span>  ──▶ <span class="g">after(): executeWorkflowRun()</span>
-                else                → stays WAITING_FOR_APPROVAL
-             4. append APPROVAL_* entry to run logs (read-modify-write)</div>
-  <p class="caption">Fig 9.1 — decision, sibling check, status derivation, and audit all commit atomically; execution fires after the response via Next's <span class="inline">after()</span>.</p>
+  <figure class="fig"><svg class="svgd" viewBox="0 0 960 400" role="img" aria-label="Approval flow: an operator decision PATCHes a gate; inside one transaction the gate is updated, sibling gates are read, and the run status is derived — any rejection cancels the run, all approvals queue it, otherwise it keeps waiting; a queued run is claimed by the executor and ends completed or failed.">
+    <defs>
+      <marker id="f3d" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#3d5a75"/></marker>
+      <marker id="f3c" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#7fd4ff"/></marker>
+      <marker id="f3g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#ffd27a"/></marker>
+      <marker id="f3ok" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#8be28b"/></marker>
+      <marker id="f3er" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#ff9d9d"/></marker>
+    </defs>
+    <rect class="nb gold pulse gold" x="40" y="52" width="210" height="62" rx="8"/>
+    <text class="lbl" x="145" y="76">Operator decision</text><text class="sub" x="145" y="94">HUD · console · Telegram tap</text>
+    <path class="edge g" d="M250,83 L310,83" marker-end="url(#f3g)"/>
+    <text class="elbl g" x="280" y="72">PATCH</text>
+
+    <rect class="cont gold" x="310" y="30" width="610" height="130" rx="10"/>
+    <text class="tag" x="322" y="50">PRISMA $TRANSACTION — ATOMIC</text>
+    <rect class="nb" x="330" y="62" width="170" height="60" rx="8"/>
+    <text class="lbl" x="415" y="84">update gate</text><text class="sub" x="415" y="102">status + decidedAt</text>
+    <rect class="nb" x="540" y="62" width="170" height="60" rx="8"/>
+    <text class="lbl" x="625" y="84">read siblings</text><text class="sub" x="625" y="102">same-run gates</text>
+    <rect class="nb" x="750" y="62" width="150" height="60" rx="8"/>
+    <text class="lbl" x="825" y="84">derive status</text><text class="sub" x="825" y="102">+ audit log entry</text>
+    <path class="edge" d="M500,92 L540,92" marker-end="url(#f3d)"/>
+    <path class="edge" d="M710,92 L750,92" marker-end="url(#f3d)"/>
+
+    <path class="edge g" d="M805,122 L805,200 L355,200 L355,250" marker-end="url(#f3g)"/>
+    <text class="elbl g" x="580" y="193">all APPROVED</text>
+    <path class="edge dash" d="M825,122 L825,224 L135,224 L135,250" marker-end="url(#f3d)"/>
+    <text class="elbl" x="480" y="217">gates remain pending</text>
+    <path class="edge err" d="M845,122 L845,310 L230,310 L230,332" marker-end="url(#f3er)"/>
+    <text class="elbl err" x="540" y="303">any REJECTED</text>
+
+    <rect class="nb dim" x="40" y="250" width="190" height="54" rx="8"/>
+    <text class="lbl" x="135" y="272">WAITING</text><text class="sub" x="135" y="290">FOR_APPROVAL</text>
+    <rect class="nb cyan" x="280" y="250" width="150" height="54" rx="8"/>
+    <text class="lbl" x="355" y="272">QUEUED</text><text class="sub" x="355" y="290">executable</text>
+    <rect class="nb cyan pulse" x="490" y="250" width="150" height="54" rx="8"/>
+    <text class="lbl" x="565" y="272">RUNNING</text><text class="sub" x="565" y="290">tool loop live</text>
+    <path class="edge c" d="M430,277 L490,277" marker-end="url(#f3c)"/>
+    <text class="elbl" x="460" y="243">after() → CAS claim</text>
+    <circle class="dot" r="3" style="offset-path:path('M430,277 L490,277')"/>
+
+    <rect class="nb good" x="700" y="234" width="150" height="46" rx="8"/>
+    <text class="lbl" x="775" y="253">COMPLETED</text><text class="sub" x="775" y="269">output + artifacts</text>
+    <rect class="nb bad" x="700" y="300" width="150" height="46" rx="8"/>
+    <text class="lbl" x="775" y="319">FAILED</text><text class="sub" x="775" y="335">error in log + output</text>
+    <path class="edge ok" d="M640,266 L668,266 L668,257 L700,257" marker-end="url(#f3ok)"/>
+    <path class="edge err dash" d="M640,290 L668,290 L668,323 L700,323" marker-end="url(#f3er)"/>
+
+    <rect class="nb bad" x="140" y="332" width="180" height="46" rx="8"/>
+    <text class="lbl" x="230" y="351">CANCELLED</text><text class="sub" x="230" y="367">nothing executed</text>
+  </svg>
+  <figcaption>Fig 9.1 — decision, sibling check, status derivation, and audit commit atomically; execution fires after the response via Next's <span class="inline">after()</span>.</figcaption></figure>
 
   <div class="story"><b>War story — the Prisma <span class="inline">logs: { push }</span> bug</b>
     The original approval handler appended audit entries with Prisma's <span class="inline">push</span> operator — which is only
@@ -842,21 +997,52 @@ Operator decides gate ──▶ <span class="k">PATCH /api/approvals</span>  {id
   </p>
 
   <h3>MV3 anatomy — five files, four contexts</h3>
-  <div class="term"><span class="hd">extension topology</span>
-toolbar click / context menu            page world
-        │                                   │
-        ▼                                   ▼
-<span class="k">service-worker.js</span> ◀────messages────▶ <span class="k">content.js</span> (per tab)
-  routing · tabCapture streamId        site adapters (IG/FB/LI/generic)
-  captureVisibleTab fallback           proposal builder → <span class="g">consent HUD</span>
-  fetch → localhost APIs               (closed shadow DOM, ESC to kill)
-        │
-        ▼
-<span class="k">offscreen.html/js</span>  ← MV3 quirk: getUserMedia/MediaRecorder need a document
-  records tab audio · re-routes audio so the tab stays audible
-  uploads audio+frames → /api/extension/media
-        +
-<span class="k">options.html/js</span> — pairing (app URL + token), health test</div>
+  <figure class="fig"><svg class="svgd" viewBox="0 0 960 440" role="img" aria-label="Extension topology: a user gesture summons the service worker, which messages the per-tab content script; the content script builds proposals into the consent HUD; approved captures and questions flow back through the service worker to the local app; for recordings the service worker hands a tab-capture stream ID to an offscreen recorder which uploads audio and frames directly to the app; the options page stores the pairing token.">
+    <defs>
+      <marker id="f4d" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#3d5a75"/></marker>
+      <marker id="f4c" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#7fd4ff"/></marker>
+      <marker id="f4g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#ffd27a"/></marker>
+    </defs>
+    <rect class="nb gold" x="40" y="36" width="220" height="54" rx="8"/>
+    <text class="lbl" x="150" y="58">User gesture</text><text class="sub" x="150" y="76">toolbar · context menu</text>
+    <path class="edge g" d="M260,63 L350,63" marker-end="url(#f4g)"/>
+    <text class="elbl g" x="288" y="84">grants activeTab</text>
+
+    <rect class="nb cyan pulse" x="350" y="30" width="260" height="66" rx="8"/>
+    <text class="lbl" x="480" y="54">service-worker.js</text><text class="sub" x="480" y="72">routing · streamId · shot fallback</text>
+    <rect class="nb dim" x="680" y="36" width="240" height="54" rx="8"/>
+    <text class="lbl" x="800" y="58">options page</text><text class="sub" x="800" y="76">app URL + pairing token</text>
+    <path class="edge dash" d="M680,63 L610,63" marker-end="url(#f4d)"/>
+    <text class="elbl" x="645" y="54">token</text>
+
+    <rect class="nb" x="40" y="170" width="260" height="64" rx="8"/>
+    <text class="lbl" x="170" y="192">content.js — per tab</text><text class="sub" x="170" y="210">adapters IG/FB/LI/generic</text>
+    <path class="edge c" d="M420,96 L420,140 L170,140 L170,170" marker-end="url(#f4c)"/>
+    <text class="elbl" x="300" y="154">jarvis:summon</text>
+    <path class="edge dash" d="M270,170 L270,120 L455,120 L455,96" marker-end="url(#f4d)"/>
+    <text class="elbl" x="362" y="113">capture · ask · listen</text>
+
+    <rect class="nb cyan" x="40" y="300" width="260" height="64" rx="8"/>
+    <text class="lbl" x="170" y="322">Consent HUD</text><text class="sub" x="170" y="340">closed shadow DOM · per-item consent</text>
+    <path class="edge c" d="M170,234 L170,300" marker-end="url(#f4c)"/>
+    <text class="elbl" x="230" y="270">proposals only</text>
+    <circle class="dot" r="3" style="offset-path:path('M170,234 L170,300')"/>
+
+    <rect class="nb" x="350" y="170" width="260" height="64" rx="8"/>
+    <text class="lbl" x="480" y="192">offscreen recorder</text><text class="sub" x="480" y="210">MediaRecorder · keepalive 20s</text>
+    <path class="edge c" d="M480,96 L480,170" marker-end="url(#f4c)"/>
+    <text class="elbl" x="550" y="136">tabCapture streamId</text>
+
+    <rect class="nb gold pulse gold" x="680" y="300" width="240" height="64" rx="8"/>
+    <text class="lbl" x="800" y="322">Jarvis app · localhost</text><text class="sub" x="800" y="340">/capture /media /ask /health</text>
+    <path class="edge g" d="M560,96 L560,132 L830,132 L830,300" marker-end="url(#f4g)"/>
+    <text class="elbl g" x="702" y="125">fetch · Bearer token</text>
+    <path class="edge g" d="M480,234 L480,332 L680,332" marker-end="url(#f4g)"/>
+    <text class="elbl g" x="578" y="324">audio + frames upload</text>
+    <circle class="dot g" r="3" style="offset-path:path('M480,234 L480,332 L680,332')"/>
+    <text class="sub" x="480" y="416">nothing crosses to the app without a human approval upstream · DM pages never get bulk proposals</text>
+  </svg>
+  <figcaption>Fig 12.1 — four extension contexts and the one hard promise: every arrow into the app starts with a human click.</figcaption></figure>
 
   <h3>The consent protocol</h3>
   <div class="flow">
@@ -1108,13 +1294,58 @@ volumes: { dbdata: {} }</div>
   <h3>Stage 3: a real cloud, encoded as code</h3>
   <p><b>Forcing function:</b> multi-user (ch. 19) or "this is now a company." Reference AWS shape, and the same
     architecture expressed in both IaC dialects:</p>
-  <div class="term"><span class="hd">stage-3 reference topology (aws)</span>
-Route53 → CloudFront → ALB → <span class="k">ECS Fargate</span>: app service (Next standalone, 2+ tasks)
-                                        └ <span class="k">worker service</span> (executor loop — the extracted kernel)
-<span class="k">RDS Postgres</span> (pgvector, Multi-AZ) · <span class="k">S3</span> (raw media: audio, frames)
-<span class="k">EventBridge Scheduler</span> → briefing endpoint (replaces bridge cron)
-<span class="k">Secrets Manager</span> (API keys, pairing tokens) · <span class="k">SQS</span> (run queue, when extracted)
-CloudWatch/OTel (logs · traces · dashboards)</div>
+  <figure class="fig"><svg class="svgd" viewBox="0 0 960 500" role="img" aria-label="AWS stage-3 topology: Route 53 to CloudFront to ALB to an ECS Fargate app service; a worker service runs the extracted executor; SQS optionally queues runs between them; both persist to RDS Postgres with pgvector; raw media goes to S3; Secrets Manager injects env at boot; EventBridge Scheduler fires the briefing endpoint; CloudWatch collects logs and traces.">
+    <defs>
+      <marker id="f5d" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#3d5a75"/></marker>
+      <marker id="f5c" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#7fd4ff"/></marker>
+      <marker id="f5g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#ffd27a"/></marker>
+    </defs>
+    <rect class="nb dim" x="40" y="40" width="150" height="50" rx="8"/>
+    <text class="lbl" x="115" y="60">Route 53</text><text class="sub" x="115" y="76">dns</text>
+    <rect class="nb dim" x="230" y="40" width="160" height="50" rx="8"/>
+    <text class="lbl" x="310" y="60">CloudFront</text><text class="sub" x="310" y="76">edge cache</text>
+    <rect class="nb dim" x="430" y="40" width="110" height="50" rx="8"/>
+    <text class="lbl" x="485" y="60">ALB</text><text class="sub" x="485" y="76">tls · health</text>
+    <rect class="nb cyan pulse" x="600" y="30" width="320" height="70" rx="8"/>
+    <text class="lbl" x="760" y="56">ECS Fargate — app ×2</text><text class="sub" x="760" y="76">Next standalone · routes only enqueue</text>
+    <path class="edge" d="M190,65 L230,65" marker-end="url(#f5d)"/>
+    <path class="edge" d="M390,65 L430,65" marker-end="url(#f5d)"/>
+    <path class="edge c" d="M540,65 L600,65" marker-end="url(#f5c)"/>
+    <circle class="dot" r="3" style="offset-path:path('M540,65 L600,65')"/>
+
+    <rect class="nb dim ghost" x="230" y="170" width="200" height="60" rx="8"/>
+    <text class="lbl" x="330" y="192">SQS run queue</text><text class="sub" x="330" y="210">rung 2 — when extracted</text>
+    <rect class="nb cyan" x="600" y="170" width="320" height="60" rx="8"/>
+    <text class="lbl" x="760" y="192">ECS worker — executor loop</text><text class="sub" x="760" y="210">poll QUEUED · CAS claim · tool loop</text>
+    <path class="edge dash" d="M660,100 L660,135 L330,135 L330,170" marker-end="url(#f5d)"/>
+    <text class="elbl" x="490" y="128">enqueue</text>
+    <path class="edge dash" d="M430,200 L600,200" marker-end="url(#f5d)"/>
+    <text class="elbl" x="515" y="192">poll · claim</text>
+
+    <rect class="nb gold pulse gold" x="40" y="300" width="280" height="64" rx="8"/>
+    <text class="lbl" x="180" y="322">RDS Postgres + pgvector</text><text class="sub" x="180" y="340">Multi-AZ · runs ARE the queue today</text>
+    <rect class="nb" x="360" y="300" width="200" height="64" rx="8"/>
+    <text class="lbl" x="460" y="322">S3</text><text class="sub" x="460" y="340">raw media: audio · frames</text>
+    <rect class="nb gold" x="600" y="300" width="320" height="56" rx="8"/>
+    <text class="lbl" x="760" y="322">Secrets Manager</text><text class="sub" x="760" y="340">API keys · pairing tokens</text>
+    <path class="edge c" d="M620,100 L620,118 L180,118 L180,300" marker-end="url(#f5c)"/>
+    <text class="elbl" x="400" y="111">Prisma reads / writes</text>
+    <path class="edge c" d="M700,230 L700,268 L180,268 L180,300" marker-end="url(#f5c)"/>
+    <text class="elbl" x="430" y="261">runs · claims · logs</text>
+    <circle class="dot" r="3" style="offset-path:path('M700,230 L700,268 L180,268 L180,300')"/>
+    <path class="edge dash" d="M640,100 L640,140 L460,140 L460,300" marker-end="url(#f5d)"/>
+    <text class="elbl" transform="rotate(-90 452 222)" x="452" y="222">raw media</text>
+    <path class="edge g" d="M760,300 L760,230" marker-end="url(#f5g)"/>
+    <text class="elbl g" x="810" y="268">env at boot</text>
+
+    <rect class="nb" x="40" y="430" width="280" height="54" rx="8"/>
+    <text class="lbl" x="180" y="452">EventBridge Scheduler</text><text class="sub" x="180" y="470">cron(0 7 * * ? *)</text>
+    <path class="edge g dash" d="M320,457 L580,457 L580,150 L648,150 L648,100" marker-end="url(#f5g)"/>
+    <text class="elbl g" transform="rotate(-90 572 300)" x="572" y="300">POST /api/cron/briefing</text>
+    <rect class="nb dim" x="600" y="430" width="320" height="54" rx="8"/>
+    <text class="lbl" x="760" y="452">CloudWatch / OTel</text><text class="sub" x="760" y="470">logs · traces · dashboards, from every service</text>
+  </svg>
+  <figcaption>Fig 18.2a — the stage-3 reference topology. Dashed elements exist only after their forcing function arrives (queue extraction, media offload).</figcaption></figure>
 
   <div class="grid-2">
     <div class="card"><h4>Terraform — the declarative standard</h4><p>HCL, huge ecosystem, state in S3+lock. Strengths: ubiquity, provider maturity, plan-review culture (the <span class="inline">terraform plan</span> diff is the change-management ritual). Weakness: HCL logic (count/for_each gymnastics) gets painful exactly when architectures get conditional.</p></div>
@@ -1152,7 +1383,7 @@ resource "aws_scheduler_schedule" "briefing" {
   scheduleExpression: <span class="s">"cron(0 7 * * ? *)"</span>,
   target: httpInvoke(app.url, <span class="s">"/api/cron/briefing"</span>),   <span class="c">// typed helper, reused constants</span>
 });</div>
-  <p class="caption">Fig 18.2 — identical architecture, two encodings. The decision is team-shaped, not technology-shaped.</p>
+  <p class="caption">Fig 18.2b — identical architecture, two encodings. The decision is team-shaped, not technology-shaped.</p>
 
   <div class="cto"><b>CTO lens — how to actually choose (and use) IaC</b>
     (1) <b>Choose by team fluency:</b> an all-TypeScript team reviews Pulumi like app code; a platform team with existing
