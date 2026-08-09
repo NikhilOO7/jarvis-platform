@@ -40,6 +40,7 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const APP_URL = (process.env.JARVIS_APP_URL || "http://localhost:3000").replace(/\/$/, "");
 const APP_TOKEN = process.env.JARVIS_EXTENSION_TOKEN || "";
 const ALLOWED_CHAT_ID = process.env.TELEGRAM_ALLOWED_CHAT_ID || "";
+const BRIEFING_TIME = process.env.JARVIS_BRIEFING_TIME || ""; // "07:00" local time; empty disables
 
 const runApprovals = new Map(); // runId -> approval ids (session memory)
 
@@ -178,6 +179,34 @@ async function handleCallback(callback) {
   }
 }
 
+/* ----------------------------- proactivity ------------------------------ */
+
+function nextBriefingAt() {
+  const match = BRIEFING_TIME.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return null;
+  const next = new Date();
+  next.setHours(Number(match[1]), Number(match[2]), 0, 0);
+  if (next.getTime() <= Date.now()) next.setDate(next.getDate() + 1);
+  return next;
+}
+
+async function runScheduledBriefing() {
+  console.log("◉ scheduled briefing firing");
+  const result = await app("/api/cron/briefing", { method: "POST" }).catch((error) => ({
+    ok: false,
+    status: 0,
+    body: { error: error.message }
+  }));
+  if (!ALLOWED_CHAT_ID) return;
+  if (result.ok && result.body.summary) {
+    await send(ALLOWED_CHAT_ID, `◉ Good morning. Your briefing is ready:\n\n${result.body.summary}`);
+  } else if (result.ok) {
+    await send(ALLOWED_CHAT_ID, `◉ Morning briefing ran (status: ${result.body.status || "unknown"}).`);
+  } else {
+    await send(ALLOWED_CHAT_ID, `✕ Scheduled briefing failed: ${result.body.error || `HTTP ${result.status}`}`);
+  }
+}
+
 const HELP = [
   "At your service. I am connected to your local Jarvis.",
   "",
@@ -225,6 +254,13 @@ async function checkConfig() {
   if (!BOT_TOKEN) problems.push("TELEGRAM_BOT_TOKEN is not set (create a bot with @BotFather).");
   if (!APP_TOKEN) problems.push("JARVIS_EXTENSION_TOKEN is not set (copy the pairing token from /settings).");
   if (!ALLOWED_CHAT_ID) problems.push("TELEGRAM_ALLOWED_CHAT_ID not set — bridge will reply with pairing instructions on first contact.");
+  console.log(
+    BRIEFING_TIME
+      ? nextBriefingAt()
+        ? `✓ Proactive briefing scheduled daily at ${BRIEFING_TIME}`
+        : `✗ JARVIS_BRIEFING_TIME="${BRIEFING_TIME}" is invalid — use HH:MM (e.g. 07:00)`
+      : "· Proactive briefing off (set JARVIS_BRIEFING_TIME, e.g. 07:00)"
+  );
 
   const health = await app("/api/extension/health", { method: "GET" }).catch(() => null);
   if (!health?.ok) problems.push(`Jarvis app unreachable at ${APP_URL} — start it with "npm run dev".`);
@@ -257,12 +293,22 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("◉ Jarvis Telegram bridge online. Ctrl-C to stop.");
+  let briefingAt = nextBriefingAt();
+  console.log(
+    briefingAt
+      ? `◉ Jarvis Telegram bridge online. Next briefing: ${briefingAt.toLocaleString()}. Ctrl-C to stop.`
+      : "◉ Jarvis Telegram bridge online (no JARVIS_BRIEFING_TIME set — proactive briefing off). Ctrl-C to stop."
+  );
   let offset = 0;
   for (;;) {
     try {
+      if (briefingAt && Date.now() >= briefingAt.getTime()) {
+        briefingAt = nextBriefingAt();
+        await runScheduledBriefing();
+        console.log(`◉ next briefing: ${briefingAt?.toLocaleString()}`);
+      }
       const updates = await tg("getUpdates", {
-        timeout: 50,
+        timeout: 30,
         offset,
         allowed_updates: ["message", "callback_query"]
       });

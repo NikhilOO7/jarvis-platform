@@ -71,6 +71,10 @@ briefing. Setup: create a bot with @BotFather, set `TELEGRAM_BOT_TOKEN` and
 once and pin the printed `TELEGRAM_ALLOWED_CHAT_ID` in `.env`. The bridge answers only that
 chat id and talks only to your local app.
 
+**Proactive briefing:** set `JARVIS_BRIEFING_TIME` (e.g. `07:00`) and the bridge fires the
+briefing workflow every morning via `POST /api/cron/briefing` (token-authed) and pushes the
+result to your chat — Jarvis speaks first. Any external cron can hit the same endpoint.
+
 ## Safe Capture Principle
 
 Use explicit capture first: manual save, browser extension, share sheet, clipboard, iOS Shortcuts, Android share intent, exports, and official APIs where useful. Avoid stealth scraping and private API reverse engineering.
