@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JARVIS — The Engineering Bible (HLD · LLD · Systems · Product · CTO Thinking)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#04101c; --bg2:#061627; --panel:#0a1826; --panel2:#0d1e30;
+    --ink:#d7ecf7; --ink-dim:#a8c3d4; --muted:#7c93a6; --faint:#54697a;
+    --cyan:#7fd4ff; --cyan-deep:#2f9fd8; --gold:#ffd27a; --gold-deep:#d9a84e;
+    --good:#8be28b; --bad:#ff9d9d; --line:rgba(127,212,255,.20); --line2:rgba(127,212,255,.10);
+    --gold-line:rgba(255,210,122,.28);
+    --display:"Space Grotesk","Avenir Next","Trebuchet MS",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --body:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:24px}
+  body{
+    margin:0;background:var(--bg);
+    background-image:radial-gradient(1100px 500px at 75% -10%,rgba(127,212,255,.07),transparent 60%),
+      radial-gradient(700px 400px at 10% 110%,rgba(255,210,122,.04),transparent 60%);
+    color:var(--ink);font-family:var(--body);line-height:1.7;-webkit-font-smoothing:antialiased;
+  }
+  .layout{display:grid;grid-template-columns:300px minmax(0,1fr);max-width:1480px;margin:0 auto}
+  @media(max-width:980px){.layout{grid-template-columns:1fr}.toc{display:none}}
+
+  /* ---------- TOC ---------- */
+  .toc{position:sticky;top:0;height:100vh;overflow-y:auto;padding:26px 16px 60px 22px;
+    border-right:1px solid var(--line2);background:rgba(6,18,32,.85);backdrop-filter:blur(8px)}
+  .toc .brand{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .toc .core{width:34px;height:34px;border-radius:50%;flex-shrink:0;position:relative;
+    background:radial-gradient(circle at 50% 50%, #eaf9ff 0 22%, rgba(127,212,255,.85) 34%, rgba(127,212,255,.12) 62%, transparent 70%);
+    box-shadow:0 0 14px rgba(127,212,255,.45)}
+  .toc .core::after{content:'';position:absolute;inset:3px;border-radius:50%;border:1.5px dashed rgba(255,210,122,.55)}
+  .toc .brand b{font-family:var(--display);font-size:16px;letter-spacing:.22em;color:#fff}
+  .toc .tagline{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--gold);margin:0 0 16px 0;text-transform:uppercase}
+  .toc .group{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin:16px 0 5px 6px}
+  .toc a{display:block;padding:4px 9px;border-radius:6px;font-size:12.5px;color:var(--ink-dim);text-decoration:none;margin-bottom:1px;border:1px solid transparent}
+  .toc a:hover{background:rgba(127,212,255,.08);color:var(--cyan);border-color:var(--line2)}
+  .toc a .n{color:var(--faint);font-family:var(--mono);font-size:10px;margin-right:7px}
+  .toc a:focus-visible{outline:1.5px solid var(--cyan);outline-offset:1px}
+
+  /* ---------- Content shell ---------- */
+  .content{padding:38px 46px 140px;min-width:0}
+  @media(max-width:980px){.content{padding:22px 16px 90px}}
+  .section{margin-bottom:74px;scroll-margin-top:22px}
+  .kicker{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
+  .kicker::before{content:'◉ ';color:var(--gold)}
+  .section h2{font-family:var(--display);font-size:27px;margin:0 0 10px;color:#fff;letter-spacing:-.01em;text-wrap:balance}
+  .section h3{font-family:var(--display);font-size:18px;margin:34px 0 10px;color:var(--cyan);letter-spacing:.01em}
+  .section h4{font-family:var(--display);font-size:14.5px;margin:22px 0 8px;color:var(--ink)}
+  .lede{font-size:15.5px;color:var(--ink-dim);max-width:70ch;margin:0 0 18px}
+  p{max-width:72ch}
+  ul,ol{max-width:70ch}
+  li{margin-bottom:6px;font-size:14px}
+  a{color:var(--cyan)}
+  b{color:#eaf6ff}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(160deg,#081c30 0%,#04101c 60%,#0a1424 100%);padding:46px 48px 42px;margin-bottom:46px}
+  .hero::before{content:'';position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(180deg,transparent 0 3px,rgba(127,212,255,.022) 3px 4px)}
+  .hero::after{content:'';position:absolute;right:-140px;top:-140px;width:430px;height:430px;border-radius:50%;
+    background:radial-gradient(circle,rgba(127,212,255,.22),transparent 62%)}
+  .hero .sys{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+  .hero h1{font-family:var(--display);margin:0 0 12px;font-size:40px;line-height:1.12;color:#fff;letter-spacing:-.015em;max-width:20ch;text-wrap:balance}
+  .hero h1 .glow{color:var(--cyan);text-shadow:0 0 22px rgba(127,212,255,.55)}
+  .hero p{margin:0;max-width:66ch;font-size:15.5px;color:var(--ink-dim)}
+  .hero .meta{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;position:relative;z-index:1}
+  .chip{font-family:var(--mono);font-size:10.5px;padding:4px 11px;border-radius:999px;letter-spacing:.06em;
+    background:rgba(127,212,255,.08);border:1px solid var(--line);color:var(--cyan)}
+  .chip.g{background:rgba(255,210,122,.08);border-color:var(--gold-line);color:var(--gold)}
+
+  /* ---------- Cards (HUD corner brackets) ---------- */
+  .card{position:relative;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);
+    border-radius:10px;padding:16px 18px;margin:14px 0}
+  .card::before,.card::after{content:'';position:absolute;width:14px;height:14px;pointer-events:none}
+  .card::before{top:-1px;left:-1px;border-top:1.5px solid var(--cyan);border-left:1.5px solid var(--cyan);border-top-left-radius:9px}
+  .card::after{bottom:-1px;right:-1px;border-bottom:1.5px solid var(--gold);border-right:1.5px solid var(--gold);border-bottom-right-radius:9px}
+  .card h4{margin:0 0 6px;font-size:13.5px;color:#fff}
+  .card p{font-size:13px;color:var(--muted);margin:0}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+  @media(max-width:1120px){.grid-3{grid-template-columns:1fr 1fr}}
+  @media(max-width:760px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+  /* ---------- Callouts ---------- */
+  .why,.tradeoff,.cto,.fail,.newbie,.deep,.story{border-radius:9px;padding:13px 17px;margin:16px 0;font-size:13.8px;max-width:78ch;border:1px solid;background:var(--panel)}
+  .why b:first-child,.tradeoff b:first-child,.cto b:first-child,.fail b:first-child,.newbie b:first-child,.deep b:first-child,.story b:first-child{
+    display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:5px}
+  .why{border-color:rgba(127,212,255,.35)}                .why b:first-child{color:var(--cyan)}
+  .tradeoff{border-color:var(--gold-line)}                .tradeoff b:first-child{color:var(--gold)}
+  .cto{border-color:var(--gold-line);background:linear-gradient(180deg,rgba(255,210,122,.05),var(--panel))} .cto b:first-child{color:var(--gold)}
+  .cto b:first-child::before{content:'▲ '}
+  .fail{border-color:rgba(255,157,157,.35)}               .fail b:first-child{color:var(--bad)}
+  .newbie{border-color:rgba(139,226,139,.3)}              .newbie b:first-child{color:var(--good)}
+  .deep{border-color:rgba(127,212,255,.2);background:var(--bg2)} .deep b:first-child{color:var(--cyan-deep)}
+  .story{border-color:rgba(255,157,157,.25);background:linear-gradient(180deg,rgba(255,157,157,.04),var(--panel))} .story b:first-child{color:var(--bad)}
+
+  /* ---------- Terminal / code / diagram blocks ---------- */
+  .term{font-family:var(--mono);font-size:12px;line-height:1.52;background:#020a12;color:var(--ink);
+    border:1px solid var(--line);border-radius:10px;padding:16px 20px;overflow-x:auto;margin:16px 0;white-space:pre}
+  .term .hd{display:block;color:var(--faint);letter-spacing:.18em;font-size:9.5px;margin-bottom:10px;text-transform:uppercase}
+  .term .hd::before{content:'◉ ';color:var(--gold)}
+  .term .c{color:#587286}   /* comment */
+  .term .k{color:var(--cyan)}    /* keyword / labels */
+  .term .s{color:var(--good)}    /* strings / success */
+  .term .g{color:var(--gold)}    /* gold emphasis */
+  .term .r{color:var(--bad)}     /* errors / risk */
+  .caption{font-family:var(--mono);font-size:11px;color:var(--faint);margin:-8px 0 16px 4px;letter-spacing:.05em}
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:14px 0 20px;border:1px solid var(--line);border-radius:10px}
+  table{border-collapse:collapse;width:100%;font-size:13px;background:var(--panel)}
+  th{text-align:left;background:#0b1c2e;color:var(--cyan);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--line)}
+  td{padding:10px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  td b{color:#fff}
+
+  .inline{font-family:var(--mono);font-size:12px;background:rgba(127,212,255,.1);color:var(--cyan);border-radius:5px;padding:1px 6px;white-space:nowrap}
+  .badge{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;padding:2px 9px;border-radius:999px;text-transform:uppercase;border:1px solid}
+  .b-cyan{background:rgba(127,212,255,.08);color:var(--cyan);border-color:var(--line)}
+  .b-gold{background:rgba(255,210,122,.08);color:var(--gold);border-color:var(--gold-line)}
+  .b-good{background:rgba(139,226,139,.08);color:var(--good);border-color:rgba(139,226,139,.3)}
+  .b-bad{background:rgba(255,157,157,.08);color:var(--bad);border-color:rgba(255,157,157,.3)}
+  .b-dim{background:rgba(124,147,166,.08);color:var(--muted);border-color:rgba(124,147,166,.25)}
+
+  /* ---------- Numbered flows ---------- */
+  .flow{counter-reset:step;margin:16px 0;max-width:78ch}
+  .flow .step{display:flex;gap:14px;padding:11px 0;border-bottom:1px dashed var(--line2)}
+  .flow .step:last-child{border-bottom:none}
+  .flow .step::before{counter-increment:step;content:counter(step,decimal-leading-zero);
+    font-family:var(--mono);width:30px;height:26px;border-radius:6px;flex-shrink:0;border:1px solid var(--line);
+    color:var(--cyan);font-weight:700;font-size:11.5px;display:flex;align-items:center;justify-content:center;margin-top:2px;background:rgba(127,212,255,.06)}
+  .flow .step div{font-size:13.8px}
+  .flow .step b{color:#fff}
+  .flow .step .path{font-family:var(--mono);font-size:11px;color:var(--faint)}
+
+  /* module cards for component LLD */
+  .mod{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 18px;margin:13px 0}
+  .mod .head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .mod .head b{font-family:var(--display);font-size:14.5px;color:#fff}
+  .mod .path{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  .mod dl{display:grid;grid-template-columns:92px 1fr;gap:4px 12px;margin:8px 0 0;font-size:13.3px}
+  .mod dt{font-family:var(--mono);font-weight:700;color:var(--gold);font-size:9.5px;text-transform:uppercase;letter-spacing:.14em;padding-top:3px}
+  .mod dd{margin:0;color:var(--ink-dim)}
+
+  .kv{display:grid;grid-template-columns:220px 1fr;gap:6px 16px;font-size:13.5px;margin:12px 0;max-width:80ch}
+  .kv b{color:var(--cyan)}
+  @media(max-width:700px){.kv{grid-template-columns:1fr}}
+
+  .rule{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);border:0;margin:34px 0}
+  ::selection{background:rgba(127,212,255,.25)}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  @media print{.toc{display:none}.layout{grid-template-columns:1fr}body{background:#04101c}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ======================= TOC ======================= -->
+<nav class="toc" aria-label="Table of contents">
+  <div class="brand"><span class="core"></span><b>J.A.R.V.I.S</b></div>
+  <p class="tagline">The Engineering Bible</p>
+
+  <div class="group">Foundations</div>
+  <a href="#orientation"><span class="n">01</span>Orientation — How To Read This</a>
+  <a href="#product"><span class="n">02</span>Product Thinking First</a>
+  <a href="#hld"><span class="n">03</span>HLD — The System On One Page</a>
+  <a href="#stack"><span class="n">04</span>Tech Stack — Why Each Won</a>
+  <a href="#data"><span class="n">05</span>Data Model — The Schema</a>
+
+  <div class="group">The Mind</div>
+  <a href="#ingestion"><span class="n">06</span>Ingestion Pipeline</a>
+  <a href="#memory"><span class="n">07</span>Semantic Memory &amp; RAG</a>
+  <a href="#engine"><span class="n">08</span>The Agent Engine</a>
+  <a href="#safety"><span class="n">09</span>Safety &amp; Approvals</a>
+  <a href="#graph"><span class="n">10</span>The Knowledge Graph</a>
+
+  <div class="group">The Body</div>
+  <a href="#hud"><span class="n">11</span>The HUD — Web Interface</a>
+  <a href="#companion"><span class="n">12</span>Browser Companion</a>
+  <a href="#importer"><span class="n">13</span>Social Export Importer</a>
+  <a href="#telegram"><span class="n">14</span>Telegram &amp; Proactivity</a>
+  <a href="#casestudy"><span class="n">15</span>Case Study — Reel → Decision</a>
+
+  <div class="group">Cross-Cutting</div>
+  <a href="#quality"><span class="n">16</span>Testing &amp; Quality</a>
+  <a href="#cost"><span class="n">17</span>Cost Engineering</a>
+  <a href="#infra"><span class="n">18</span>Infrastructure &amp; IaC</a>
+  <a href="#scale"><span class="n">19</span>Scalability Playbook</a>
+
+  <div class="group">The Ladder</div>
+  <a href="#cto"><span class="n">20</span>Thinking Like a CTO</a>
+  <a href="#glossary"><span class="n">21</span>Glossary &amp; Exercises</a>
+</nav>
+
+<!-- ======================= CONTENT ======================= -->
+<main class="content">
+
+<header class="hero">
+  <div class="sys">SYS.ARCHIVE :: SINGLE SOURCE OF TRUTH · V1.0 · AUG 2026</div>
+  <h1>JARVIS — the complete <span class="glow">engineering bible</span></h1>
+  <p>
+    One document that explains a real, working personal-AI operating system — every layer, every component,
+    every workflow, every trade-off — written to walk a newbie software engineer up the ladder to
+    founding-engineer and CTO-level judgment. It teaches high-level design, low-level design, product thinking,
+    infrastructure, cost, safety, and the meta-skill underneath them all: how to decide.
+  </p>
+  <div class="meta">
+    <span class="chip">Next.js 15 · React 19 · TypeScript</span>
+    <span class="chip">Postgres + pgvector · Prisma</span>
+    <span class="chip">OpenAI · tool-calling agents</span>
+    <span class="chip">Chrome MV3 · Telegram Bot API</span>
+    <span class="chip g">21 chapters · every what/why/how/trade-off</span>
+  </div>
+</header>
+
+<!-- ================= 01 ORIENTATION ================= -->
+<section id="orientation" class="section">
+  <div class="kicker">01 · Orientation</div>
+  <h2>What JARVIS Is &amp; How To Read This Book</h2>
+  <p class="lede">
+    JARVIS is a <b>personal AI operating system</b>: it captures everything its operator chooses to feed it
+    (links, notes, social saves, chats, videos), turns that pile into structured, searchable memory, and then
+    <b>acts</b> on natural-language commands through agent workflows — with approval gates in front of anything
+    risky, and a presence layer that reaches the browser, Telegram, and a cinematic web HUD.
+  </p>
+
+  <div class="newbie"><b>Foundations — what "personal AI OS" actually means</b>
+    An operating system schedules programs over hardware. JARVIS schedules <i>intelligence</i> over a person's
+    digital life: memory (what you saved), cognition (models reasoning over it), hands (tools that do things),
+    and senses (capture surfaces). The analogy is load-bearing — you will see kernels (the executor),
+    syscalls (the tool registry), permissions (approval gates), and device drivers (connectors) throughout.
+  </div>
+
+  <h3>The seven pillars — the product's north star</h3>
+  <p>Every feature in this codebase maps to one of seven capability pillars. When a proposed feature maps to none, it gets cut. This is the first CTO lesson: <b>a small system that knows what it is beats a big system that doesn't.</b></p>
+  <div class="tbl-wrap"><table>
+    <tr><th>#</th><th>Pillar</th><th>"Movie moment"</th><th>Engineering reality</th></tr>
+    <tr><td>1</td><td><b>Total recall</b></td><td>"Pull up everything on the Mark II"</td><td>Ingestion + pgvector semantic memory + knowledge graph</td></tr>
+    <tr><td>2</td><td><b>Natural command</b></td><td>"Run a diagnostic"</td><td>LLM intent router → workflow runs; chat with citations</td></tr>
+    <tr><td>3</td><td><b>Real agency</b></td><td>"Deploy the House Party Protocol"</td><td>Tool-calling executor; draft-artifact connectors</td></tr>
+    <tr><td>4</td><td><b>Judgment &amp; safety</b></td><td>"Sir, I must advise against this"</td><td>Risk scoring, approval gates, audit logs</td></tr>
+    <tr><td>5</td><td><b>Proactivity</b></td><td>The morning briefing, unprompted</td><td>Cron endpoint + bridge scheduler</td></tr>
+    <tr><td>6</td><td><b>Presence</b></td><td>JARVIS is in the suit, house, phone</td><td>Web HUD, MV3 extension, Telegram bridge</td></tr>
+    <tr><td>7</td><td><b>Personality</b></td><td>The dry wit</td><td>A persona layer in every system prompt</td></tr>
+  </table></div>
+
+  <h3>How to read this book — three passes</h3>
+  <div class="grid-3">
+    <div class="card"><h4>Pass 1 · The Map (ch. 1–5)</h4><p>Read for shape, not detail. After pass 1 you should be able to draw the system from memory on a whiteboard and name why each technology was chosen.</p></div>
+    <div class="card"><h4>Pass 2 · The Machinery (ch. 6–15)</h4><p>Each chapter is one subsystem: what it does, why it exists, how it works step-by-step, where it breaks, and what we deliberately did NOT build. Read with the code open.</p></div>
+    <div class="card"><h4>Pass 3 · The Judgment (ch. 16–21)</h4><p>Cross-cutting concerns and the decision frameworks behind them. This is where engineering becomes architecture, and architecture becomes strategy.</p></div>
+  </div>
+
+  <div class="cto"><b>CTO lens — the meta-pattern of this whole book</b>
+    Every subsystem here answers five questions: <b>WHAT</b> does it do, <b>WHY</b> does it exist (what breaks without it),
+    <b>WHEN</b> does it run (its triggers and lifecycle), <b>HOW</b> does it work (the mechanism), and <b>WHAT WAS TRADED</b>
+    (the alternatives we rejected and the debt we accepted knowingly). If you internalize one habit, make it this:
+    never present a design without its rejected alternatives. A design without named trade-offs is a design you don't understand yet.
+  </div>
+
+  <h3>The honest-engineering rule</h3>
+  <p>
+    This codebase has one cultural law that appears in every chapter: <b>the UI never lies.</b> Early versions showed
+    fake CPU gauges, a hardcoded "gpt-4o" badge, and invented run counts. All were replaced with real values or removed.
+    Fake telemetry is a small sin that metastasizes: the day your dashboard mixes real and invented numbers is the day
+    nobody can trust any number on it. Offline modes say "OFFLINE"; unsaved results say "NOT SAVED (no database)".
+  </p>
+</section>
+
+<!-- ================= 02 PRODUCT ================= -->
+<section id="product" class="section">
+  <div class="kicker">02 · Product Thinking First</div>
+  <h2>The Problem, The User, and Why This Shape</h2>
+  <p class="lede">
+    Great architecture starts as product reasoning. Before a single table existed, three product decisions fixed
+    the entire technical shape of JARVIS: who it serves, what loop it closes, and what it refuses to do.
+  </p>
+
+  <h3>The problem statement</h3>
+  <p>
+    People save enormous amounts of content — Instagram reels, LinkedIn posts, bookmarks, exports, chats — because
+    <i>it might matter later</i>. Saved content then becomes a graveyard: unstructured, unconnected, undeduplicated,
+    unactionable. The pain is not capture; capture is easy. The pain is that <b>captured information never becomes a
+    decision</b>. JARVIS exists to close that loop: every captured item should eventually answer
+    "why did this matter, what is it related to, and what should I do about it?"
+  </p>
+
+  <div class="grid-2">
+    <div class="card"><h4>Decision 1 — Single operator, not SaaS</h4><p>JARVIS optimizes for one power user before general polish. No auth screens, no tenancy, no billing — yet. This buys an entire year of product velocity and defers the hardest infrastructure (ch. 19 shows the multi-user path, deliberately designed but not built).</p></div>
+    <div class="card"><h4>Decision 2 — Local-first</h4><p>Your memory lives in your Postgres on your machine. Model API calls are the only data that leaves. This one choice reframes security (ch. 9), infra (ch. 18), and trust: JARVIS is a butler in <i>your</i> house, not a service you visit.</p></div>
+    <div class="card"><h4>Decision 3 — Explicit capture only</h4><p>No stealth scraping, no private-API reverse engineering, no background collection. Everything enters through an act of user intent: a save, an upload, an approval click. This is both an ethics position and a durability position — scrapers break and get you banned; consent-first surfaces don't.</p></div>
+    <div class="card"><h4>Decision 4 — Degrade gracefully, always</h4><p>Every AI feature has a deterministic fallback; every missing config produces a labeled "design mode", never a crash. A newcomer can clone the repo and see the full product with zero keys. This is a product decision wearing an engineering costume — the demo IS the onboarding.</p></div>
+  </div>
+
+  <div class="cto"><b>CTO lens — one-way doors vs two-way doors</b>
+    Amazon's framing, and the sharpest product-architecture tool you'll ever use. A <b>two-way door</b> is reversible —
+    walk through, look around, walk back (a UI layout, a prompt, a cron schedule). A <b>one-way door</b> is expensive to
+    reverse (your database engine, your tenancy model, publishing data to a third party, an API contract others build on).
+    Spend decision energy proportionally: two-way doors get minutes, one-way doors get design docs. In JARVIS:
+    Postgres+pgvector was a one-way door (all retrieval, dedupe, and graph code assume it); the keyword router was a
+    two-way door (we later swapped in an LLM router in an afternoon — <i>because</i> the interface stayed stable).
+  </div>
+
+  <h3>Why "workflows with approval gates" is the core product object</h3>
+  <p>
+    An assistant that can only chat is a toy; an assistant that acts without oversight is a liability. The product
+    thesis of JARVIS is the middle path: <b>agency under contract</b>. Commands become <i>runs</i> — inspectable,
+    loggable, cancellable objects — and risky steps arm <i>approval gates</i> that a human clears. That single product
+    idea generates most of the schema (ch. 5), the executor (ch. 8), and the safety model (ch. 9). When you find the
+    load-bearing product object, the architecture mostly draws itself.
+  </p>
+
+  <div class="story"><b>War story — the fake APPROVE button</b>
+    An early build shipped an APPROVE / REJECT button pair in the command console with no <span class="inline">onClick</span>.
+    It looked finished; it did nothing. Worse, a risk label compared <span class="inline">"high" === "HIGH"</span> — always false —
+    so every command rendered as low-risk green. Two lessons: (1) dead UI is worse than no UI, because it trains users to
+    distrust controls; (2) case-sensitivity bugs in safety-critical display paths are not cosmetic bugs. Both were found by
+    reading the code path end-to-end, not by testing happy paths.
+  </div>
+
+  <h3>The roadmap as a dependency graph, not a wishlist</h3>
+  <p>
+    The master plan phases — engine → memory → presence → hands → proactivity → orchestration → ambience — are ordered by
+    <b>dependency</b>, not excitement. Presence (Telegram) reuses the engine; proactivity reuses presence; orchestration
+    reuses everything. Each phase is independently shippable and demoable. A roadmap whose phase N+1 doesn't consume
+    phase N's output is just a list of hopes.
+  </p>
+</section>
+<!-- ================= 03 HLD ================= -->
+<section id="hld" class="section">
+  <div class="kicker">03 · High-Level Design</div>
+  <h2>The Whole System On One Page</h2>
+  <p class="lede">
+    Hold this diagram in your head and every later chapter becomes a zoom-in. Six layers: presence (how you reach
+    JARVIS), cognition (how it decides), memory, safety, action, and proactivity. One database. One process — on purpose.
+  </p>
+
+  <div class="term"><span class="hd">system map · six layers, one process, one postgres</span>
+┌────────────────────────────── <span class="k">PRESENCE</span> ────────────────────────────────┐
+│  Web HUD (Next.js pages)   Browser Companion (MV3)   Telegram bridge      │
+│  11 routes, RSC + islands  consent HUD · listen ·    long-poll daemon     │
+│                            watch · ask               inline approvals     │
+└──────────────┬────────────────────┬──────────────────────┬────────────────┘
+               │ fetch/RSC          │ token-authed HTTP     │ token-authed HTTP
+┌──────────────▼────────────────────▼──────────────────────▼────────────────┐
+│                        <span class="k">COGNITION</span> (Next.js route handlers)                 │
+│   Intent Router (LLM, keyword fallback) → Run creation → <span class="g">Executor</span>        │
+│   persona layer · tool-calling loop · step logs · structured output       │
+└──────┬──────────────────────┬───────────────────────────┬─────────────────┘
+       │                      │                           │
+┌──────▼───────┐   ┌──────────▼──────────┐   ┌────────────▼───────────────┐
+│  <span class="k">MEMORY</span>      │   │  <span class="k">SAFETY</span>             │   │  <span class="k">ACTION</span> (tool registry)     │
+│  ingestion   │   │  risk levels        │   │  search · save · briefing  │
+│  embeddings  │   │  approval gates     │   │  calc · clock · entity     │
+│  knowledge   │   │  audit logs         │   │  drafts: email · calendar  │
+│  graph       │   │  pairing tokens     │   │  · expense (never sends)   │
+└──────┬───────┘   └─────────────────────┘   └────────────────────────────┘
+       │
+┌──────▼────────────────────── <span class="k">PROACTIVITY</span> ────────────────────────────────┐
+│  /api/cron/briefing (token-authed) ← bridge scheduler (JARVIS_BRIEFING_TIME)│
+└───────────────────────────────────────────────────────────────────────────┘
+                    all state → <span class="g">Postgres + pgvector</span> (13 models)</div>
+  <p class="caption">Fig 3.1 — every arrow is plain HTTP or an in-process function call. No queues, no microservices, no message bus. Yet.</p>
+
+  <h3>Why a monolith — and why that's the senior answer</h3>
+  <div class="why"><b>Why one process</b>
+    A single Next.js app owns UI, API, and execution. Function calls instead of network calls means no serialization
+    bugs, no partial deploys, no distributed tracing needed to debug a request, and refactors that are
+    project-wide-rename cheap. The moment of truth: the executor runs <i>inside</i> a route handler. That is a known,
+    accepted limitation (a long run ties up a request) with a designed escape hatch — the executor's only contract with
+    the world is <span class="inline">executeWorkflowRun(runId)</span>, so lifting it into a worker process later changes
+    one call site, not the architecture.
+  </div>
+  <div class="tradeoff"><b>Trade-off ledger — monolith edition</b>
+    <b>Accepted:</b> runs block a request thread (capped by <span class="inline">maxDuration</span>); a crash mid-run leaves a RUNNING
+    row (mitigated: logs show last step; a janitor job is a listed follow-up); horizontal scale requires extraction later.
+    <b>Rejected alternative:</b> microservices on day one — would have cost weeks of infra for a single-user product with
+    zero throughput problems. <b>Rule of thumb:</b> services are an organizational scaling tool as much as a technical one.
+    You extract a service when a team, a failure domain, or a scaling curve demands it — not before. Ch. 19 shows the exact seams.
+  </div>
+
+  <h3>Trust boundaries — where identity changes hands</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Boundary</th><th>Who's on each side</th><th>Control</th></tr>
+    <tr><td>Browser → HUD pages</td><td>local human → local app</td><td>None yet (localhost assumption; auth is the gate for Phase 4 connectors)</td></tr>
+    <tr><td>Extension → app APIs</td><td>MV3 service worker → route handlers</td><td><b>Pairing token</b>, Bearer header, constant-time compare</td></tr>
+    <tr><td>Telegram → bridge → app</td><td>Telegram cloud → local daemon → app</td><td>Allowed-chat-id pinning + same pairing token</td></tr>
+    <tr><td>App → OpenAI</td><td>local app → third-party model</td><td>Only path where content leaves the machine; every feature that crosses it says so in the UI</td></tr>
+    <tr><td>Page DOM → content script</td><td>untrusted site → extension</td><td>Consent-first proposals; extraction only after human approval; shadow-DOM isolation</td></tr>
+  </table></div>
+
+  <div class="cto"><b>CTO lens — draw trust boundaries before drawing boxes</b>
+    Boxes-and-arrows diagrams flatter everyone; trust-boundary diagrams start arguments — the productive kind. Every
+    place identity or data custody changes hands is where security controls, validation, and honest UI copy must live.
+    Notice the pattern above: JARVIS has exactly <b>one</b> egress point for personal data (the model API) and every
+    ingress is either a human act or a token. Minimizing the count of trust boundaries is a design act, not an audit chore.
+  </div>
+
+  <h3>The four request lifecycles</h3>
+  <p>Everything the system does is one of four shapes. Chapters 6–14 are these four shapes in detail:</p>
+  <div class="grid-2">
+    <div class="card"><h4>① Capture</h4><p>Content in → normalize → dedupe → enrich (classify/summarize) → knowledge + vectors + graph. Synchronous, idempotent-by-hash, degrade-to-heuristics.</p></div>
+    <div class="card"><h4>② Command</h4><p>Utterance in → route → run object → (gates?) → executor tool-loop → output + audit log. The only shape that <i>does</i> things.</p></div>
+    <div class="card"><h4>③ Question</h4><p>Query in → semantic retrieval → grounded generation → cited answer, persisted. Read-only, safe everywhere (HUD, panel, Telegram).</p></div>
+    <div class="card"><h4>④ Schedule</h4><p>Clock in → deterministic run creation → shape ② without a human utterance. Proactivity is just a command with a cron for a mouth.</p></div>
+  </div>
+</section>
+
+<!-- ================= 04 STACK ================= -->
+<section id="stack" class="section">
+  <div class="kicker">04 · Tech Stack</div>
+  <h2>Every Technology, Why It Won, and What Lost</h2>
+  <p class="lede">
+    Stack choices are compounding bets: you pay for them every day for years. Each row below names the winner,
+    the serious alternatives, and the honest reason. "Boring and integrated" beats "exciting and bespoke" almost every time.
+  </p>
+
+  <div class="tbl-wrap"><table>
+    <tr><th>Layer</th><th>Choice</th><th>Rejected</th><th>The honest why</th></tr>
+    <tr><td>Framework</td><td><b>Next.js 15 (App Router)</b></td><td>Express+Vite SPA, Remix, SvelteKit</td><td>One deployable owns pages AND API routes — a solo project can't afford two codebases. RSC lets pages read Prisma directly (no client-state layer). App Router's file-routing is the API documentation.</td></tr>
+    <tr><td>UI runtime</td><td><b>React 19 + RSC</b></td><td>HTMX, Solid, plain SSR</td><td>Server components fetch data with zero API ceremony; client "islands" (console, chat, forms) opt in with <span class="inline">"use client"</span>. The mental model: server by default, interactivity as the exception.</td></tr>
+    <tr><td>Language</td><td><b>TypeScript, strict</b></td><td>JS + JSDoc</td><td>The schema types flow from Prisma through route handlers into components. Strictness converts a whole bug class (shape drift) into compile errors. Non-negotiable for agent code where payloads nest deep.</td></tr>
+    <tr><td>Database</td><td><b>Postgres + pgvector</b></td><td>Pinecone/Weaviate, SQLite, Mongo</td><td>One store for relational truth AND vectors: no sync pipeline between "real DB" and "vector DB", transactional writes cover both, dedupe joins vectors with hashes. SQLite lost only on pgvector maturity; a dedicated vector DB is an extra system to operate for &lt;100k vectors of one human's life.</td></tr>
+    <tr><td>ORM</td><td><b>Prisma 6</b></td><td>Drizzle, Kysely, raw SQL</td><td>Best-in-class types + migrations. Its weakness — no vector type — is contained in ONE module (<span class="inline">retrieval.ts</span>) using <span class="inline">$queryRaw</span>. Pattern: when an abstraction leaks, quarantine the leak, don't abandon the abstraction.</td></tr>
+    <tr><td>Models</td><td><b>OpenAI SDK</b></td><td>Anthropic, local (Ollama)</td><td>One provider, three modalities (chat+tools, embeddings, Whisper, vision) — massive integration savings. All calls sit behind <span class="inline">src/lib/ai/*</span> so the provider is swappable; the .env already reserves an Anthropic slot.</td></tr>
+    <tr><td>Validation</td><td><b>zod</b></td><td>hand-rolled guards, yup</td><td>Every API boundary and every LLM JSON output parses through a schema. LLMs are creative liars; zod is the border police. Parse-don't-validate, at runtime.</td></tr>
+    <tr><td>Extension</td><td><b>MV3, plain JS, no build</b></td><td>TS+esbuild, Plasmo, WXT</td><td>Five files you can read in ten minutes, loadable unpacked with zero toolchain. A build step earns its keep at ~2k lines; below that it's pure friction. (Planned TS migration when Watch/Listen grow.)</td></tr>
+    <tr><td>Telegram</td><td><b>Zero-dep .mjs bridge</b></td><td>grammY/telegraf, webhooks</td><td>Long-polling needs no public URL (localhost product!); Node 20's global fetch makes a framework redundant for 5 message types. The bridge is deliberately a dumb pipe — all cognition stays in the app.</td></tr>
+    <tr><td>Styling</td><td><b>One hand-written CSS system</b></td><td>Tailwind, CSS-in-JS</td><td>A bespoke HUD (arc-reactor rings, scanlines, 13 suit themes) is exactly the case where utility classes fight you. Design tokens as CSS variables give theme-switching for free.</td></tr>
+  </table></div>
+
+  <div class="newbie"><b>Foundations — how to evaluate ANY technology in 5 questions</b>
+    (1) Does it collapse two systems into one? (pgvector did; that's usually decisive.)
+    (2) What's the escape hatch if I'm wrong? (Prisma → raw SQL; OpenAI → provider interface.)
+    (3) Who maintains it and what's its bus factor?
+    (4) What does debugging look like at 2am? (Monolith: a stack trace. Microservices: an investigation.)
+    (5) Am I choosing it because it's right, or because it's new? Résumé-driven development is a real failure mode — name it and refuse it.
+  </div>
+
+  <div class="cto"><b>CTO lens — the "innovation token" budget</b>
+    A project can afford roughly two exotic bets; everything else must be boring. JARVIS spends its tokens on
+    (a) pgvector-in-Postgres and (b) an agentic executor with tool-calling. Next.js, Prisma, zod, plain CSS are all
+    deliberately boring. When every layer of a stack is exciting, the product is usually the least exciting thing about it.
+  </div>
+</section>
+
+<!-- ================= 05 DATA MODEL ================= -->
+<section id="data" class="section">
+  <div class="kicker">05 · Data Model</div>
+  <h2>The Schema — Thirteen Models, Every Field Justified</h2>
+  <p class="lede">
+    The schema is the constitution: everything else is code that can be rewritten Tuesday. These 13 models split into
+    two cores — the <b>knowledge core</b> (what JARVIS remembers) and the <b>automation core</b> (what JARVIS does) —
+    plus connective tissue. Read this chapter slowly; every later system is just verbs on these nouns.
+  </p>
+
+  <div class="term"><span class="hd">schema topology</span>
+<span class="k">KNOWLEDGE CORE</span>                              <span class="k">AUTOMATION CORE</span>
+RawSourceItem ──1:N──▶ KnowledgeItem        WorkflowTemplate ──1:N──▶ WorkflowRun
+  │ contentHash │        │ embedding          │ steps(Json)             │ status FSM
+  │ canonicalUrl│        │ vector(1536)       │ agentKinds[]            │ logs(Json)
+  │ embedding   │        ▼                    │ requiredScopes[]        │ output(Json)
+  │ duplicateOf ─┐     EntityMention ◀──N:1── Entity                    ▼
+  ▼  (self-FK)  │        │ context     ┌──────┤ @@unique(type,name)   ApprovalRequest
+status: PENDING │        ▼             ▼      ▼                        │ status FSM
+PROCESSED       │      EntityRelation(from,to,relation,weight)         │ decidedAt
+DUPLICATE ◀─────┘                                                      ▼
+FAILED                 ChatSession ──1:N──▶ ChatMessage      ConnectorConfig
+                                              │ metadata      │ @@unique(type,name)
+                                              ▼               │ metadata.token (pairing)
+                                            sourceIds[]       ▼ scopes[]</div>
+  <p class="caption">Fig 5.1 — arrows are foreign keys. FSM = finite state machine, enforced by enum columns.</p>
+
+  <h3>The knowledge core, model by model</h3>
+  <div class="mod">
+    <div class="head"><b>RawSourceItem</b><span class="path">the immutable inbox — every capture, verbatim</span></div>
+    <dl>
+      <dt>What</dt><dd>One row per capture event: manual link, pasted text, export row, extension grab, video transcript. Keeps original URL, raw text, platform, author, and a <span class="inline">rawMetadata Json</span> escape hatch.</dd>
+      <dt>Why</dt><dd><b>Separation of evidence from interpretation.</b> AI enrichment will improve; when it does you can re-derive every KnowledgeItem from untouched raw sources. Destroying raw input to store only the summary is the classic irreversible mistake.</dd>
+      <dt>Keys</dt><dd><span class="inline">contentHash</span> (SHA-256 of canonical-url+title+text) and <span class="inline">canonicalUrl</span> (tracking params stripped, hash removed) — the dedupe double-lock, both indexed. <span class="inline">duplicateOfId</span> is a self-relation: duplicates are <i>recorded</i>, not rejected, so "you saved this 3 times" is itself queryable signal.</dd>
+      <dt>Trade-off</dt><dd>Raw text bloats the table; acceptable at personal scale, and it's the archival layer — cold storage offload is the ch. 19 answer, not deletion.</dd>
+    </dl>
+  </div>
+  <div class="mod">
+    <div class="head"><b>KnowledgeItem</b><span class="path">the derived, useful memory — what retrieval actually searches</span></div>
+    <dl>
+      <dt>What</dt><dd>Title, summary, category enum, <span class="inline">insights[]</span>, <span class="inline">actions[]</span>, confidence float, and an <span class="inline">embedding vector(1536)</span>.</dd>
+      <dt>Why</dt><dd>Search should rank <i>meaning</i>, not raw noise. Raw text is evidence; KnowledgeItem is testimony. The split also means re-enrichment (better prompts later) rewrites this table without touching evidence.</dd>
+      <dt>How</dt><dd>Written by the ingestion pipeline (ch. 6); embedded at write time; queried by pgvector cosine distance (ch. 7); chipped with entities (ch. 10).</dd>
+      <dt>Detail</dt><dd>The vector column is Prisma-<span class="inline">Unsupported("vector(1536)")</span> — Prisma creates it in migrations but can't read it, which is precisely why all vector I/O lives in one raw-SQL module. Quarantined leak, by design.</dd>
+    </dl>
+  </div>
+  <div class="mod">
+    <div class="head"><b>Entity · EntityMention · EntityRelation</b><span class="path">the knowledge graph — nouns, sightings, and co-occurrence</span></div>
+    <dl>
+      <dt>What</dt><dd><span class="inline">Entity</span> is a canonical noun (typed: PERSON, PRODUCT, FOOD, WORKOUT, COMPANY…), globally unique on <span class="inline">(type,name)</span>. <span class="inline">EntityMention</span> is a sighting of an entity in a knowledge item. <span class="inline">EntityRelation</span> is a weighted edge; today one relation kind, <span class="inline">mentioned_with</span>, whose weight increments every co-occurrence.</dd>
+      <dt>Why</dt><dd>Vectors answer "what's similar?"; graphs answer "what's connected?" — different questions. "What do I know about Alex" is a graph query (mentions), not a similarity query.</dd>
+      <dt>Why not a graph DB</dt><dd>Neo4j is a second system to run for what is, at this scale, three relational tables and two indexes. The graph-DB door stays open: these tables translate mechanically if traversal depth ever demands it. (Rule from ch. 4: don't add a database to avoid writing a JOIN.)</dd>
+    </dl>
+  </div>
+  <div class="mod">
+    <div class="head"><b>ChatSession · ChatMessage</b><span class="path">conversation persistence with provenance</span></div>
+    <dl>
+      <dt>What</dt><dd>Sessions of role/content messages; assistant rows carry <span class="inline">metadata.sourceIds</span> — which knowledge items grounded that answer.</dd>
+      <dt>Why provenance</dt><dd>A memory system that can't show its work isn't trustworthy. Storing citation IDs per answer makes "why did you say that?" answerable forever, and later enables click-through from an answer to its evidence.</dd>
+    </dl>
+  </div>
+
+  <h3>The automation core, model by model</h3>
+  <div class="mod">
+    <div class="head"><b>WorkflowTemplate → WorkflowRun → ApprovalRequest</b><span class="path">the product's spine: agency under contract</span></div>
+    <dl>
+      <dt>What</dt><dd>Templates define reusable step lists (<span class="inline">steps Json</span>: title, description, <span class="inline">approvalRequired</span>). A Run is one execution: command, status FSM (<span class="inline">QUEUED → RUNNING → COMPLETED/FAILED</span>, plus <span class="inline">WAITING_FOR_APPROVAL</span>/<span class="inline">CANCELLED</span>), <span class="inline">input/output/logs Json</span>. ApprovalRequests are per-gate rows with their own FSM and <span class="inline">decidedAt</span>.</dd>
+      <dt>Why runs are rows</dt><dd>Anything important enough to execute is important enough to inspect, audit, resume, and cancel. Ephemeral in-memory jobs die with the process and take their story with them.</dd>
+      <dt>Why logs are Json</dt><dd>Honest trade-off: appending logs into a Json column is simple and reads with the run in one query — but it can't be indexed/aggregated ("all TOOL_CALL failures this week") and the naive Prisma <span class="inline">logs: {push}</span> operator doesn't even work on Json columns (a real production bug, ch. 9). The normalization threshold is written down in advance: when logs need cross-run queries or exceed ~1MB/run, promote to a <span class="inline">RunEvent</span> table. Deliberate debt with a tripwire beats accidental debt every time.</dd>
+      <dt>Concurrency</dt><dd>Run claiming is an atomic compare-and-swap: <span class="inline">updateMany({where:{id,status:"QUEUED"},data:{status:"RUNNING"}})</span> — count 0 means someone else won. This single line makes triple-trigger execution (approval hook + manual button + command route) safe without locks. Ch. 8 dissects it.</dd>
+    </dl>
+  </div>
+  <div class="mod">
+    <div class="head"><b>AgentDefinition · ConnectorConfig</b><span class="path">registries — one dormant by design, one carrying secrets</span></div>
+    <dl>
+      <dt>What</dt><dd>AgentDefinition is the future DB-driven agent registry (today agents live in code — the table waits for user-defined agents). ConnectorConfig stores per-connector state and scopes; its first real tenant is the extension pairing token in <span class="inline">metadata</span>.</dd>
+      <dt>Lesson</dt><dd>Schema can lead code when migration cost is high and the shape is certain — but track dormant tables explicitly, or they become archaeology. Both of these are named in the master plan with their activation phase.</dd>
+    </dl>
+  </div>
+
+  <div class="cto"><b>CTO lens — four schema rules that age well</b>
+    (1) <b>Enums for state machines</b> — a status column typed as free text will eventually contain "done", "Done", and "DONE ✅".
+    (2) <b>Index what you filter</b>, and nothing else — every index taxes every write; JARVIS indexes status, category, hash, URL because pages filter on exactly those.
+    (3) <b>Json columns are for payloads you read whole, never filter by</b> — the moment a query wants <span class="inline">WHERE json→…</span>, normalize.
+    (4) <b>Store evidence separately from interpretation</b> — the raw/derived split is what makes every future re-enrichment, migration, and "oops" recoverable.
+  </div>
+</section>
+<!-- ================= 06 INGESTION ================= -->
+<section id="ingestion" class="section">
+  <div class="kicker">06 · The Mind, Part 1</div>
+  <h2>The Ingestion Pipeline — Content Becomes Memory</h2>
+  <p class="lede">
+    Every capture surface — save form, export upload, browser extension, Telegram <span class="inline">/save</span>, video
+    transcript — funnels into <b>one</b> function: <span class="inline">ingestItem()</span> in
+    <span class="inline">src/lib/ingestion.ts</span>. One pipeline means one place for dedupe, one place for enrichment,
+    one place to improve. This is the most-reused 100 lines in the codebase.
+  </p>
+
+  <div class="flow">
+    <div class="step"><div><b>Normalize the URL.</b> <span class="path">hash.ts · normalizeUrl()</span><br/>Strip the fragment and tracking params (<span class="inline">utm_*</span> etc.) to produce <span class="inline">canonicalUrl</span>. The same article shared from three apps arrives with three different URLs; canonicalization makes them one identity. <i>Why first: every later step keys off identity.</i></div></div>
+    <div class="step"><div><b>Hash the content.</b> <span class="path">hash.ts · stableHash()</span><br/>SHA-256 over <span class="inline">canonicalUrl + title + text</span> → <span class="inline">contentHash</span>. Content-addressing 101: identical input, identical fingerprint, regardless of when or from where it arrives.</div></div>
+    <div class="step"><div><b>Check for duplicates — then record, don't reject.</b><br/>Find any existing row matching hash OR canonical URL. On a hit, a new row is still written with <span class="inline">status: DUPLICATE</span> and <span class="inline">duplicateOfId</span> pointing at the original. The capture <i>event</i> is real signal ("saved 3×" = importance); only the enrichment cost is skipped. This is also what makes every import <b>resumable</b>: re-upload a 500-item export, the 400 already processed short-circuit for free.</div></div>
+    <div class="step"><div><b>Classify + summarize, in parallel.</b> <span class="path">ai/classify.ts · ai/summarize.ts</span><br/><span class="inline">Promise.all</span> because they're independent — pipeline latency is the max, not the sum. Each has a deterministic fallback (keyword map / truncation) so ingestion works with zero API keys, just worse.</div></div>
+    <div class="step"><div><b>Derive the KnowledgeItem.</b> <span class="path">ai/knowledge.ts</span><br/>Title + summary + category + starter insights/actions, nested-created with the raw row in one Prisma write — evidence and testimony born in the same transaction.</div></div>
+    <div class="step"><div><b>Embed.</b> <span class="path">ai/retrieval.ts · storeItemEmbeddings()</span><br/>One embedding call over title+summary+text (8k-char cap), written to BOTH raw and knowledge rows via raw SQL <span class="inline">UPDATE … SET embedding = $1::vector</span>. Non-fatal on failure — an unembedded item is degraded, not lost, and keyword fallback still finds it.</div></div>
+    <div class="step"><div><b>Extract entities → grow the graph.</b> <span class="path">ai/entities.ts · ai/knowledge-graph.ts</span><br/>Typed entities (≤8) upserted canonically, mention edges written, co-occurrence weights incremented. Also non-fatal. Ch. 10 dissects it.</div></div>
+  </div>
+
+  <div class="why"><b>Why enrichment failures never fail ingestion</b>
+    The pipeline's contract is: <b>if we accepted your capture, we saved your capture.</b> Classification, summarization,
+    embedding, and entity extraction are quality-of-memory, not existence-of-memory. Each is wrapped so the worst case is
+    a plainer row. Users forgive a rough summary; they never forgive a silently swallowed save.
+  </div>
+
+  <div class="fail"><b>Failure modes &amp; current answers</b>
+    <b>LLM outage mid-pipeline:</b> fallbacks engage (keyword classify, truncated summary), item lands as PROCESSED-but-plain; no retry queue yet — re-enrichment is a listed Phase 2 follow-up.
+    <b>Same content, different text snippets:</b> hash differs → duplicate slips through; the real fix is semantic near-dup detection via embedding distance (designed, not yet built — the last Phase 2 item).
+    <b>Huge pastes:</b> caps at every stage (6k classify, 8k embed, 20k stored text) keep cost and latency bounded; overflow is truncated, never errored.
+  </div>
+
+  <div class="cto"><b>CTO lens — idempotency is a product feature wearing infra clothes</b>
+    "Safe to retry" sounds like plumbing until you watch a user re-upload an export because they weren't sure it worked.
+    Content-hash idempotency converts user anxiety into a no-op. Design every write path so that doing it twice is
+    harmless, and half your error-handling UI disappears.
+  </div>
+</section>
+
+<!-- ================= 07 MEMORY / RAG ================= -->
+<section id="memory" class="section">
+  <div class="kicker">07 · The Mind, Part 2</div>
+  <h2>Semantic Memory &amp; RAG — The Honest Version</h2>
+  <p class="lede">
+    "Semantic search" is three ideas stacked: meaning can be a vector, closeness of vectors approximates closeness of
+    meaning, and a database can sort by closeness fast. JARVIS implements the honest, minimal version of the stack —
+    and documents exactly where it's naive, because knowing where your RAG is weak <i>is</i> the senior skill.
+  </p>
+
+  <div class="newbie"><b>Foundations — embeddings in four sentences</b>
+    An embedding model maps text to a point in high-dimensional space (here: 1,536 numbers via
+    <span class="inline">text-embedding-3-small</span>) such that texts humans consider related land near each other.
+    "High-protein dinner ideas" and a saved recipe reel end up neighbors even though they share almost no words.
+    Distance is measured by cosine (angle between vectors); pgvector's <span class="inline">&lt;=&gt;</span> operator returns it.
+    That's the entire trick — everything else is retrieval engineering.
+  </div>
+
+  <div class="term"><span class="hd">retrieval.ts · the one raw-SQL quarantine zone</span>
+<span class="c">-- similarity search (cosine distance; 1 - distance = score)</span>
+SELECT id, title, summary, category::text, insights, actions,
+       <span class="g">1 - (embedding &lt;=&gt; $query::vector) AS score</span>
+FROM   "KnowledgeItem"
+WHERE  embedding IS NOT NULL
+ORDER  BY embedding &lt;=&gt; $query::vector
+LIMIT  $k;
+
+<span class="c">-- ladder: vector → keyword ILIKE terms → recent items   (never returns "error")</span></div>
+  <p class="caption">Fig 7.1 — the fallback ladder is the design: every rung degrades quality, none degrades availability.</p>
+
+  <h3>The grounding contract</h3>
+  <p>
+    One shared helper — <span class="inline">getGroundingContext(question)</span> — feeds every answer surface (HUD chat,
+    companion Ask panel, Telegram). It returns matches <i>plus the retrieval mode used</i>, and that mode is passed into
+    the prompt and back to the UI. The model is told whether its context came from semantic search or just recency;
+    the user sees citations either way. Grounding you can't audit is vibes.
+  </p>
+
+  <div class="tradeoff"><b>Trade-offs we're consciously carrying</b>
+    <b>No chunking:</b> items embed whole. Fine for reels and notes; long articles will need chunk-level embeddings + a parent pointer.
+    <b>No reranker:</b> raw cosine order, no cross-encoder second pass. Cheap and decent at 10³ items; revisit at 10⁵.
+    <b>Exact-scan search:</b> no HNSW/IVFFlat index yet — a sequential scan over one person's knowledge is milliseconds; the index DDL is a ch. 19 one-liner when row counts demand it.
+    <b>Query = question verbatim:</b> no HyDE/expansion. Listed, not built. Every one of these is a two-way door — which is why shipping the naive version first was correct.
+  </div>
+
+  <div class="cto"><b>CTO lens — RAG quality is an eval problem, not a vibes problem</b>
+    The failure mode of every RAG system: it demos great and degrades silently. The counter-weapon is a tiny eval set —
+    30 real questions with known-relevant item IDs, scored recall@k on every retrieval change (ch. 16). You cannot
+    improve what you don't measure, and with retrieval you can't even <i>see</i> regressions without measuring.
+  </div>
+</section>
+
+<!-- ================= 08 ENGINE ================= -->
+<section id="engine" class="section">
+  <div class="kicker">08 · The Mind, Part 3</div>
+  <h2>The Agent Engine — Commands Become Actions</h2>
+  <p class="lede">
+    This is the heart: the subsystem that turns "draft a reply to the client" into routed intent, an inspectable run,
+    cleared gates, a tool-calling loop, and an audited result. Three modules:
+    the <b>router</b> (<span class="inline">command-router.ts</span>), the <b>tool registry</b>
+    (<span class="inline">agents/tools.ts</span>), and the <b>executor</b> (<span class="inline">agents/executor.ts</span>).
+  </p>
+
+  <h3>8.1 The intent router — LLM judgment, keyword spine</h3>
+  <div class="grid-2">
+    <div class="card"><h4>Primary: LLM classification</h4><p><span class="inline">routeCommandSmart()</span> shows the model the workflow catalog (key, agents, risk, description) and demands strict JSON: <span class="inline">{workflowKey, agentKind, confidence, rationale}</span> — <span class="inline">response_format: json_object</span>, temperature 0, zod-parsed, enum-checked. Unknown workflow key? Fall through. Malformed JSON? Fall through.</p></div>
+    <div class="card"><h4>Fallback: keyword scoring</h4><p>The original router — substring hit-counts per workflow keyword list, a confidence curve, a briefing default. Worse at nuance, but deterministic, free, and offline. Every route result carries <span class="inline">routedBy: "llm" | "keywords"</span> and the console displays it — the honesty rule again.</p></div>
+  </div>
+  <div class="why"><b>Why keep the dumb router forever</b>
+    It's the engine's <i>availability floor</i>. LLM down, key missing, JSON garbled — commands still route. The
+    architectural pattern is "smart path, dumb spine": ambitious capability wrapped around a boring guarantee.
+    You'll meet it again in retrieval (ch. 7) and classification (ch. 6).
+  </div>
+
+  <h3>8.2 The tool registry — capability as data</h3>
+  <p>
+    A tool is a typed object: name, model-facing description, JSON-Schema parameters, a <b>risk level</b>, and an
+    <span class="inline">execute()</span> that zod-parses its args. The registry compiles to OpenAI function specs via one
+    mapper, and <span class="inline">executeTool()</span> is the single choke point where every invocation is validated,
+    executed, and logged. Nine tools today in three families:
+  </p>
+  <div class="tbl-wrap"><table>
+    <tr><th>Family</th><th>Tools</th><th>Risk</th><th>Note</th></tr>
+    <tr><td>Memory</td><td><b>search_knowledge · save_knowledge_note · explore_entity · get_briefing_snapshot · list_recent_runs</b></td><td><span class="badge b-good">low</span></td><td>Read/write against the operator's own database only.</td></tr>
+    <tr><td>Deterministic</td><td><b>calculate · get_current_time</b></td><td><span class="badge b-good">low</span></td><td>The calculator is a hand-written recursive-descent parser — <b>never</b> <span class="inline">eval()</span>. LLM-supplied strings are untrusted input, full stop.</td></tr>
+    <tr><td>External-effect</td><td><b>draft_email · propose_calendar_event · record_expense</b></td><td><span class="badge b-bad">high</span>/<span class="badge b-gold">med</span></td><td><b>Draft-artifact pattern:</b> they produce reviewable artifacts, never real sends. The tool's own description tells the model "this never sends" — honesty extends into the prompt space.</td></tr>
+  </table></div>
+  <div class="cto"><b>CTO lens — the draft-artifact pattern is how you ship agency early</b>
+    The naive ladder is "no email tool → (someday) email tool that sends." The senior ladder inserts a rung: a tool that
+    produces the <i>artifact</i> of the action for human review. You get 90% of the user value (the drafting was the work!),
+    zero blast radius, and a natural upgrade path — when OAuth connectors arrive (Phase 4), "send this draft" becomes one
+    approval-gated step appended to an already-proven flow.
+  </div>
+
+  <h3>8.3 The executor — the kernel</h3>
+  <div class="flow">
+    <div class="step"><div><b>Claim atomically.</b> <span class="inline">updateMany({where:{id, status:"QUEUED"}, data:{status:"RUNNING"}})</span> — a compare-and-swap in one SQL statement. Three triggers can race (approval hook, RUNS button, command route); exactly one wins; losers get <span class="inline">count: 0</span> and stand down. No locks, no queue, no double execution.</div></div>
+    <div class="step"><div><b>Load run + template; log <span class="inline">EXECUTION_STARTED</span></b> with step count and engine mode (<span class="inline">openai</span> or <span class="inline">offline_simulation</span>).</div></div>
+    <div class="step"><div><b>Walk the steps.</b> Approval-gated steps log <span class="inline">APPROVAL_GATE</span> cleared (they were approved or we wouldn't be here — the executor re-asserts rather than trusts). Executable steps get a fresh model conversation: persona + command + workflow position + <i>condensed prior-step results</i> — each step sees a summary of history, not the full transcript. That's deliberate context-budget control.</div></div>
+    <div class="step"><div><b>Tool loop, bounded.</b> Up to 6 rounds/step: model responds; tool calls are executed through the registry choke point; results return as <span class="inline">role:"tool"</span> messages (12k-char cap each); artifacts accumulate; every call logs <span class="inline">TOOL_CALL name → ok|error</span>. No tool calls → the text IS the step result. Loop exhausted → honest "hit the tool limit" result. Bounds exist because agent loops without bounds eventually find a way to spin.</div></div>
+    <div class="step"><div><b>Persist logs at every step boundary</b> — a crash mid-run leaves a run whose story is readable up to the last completed step. Observability isn't a dashboard; it's writing things down as you go.</div></div>
+    <div class="step"><div><b>Finish with structure.</b> <span class="inline">output = {summary, steps[], artifacts[], engine}</span>, status COMPLETED (or FAILED with the error in both log and output). The RUNS page renders this directly — the executor's output shape IS the UI contract.</div></div>
+  </div>
+
+  <div class="term"><span class="hd">anatomy · one step of a run (what the model actually sees)</span>
+<span class="k">system:</span> You are Jarvis… ground in tools… external actions only produce drafts…
+<span class="k">user:</span>   Operator command: "log a $49 SaaS receipt and remind me what I pay for"
+        Workflow: Expense &amp; Receipt Logger — step 2 of 3
+        Current step: Record expense — capture vendor, amount, category
+        Results of prior steps:
+        - Parse receipt: vendor=Acme, amount=49, cadence=monthly
+        Execute this step now using tools as needed, then reply with the result.
+<span class="c">→ assistant: tool_call record_expense{vendor:"Acme", amount:49, …}</span>
+<span class="c">→ tool: {"ok":true,"artifact":{"type":"expense_record",…}}</span>
+<span class="c">→ assistant: "Logged Acme at $49/mo as software; artifact filed for review."</span>  <span class="s">← step result, logged</span></div>
+
+  <div class="fail"><b>Failure modes, named</b>
+    <b>Crash mid-run:</b> row stuck RUNNING; logs show last step; janitor sweep ("RUNNING &gt; 15min → FAILED") is the listed fix.
+    <b>Model returns nonsense args:</b> zod rejects inside the tool; the model sees the error as a tool result and self-corrects — errors-as-data beats exceptions-as-control-flow in agent loops.
+    <b>Serverless deployment:</b> in-request execution needs <span class="inline">maxDuration</span> headroom (set: 120–300s); the real fix at scale is the worker extraction (ch. 19).
+  </div>
+</section>
+<!-- ================= 09 SAFETY ================= -->
+<section id="safety" class="section">
+  <div class="kicker">09 · The Mind, Part 4</div>
+  <h2>Safety &amp; Approvals — Agency Under Contract</h2>
+  <p class="lede">
+    Safety here is not a disclaimer page; it's load-bearing architecture with five interlocking mechanisms:
+    risk levels, approval gates, audit logs, pairing tokens, and the draft-artifact rule. Together they answer
+    the only question that matters for an agent product: <b>what is the worst thing this system can do without me?</b>
+    JARVIS's answer: write rows in its own database.
+  </p>
+
+  <h3>The approval state machine</h3>
+  <div class="term"><span class="hd">approval flow · one transaction, three outcomes</span>
+Operator decides gate ──▶ <span class="k">PATCH /api/approvals</span>  {id, APPROVED|REJECTED}
+        └─ prisma.<span class="g">$transaction</span>:
+             1. update ApprovalRequest (+decidedAt)
+             2. read sibling gates of the same run
+             3. derive run status:
+                REJECTED any        → run <span class="r">CANCELLED</span>
+                all APPROVED        → run <span class="s">QUEUED</span>  ──▶ <span class="g">after(): executeWorkflowRun()</span>
+                else                → stays WAITING_FOR_APPROVAL
+             4. append APPROVAL_* entry to run logs (read-modify-write)</div>
+  <p class="caption">Fig 9.1 — decision, sibling check, status derivation, and audit all commit atomically; execution fires after the response via Next's <span class="inline">after()</span>.</p>
+
+  <div class="story"><b>War story — the Prisma <span class="inline">logs: { push }</span> bug</b>
+    The original approval handler appended audit entries with Prisma's <span class="inline">push</span> operator — which is only
+    valid for scalar <i>list</i> columns, not <span class="inline">Json</span>. It type-checked, it demoed (no DB in dev!), and it
+    would have thrown on the first real approval in production. The fix reads the current logs array inside the same
+    transaction and writes the full array back. Three durable lessons: (1) ORM operators are per-column-type — read the
+    manual for YOUR type; (2) code that has never touched a real database is unverified code, however green the build;
+    (3) audit-trail code deserves the most paranoid review, because it fails silently and matters most in incidents.
+  </div>
+
+  <h3>The five mechanisms</h3>
+  <div class="grid-2">
+    <div class="card"><h4>Risk levels</h4><p>Templates and tools declare <span class="inline">low/medium/high</span>. Risk renders before execution (console meter, Telegram header) and decides nothing by itself — approval gates come from step declarations. Risk informs the human; gates constrain the machine; the two are deliberately independent.</p></div>
+    <div class="card"><h4>Approval gates</h4><p>Per-step <span class="inline">approvalRequired</span> becomes ApprovalRequest rows at run creation — <i>before</i> anything executes. Clearing the last gate is the only path from WAITING to QUEUED. The executor re-checks rather than trusts its caller.</p></div>
+    <div class="card"><h4>Audit logs</h4><p>Route, gate decisions, execution start, every tool call, step results, completion — all appended to the run's log with timestamps. The RUNS page renders them raw. If it isn't logged, it didn't happen; if it's logged, it can be explained.</p></div>
+    <div class="card"><h4>Pairing tokens</h4><p>Extension, bridge, and cron authenticate with a minted token (<span class="inline">jrv_…</span>, stored in ConnectorConfig or env), compared with <span class="inline">crypto.timingSafeEqual</span> — length-checked, constant-time. Small paranoia, free of charge, correct habit.</p></div>
+  </div>
+  <div class="why"><b>Why constant-time comparison for a localhost token</b>
+    A string <span class="inline">===</span> leaks match-length through timing. Is that exploitable on localhost today? Almost
+    certainly not. But auth code is copied, and copied code outlives its context — the day this app is reachable from a
+    network, the correct habit is already in place. Security is cheapest at write time.
+  </div>
+
+  <h3>Threat model — honest edition</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Threat</th><th>Current answer</th><th>Grade</th></tr>
+    <tr><td>Agent takes a harmful external action</td><td>Structurally impossible — no tool sends anything; drafts only</td><td><span class="badge b-good">strong</span></td></tr>
+    <tr><td>Rogue/buggy tool input from the model</td><td>zod at every execute(); no eval; parser-based calculator</td><td><span class="badge b-good">strong</span></td></tr>
+    <tr><td>Unauthorized companion/bridge caller</td><td>Bearer token, constant-time; Telegram chat-id pinning</td><td><span class="badge b-good">strong</span></td></tr>
+    <tr><td>Prompt injection via captured content</td><td>Partial: capture is consent-gated and tools are low-blast-radius, but retrieved text does enter prompts unsanitized</td><td><span class="badge b-gold">partial</span></td></tr>
+    <tr><td>Local web app has no login</td><td>Known, accepted for single-operator localhost; hard gate before Phase 4 connectors hold OAuth tokens</td><td><span class="badge b-bad">accepted debt</span></td></tr>
+    <tr><td>Data leaves the machine</td><td>Single egress (model API), disclosed in UI; no-AI import mode planned</td><td><span class="badge b-gold">disclosed</span></td></tr>
+  </table></div>
+
+  <div class="cto"><b>CTO lens — write the threat model with grades, not vibes</b>
+    Three honest grades — strong / partial / accepted-debt — beat a page of reassuring prose. "Accepted debt" is the
+    powerful one: it converts a vague worry into a tracked decision with a named unlock condition ("auth ships before
+    connectors"). Security reviews go from adversarial to collaborative when the debts are already on the table.
+  </div>
+</section>
+
+<!-- ================= 10 GRAPH ================= -->
+<section id="graph" class="section">
+  <div class="kicker">10 · The Mind, Part 5</div>
+  <h2>The Knowledge Graph — From Similar To Connected</h2>
+  <p class="lede">
+    Vectors cluster; graphs connect. After this subsystem, "creatine" seen in a reel transcript, an Instagram save,
+    and a chat export is <b>one node</b> with three mention edges — and its neighbors tell you what it travels with.
+  </p>
+
+  <div class="flow">
+    <div class="step"><div><b>Extract, typed and capped.</b> <span class="path">ai/entities.ts</span><br/>JSON-mode prompt over title+summary+text: at most 8 entities, valid types only (13-value enum), canonical short names ("creatine", not "creatine monohydrate supplementation"), a ≤10-word context each. zod-parsed, enum-filtered, de-duplicated case-insensitively. No key → empty array, graph stays sparse, nothing breaks.</div></div>
+    <div class="step"><div><b>Upsert canonically.</b> <span class="path">ai/knowledge-graph.ts</span><br/>Uniqueness on <span class="inline">(type, name)</span> is what merges cross-source sightings into one node. Upsert-don't-insert makes ingestion re-runs converge instead of fork.</div></div>
+    <div class="step"><div><b>Record the sighting.</b> A mention edge (entity ↔ knowledge item), unique per pair, carrying its context sentence.</div></div>
+    <div class="step"><div><b>Reinforce co-occurrence.</b> Every pair of entities in the same item upserts a <span class="inline">mentioned_with</span> edge with <span class="inline">weight += 1</span> — IDs sorted so (A,B) and (B,A) are one edge. The graph literally strengthens with repetition, Hebbian-style: entities that fire together wire together.</div></div>
+    <div class="step"><div><b>Serve it.</b> The <span class="inline">explore_entity</span> tool returns the node, its recent mentions (joined to knowledge items), and neighbors ranked by weight — so the agent answers "what do I know about Alex?" from structure, not similarity.</div></div>
+  </div>
+
+  <div class="tradeoff"><b>Trade-offs</b>
+    <b>Pairwise edges are O(n²) per item</b> — capped at 8 entities = ≤28 edges, bounded by design.
+    <b>One relation type</b> — "mentioned_with" is co-occurrence, not semantics ("works_at", "treats", "competes_with" are future extraction targets; the schema already supports arbitrary relation strings).
+    <b>Name collisions</b> — two people named Alex merge into one node until entity resolution (context-based disambiguation) exists. Known, listed, acceptable at personal scale — and a genuinely hard problem at every scale.
+  </div>
+</section>
+
+<!-- ================= 11 HUD ================= -->
+<section id="hud" class="section">
+  <div class="kicker">11 · The Body, Part 1</div>
+  <h2>The HUD — A Web Interface With A Point Of View</h2>
+  <p class="lede">
+    Eleven routes, one shell, and a design system that commits to a bit: you are operating a piece of Stark equipment.
+    But under the hologram there's disciplined engineering — server components reading Prisma directly, client islands
+    only where interactivity demands, and a no-fake-telemetry rule with teeth.
+  </p>
+
+  <h3>Rendering architecture</h3>
+  <div class="grid-2">
+    <div class="card"><h4>Server components by default</h4><p>Pages like <span class="inline">/runs</span>, <span class="inline">/knowledge</span>, <span class="inline">/approvals</span> are async RSCs calling Prisma inline — no API hop, no client cache to invalidate, no loading-state ceremony. Each wraps its query in try/catch → demo data, so a keyless clone still renders the full product ("design mode", labeled).</p></div>
+    <div class="card"><h4>Client islands where users act</h4><p><span class="inline">CommandConsole</span>, <span class="inline">ChatBox</span>, forms, <span class="inline">ApprovalActions</span>, <span class="inline">RunActions</span> — local <span class="inline">useState</span> + <span class="inline">fetch</span> + <span class="inline">router.refresh()</span> to re-render the RSC tree. No Redux/React-Query: at this interaction density, framework state machinery would be pure overhead. State libraries are a scaling tool, not a default.</p></div>
+  </div>
+
+  <h3>The design system as tokens</h3>
+  <p>
+    Thirteen suit themes are CSS-variable palettes on <span class="inline">body[data-theme]</span> — glow color, accent,
+    background depths, even an <span class="inline">--img-hue</span> filter that re-tints the hologram artwork. Components
+    never name colors; they name roles (<span class="inline">var(--glow-rgb)</span>). Theme switching is O(1) by
+    construction, and the arc-reactor rings, scanlines, and corner brackets all re-tint for free.
+    <b>Product note:</b> the hologram re-tinting with the suit theme is an explicit product decision (the operator chose
+    it over movie-accurate always-blue) — recorded so no future engineer "fixes" it.
+  </p>
+
+  <div class="story"><b>War story — the hydration mismatch</b>
+    The top bar generated its session ID with <span class="inline">Math.random()</span> at module scope. Server render produced
+    one ID, client render another → React error #418 on every page. The fix: render a stable placeholder on the server
+    and randomize inside <span class="inline">useEffect</span>, client-only. The general law: <b>anything nondeterministic
+    (random, Date.now, locale) must not run during SSR render</b> — hydration demands the server and client trees match
+    byte-for-byte on first paint.
+  </div>
+
+  <div class="cto"><b>CTO lens — cosmetic excellence is cheap; fake data is expensive</b>
+    The HUD spends its budget on atmosphere (pure-CSS arc reactor, boot choreography) and refuses to spend it on lies
+    (every gauge is real data or removed). Users can't tell good architecture from bad, but they can always eventually
+    tell honest UI from theater — and so can your own engineers, which matters more.
+  </div>
+</section>
+
+<!-- ================= 12 COMPANION ================= -->
+<section id="companion" class="section">
+  <div class="kicker">12 · The Body, Part 2</div>
+  <h2>The Browser Companion — Consent-First Capture, Listen, Watch, Ask</h2>
+  <p class="lede">
+    The most architecturally interesting subsystem: a Chrome MV3 extension that lives inside hostile territory
+    (other people's DOMs, a service worker that sleeps, canvases that taint) and still keeps a hard promise —
+    <b>nothing is read until the operator approves it, item by item, on screen.</b>
+  </p>
+
+  <h3>MV3 anatomy — five files, four contexts</h3>
+  <div class="term"><span class="hd">extension topology</span>
+toolbar click / context menu            page world
+        │                                   │
+        ▼                                   ▼
+<span class="k">service-worker.js</span> ◀────messages────▶ <span class="k">content.js</span> (per tab)
+  routing · tabCapture streamId        site adapters (IG/FB/LI/generic)
+  captureVisibleTab fallback           proposal builder → <span class="g">consent HUD</span>
+  fetch → localhost APIs               (closed shadow DOM, ESC to kill)
+        │
+        ▼
+<span class="k">offscreen.html/js</span>  ← MV3 quirk: getUserMedia/MediaRecorder need a document
+  records tab audio · re-routes audio so the tab stays audible
+  uploads audio+frames → /api/extension/media
+        +
+<span class="k">options.html/js</span> — pairing (app URL + token), health test</div>
+
+  <h3>The consent protocol</h3>
+  <div class="flow">
+    <div class="step"><div><b>Summon.</b> Toolbar or context menu — both are user gestures, which also grant <span class="inline">activeTab</span>. On non-matched sites the SW injects the content script on demand; a window flag prevents double-injection.</div></div>
+    <div class="step"><div><b>Propose, don't read.</b> Adapters detect visible posts/videos (viewport-intersection + size floors) and build proposals: label, 140-char preview, and an <span class="inline">extract()</span> closure that runs <i>only on approval</i>. DM pages are special-cased: bulk proposals are refused outright; only explicit text selections appear, tagged PRIVATE CONVERSATION in amber.</div></div>
+    <div class="step"><div><b>Approve per item.</b> The HUD renders in a <i>closed</i> shadow root (site CSS can't reach in, site JS can't query in). APPROVE runs the extraction, ships it via the SW to <span class="inline">/api/extension/capture</span> (Bearer token), and the row reports back ✓ SAVED or ✓ ALREADY KNOWN — dedupe surfacing all the way to the edge.</div></div>
+  </div>
+
+  <div class="deep"><b>Deep dive — Listen &amp; Watch, the hard parts</b>
+    <b>Tab audio without silence:</b> <span class="inline">tabCapture</span> mutes the tab for the user; the offscreen recorder
+    pipes the stream through an <span class="inline">AudioContext</span> back to the speakers. Users keep hearing the reel while
+    it records. <b>SW lifetime:</b> MV3 service workers idle out in ~30s; during recordings the offscreen document pings a
+    keepalive every 20s. <b>Frames without permissions drama:</b> Watch mode draws the <span class="inline">&lt;video&gt;</span>
+    element to a canvas every 3s (≤20 frames, ≤768px, JPEG q0.6) — crisp, cropped, permission-free. Cross-origin media
+    taints the canvas and throws — caught, and the SW falls back to <span class="inline">captureVisibleTab</span>, which works
+    precisely because summoning granted activeTab. <b>Server side:</b> Whisper transcribes; frames join the transcript in a
+    vision prompt that must also say when frames are black (DRM) or audio is just music. Honesty in prompts, too.
+  </div>
+
+  <div class="tradeoff"><b>Trade-off — adapters are perishable</b>
+    IG/FB/LinkedIn change DOMs constantly; selector-based adapters WILL rot. Mitigations: a generic adapter
+    (og-tags/article/selection) that works everywhere as the floor, per-site adapters as progressive enhancement, and
+    fail-soft extraction. This is a maintenance-cost decision made with eyes open: the alternative (platform APIs) simply
+    does not exist for saves/DMs. Consent-first DOM reading at human speed is the only durable, ToS-defensible lane.
+  </div>
+</section>
+<!-- ================= 13 IMPORTER ================= -->
+<section id="importer" class="section">
+  <div class="kicker">13 · The Body, Part 3</div>
+  <h2>The Social Export Importer — Bulk History, The Legal Way</h2>
+  <p class="lede">
+    Instagram saves, Facebook chats, LinkedIn messages — none are reachable via public APIs anymore. The durable lane is
+    the platforms' own GDPR-era export archives: the user downloads their data, drops the JSON/CSV files on
+    <span class="inline">/capture</span>, and a parser layer turns every recognizable format into pipeline-ready items.
+  </p>
+
+  <h3>Parser design — tolerant, detected, capped</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Detector</th><th>Signature</th><th>Yields</th></tr>
+    <tr><td>Instagram saved</td><td><span class="inline">saved_saved_media</span> array with <span class="inline">string_map_data</span> hrefs</td><td>One item per save: author, permalink, saved-at</td></tr>
+    <tr><td>Meta chat thread</td><td><span class="inline">participants[] + messages[]</span></td><td><b>One item per thread</b>: chronological transcript (export order is newest-first — reversed), shared links harvested, participants as metadata</td></tr>
+    <tr><td>Facebook saved</td><td>any <span class="inline">/saved/i</span> key holding an array</td><td>Item per entry via recursive URL-finder (depth-capped)</td></tr>
+    <tr><td>LinkedIn messages.csv</td><td>headers contain CONVERSATION ID / FROM / CONTENT</td><td>One item per conversation, grouped and transcribed</td></tr>
+    <tr><td>LinkedIn saved/shares CSV</td><td>any column whose values look like URLs</td><td>Item per row with title/date columns sniffed</td></tr>
+    <tr><td>Generic JSON</td><td>anything else parseable</td><td>Recursive walk extracting {url,title} pairs — the safety net</td></tr>
+  </table></div>
+
+  <div class="deep"><b>Deep dive — the mojibake fix</b>
+    Meta exports encode UTF-8 bytes as if they were Latin-1, so "café — let’s" arrives as
+    <span class="inline">cafÃ© â€” letâ€™s</span>. The repair is two lines: detect the tell-tale byte pattern
+    (<span class="inline">/[Â-ô][-¿]/</span>), then round-trip
+    <span class="inline">Buffer.from(s,"latin1").toString("utf8")</span>. A CSV parser is also hand-rolled (~40 lines,
+    RFC-4180 quoting) rather than imported — when the format is small and the dependency would be larger than the code,
+    write the code. Verified with synthetic fixtures for all four formats, including the mojibake round-trip.
+  </div>
+
+  <div class="why"><b>Why dry-run mode exists</b>
+    With no <span class="inline">DATABASE_URL</span>, the endpoint still parses everything and returns per-file reports
+    (detected format, counts, sample preview) — imported: 0, labeled dry-run. Users validate their archive before
+    committing; engineers test parsers without a database; the demo works keyless. One flag, three audiences.
+  </div>
+  <div class="tradeoff"><b>Trade-offs</b>
+    ZIPs must be unzipped first (25MB/file cap; a zip walker is a listed follow-up). Ingestion caps at 150 items/file/run
+    for cost control — but hash-dedupe makes re-upload resume exactly where it stopped, so the cap is a throttle, not a
+    wall. Chat transcripts truncate at 7k chars (most-recent kept): recency is the value in conversations.
+  </div>
+</section>
+
+<!-- ================= 14 TELEGRAM ================= -->
+<section id="telegram" class="section">
+  <div class="kicker">14 · The Body, Part 4</div>
+  <h2>Telegram &amp; Proactivity — Presence In Your Pocket, Then Initiative</h2>
+  <p class="lede">
+    One ~300-line zero-dependency script gives JARVIS a phone presence: grounded Q&amp;A, command execution with
+    <b>inline approval buttons</b>, capture, and — the phase-5 unlock — a scheduler that makes JARVIS speak first
+    every morning. The design principle throughout: <b>the bridge is a dumb pipe.</b> All cognition stays in the app.
+  </p>
+
+  <h3>Why long-polling beats webhooks here</h3>
+  <div class="grid-2">
+    <div class="card"><h4>Webhooks need a public URL</h4><p>JARVIS is a localhost product; exposing it means tunnels (fragile) or hosting (a different product). Long-polling (<span class="inline">getUpdates</span>, 30s timeout) is outbound-only: works behind any NAT, zero attack surface inbound.</p></div>
+    <div class="card"><h4>The cost is latency + a daemon</h4><p>Sub-second-to-seconds delivery — irrelevant for a personal assistant. The daemon doubles as the proactivity scheduler, turning its one weakness (must stay running) into its second job.</p></div>
+  </div>
+
+  <h3>The phone approval loop — the JARVIS moment</h3>
+  <div class="flow">
+    <div class="step"><div><b>/run draft a reply to the client</b> → bridge relays to <span class="inline">/api/command</span>; router + run creation happen exactly as from the HUD. Same brain, different mouth.</div></div>
+    <div class="step"><div><b>Gates armed</b> → the reply carries route metadata (agent, risk, confidence) and an inline keyboard: ◉ APPROVE / ✕ REJECT with <span class="inline">callback_data</span> keyed to the run; pending gate IDs held in a session map.</div></div>
+    <div class="step"><div><b>Tap APPROVE</b> → bridge PATCHes each gate; the app's transaction flips the run QUEUED and <span class="inline">after()</span> fires the executor — the same path a HUD click takes. No Telegram-special execution logic exists.</div></div>
+    <div class="step"><div><b>Result comes to you.</b> The bridge polls the runs API (3s × 20) and messages the output summary on COMPLETED — or the failure, honestly, on FAILED. Fire-and-forget becomes fire-and-report.</div></div>
+  </div>
+
+  <div class="why"><b>Why chat-id pinning is the whole auth story</b>
+    Until <span class="inline">TELEGRAM_ALLOWED_CHAT_ID</span> is set, the bridge answers <i>any</i> chat only with pairing
+    instructions (your chat id, and where to put it); once set, every other chat gets silence — not even an error, because
+    an error confirms a target exists. Two env vars (bot token, chat id) + the app pairing token = the entire perimeter.
+  </div>
+
+  <h3>Proactivity — the smallest possible "speaks first"</h3>
+  <p>
+    <span class="inline">POST /api/cron/briefing</span> (pairing-token-authed) deterministically creates and executes a
+    briefing run — no router, no utterance, template addressed by key. The bridge computes the next
+    <span class="inline">JARVIS_BRIEFING_TIME</span> occurrence and fires the endpoint on schedule, pushing the summary to
+    the paired chat. Any external cron can hit the same endpoint — scheduler and capability are decoupled, so upgrading
+    to EventBridge/Cloud Scheduler later (ch. 18) changes zero app code.
+  </p>
+  <div class="cto"><b>CTO lens — proactivity is a trust product</b>
+    An assistant that interrupts must be right, brief, and cancellable. Notice how conservative the design is: one
+    scheduled message a day, at a user-chosen time, of a report the user already asked for interactively many times, with
+    an off switch (unset the env var). Earn interruption rights slowly; you spend trust in dollars and earn it in cents.
+  </div>
+</section>
+
+<!-- ================= 15 CASE STUDY ================= -->
+<section id="casestudy" class="section">
+  <div class="kicker">15 · Integration</div>
+  <h2>Case Study — One Reel Becomes A Decision</h2>
+  <p class="lede">
+    Every subsystem in one continuous story. Follow a single piece of content through eleven touchpoints and watch the
+    compounding loop close: capture → memory → graph → retrieval → agency → proactivity.
+  </p>
+
+  <div class="flow">
+    <div class="step"><div><b>Tuesday, 11pm.</b> You're watching a fitness reel about creatine timing. Toolbar click — the consent HUD proposes: the reel (Watch), the post (author + caption), the page. You approve <b>Watch</b>.</div></div>
+    <div class="step"><div><b>90 seconds later.</b> <span class="inline">● REC 01:30 — audio + 18 frames</span>. STOP &amp; ANALYZE. Offscreen uploads audio+frames; Whisper transcribes; the vision model writes the brief: gist, claims (5g daily, timing-irrelevant), what the creator wants (sell their stack — noted as intent), what the visuals show (form charts, a supplement label).</div></div>
+    <div class="step"><div><b>Ingestion fires once.</b> Hash computed (new), classified WORKOUT, summarized, embedded; entities extracted: <span class="inline">FOOD·creatine</span>, <span class="inline">CONCEPT·timing</span>, <span class="inline">PERSON·@fitcoach</span>. The graph strengthens: creatine↔timing weight ticks up — third co-occurrence this month.</div></div>
+    <div class="step"><div><b>Wednesday.</b> You import last year's Instagram export. Two old creatine saves parse in — one hashes as a duplicate of something you'd captured before (recorded, skipped); the other becomes a new item and its mention edge lands on the <i>same</i> creatine node. Cross-source, cross-year, one identity.</div></div>
+    <div class="step"><div><b>Thursday, from your phone.</b> "what's my current read on creatine?" → the bridge → grounded ask → vector search surfaces the reel brief + the old saves; the answer cites all three. You reply <span class="inline">/run log a $32 creatine order as a supplement expense</span> → routed → <span class="inline">record_expense</span> artifact → done, audited.</div></div>
+    <div class="step"><div><b>Friday, 07:00.</b> The briefing fires itself. Snapshot tool notices WORKOUT captures spiked this week; the summary suggests consolidating the creatine research into a protocol note. One tap later (<span class="inline">/run save a protocol note…</span>), the loop has fully closed: scattered saves became a cited decision and a scheduled habit.</div></div>
+  </div>
+
+  <div class="cto"><b>CTO lens — the compounding loop IS the moat</b>
+    Any team can build capture, or chat, or a bot. The defensible thing is the loop: every surface writes to the same
+    memory, every memory strengthens the same graph, every answer cites the same evidence, every action is the same
+    audited run object. Integration depth, not feature count, is what a competitor can't copy in a quarter.
+  </div>
+</section>
+
+<!-- ================= 16 QUALITY ================= -->
+<section id="quality" class="section">
+  <div class="kicker">16 · Cross-Cutting, Part 1</div>
+  <h2>Testing &amp; Quality — The Strategy, Including The Gaps</h2>
+  <p class="lede">
+    Honest state: there is no automated test suite yet. There IS a quality system — types, schemas, verification
+    rituals — and a written plan for where tests land first. Knowing your quality posture beats pretending coverage.
+  </p>
+
+  <h3>The quality stack that exists today</h3>
+  <div class="grid-2">
+    <div class="card"><h4>Static: TS strict + zod at borders</h4><p>Compile-time shape safety inside; runtime schema enforcement at every API boundary and every LLM output. A huge fraction of classic bug surface simply cannot express itself.</p></div>
+    <div class="card"><h4>Ritual: verify every change live</h4><p>Every feature in this book shipped with: typecheck + lint green, endpoint guards curl-tested (401/503 paths included), extension loaded in a real browser with APIs probed, UI screenshot-verified. Manual, but systematic — a checklist, not vibes.</p></div>
+    <div class="card"><h4>Degradation as testability</h4><p>Design-mode fallbacks mean every path has a keyless variant that can be exercised in CI without secrets — dry-run import, offline routing, simulated execution. Graceful degradation accidentally built the test harness.</p></div>
+    <div class="card"><h4>Fixtures already exist</h4><p>Synthetic exports for all four parser formats (including mojibake) were built for live verification — they are the first unit tests, waiting for a runner.</p></div>
+  </div>
+
+  <h3>Where tests land first — ranked by (bug cost × change frequency)</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Priority</th><th>Target</th><th>Kind</th><th>Why first</th></tr>
+    <tr><td>1</td><td>Export parsers + hash/normalize + calculator</td><td>Unit (vitest)</td><td>Pure functions, fixtures exist, silent-corruption blast radius</td></tr>
+    <tr><td>2</td><td>Approval transaction + executor claim</td><td>Integration (testcontainers pg)</td><td>The two concurrency-critical paths; already had one real bug each</td></tr>
+    <tr><td>3</td><td>Retrieval eval set</td><td>Eval (30 questions, recall@k)</td><td>RAG regresses silently; measurement is the only detector</td></tr>
+    <tr><td>4</td><td>Route-handler contracts</td><td>API tests</td><td>Freeze the shapes the extension + bridge depend on</td></tr>
+    <tr><td>5</td><td>HUD smoke</td><td>Playwright E2E</td><td>Boot → command → run visible; catches integration rot cheaply</td></tr>
+  </table></div>
+
+  <div class="cto"><b>CTO lens — coverage is a portfolio, not a percentage</b>
+    A test suite is capital allocation: spend where bugs are expensive and change is frequent. 100% coverage of a
+    solo-project's UI components is waste; zero tests on a parser that eats users' chat history is malpractice. State the
+    portfolio out loud — like this chapter — and "we don't have tests yet" becomes "we have a ranked plan and a reason."
+  </div>
+</section>
+<!-- ================= 17 COST ================= -->
+<section id="cost" class="section">
+  <div class="kicker">17 · Cross-Cutting, Part 2</div>
+  <h2>Cost Engineering — Every Model Call Is A Purchase</h2>
+  <p class="lede">
+    AI products die two deaths: too expensive to run, or so throttled they're useless. The discipline is knowing the
+    unit cost of every feature <i>before</i> shipping it, capping the tails, and choosing model tiers per task —
+    not per vibe.
+  </p>
+
+  <h3>The per-feature bill of materials</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Feature</th><th>Model calls</th><th>Order-of-magnitude cost</th><th>Caps that bound the tail</th></tr>
+    <tr><td>Ingest one item</td><td>classify + summarize + embed + entities = 4 small calls</td><td>~$0.001–0.003</td><td>6k/8k char truncation; entity cap 8</td></tr>
+    <tr><td>Chat / Ask answer</td><td>1 embedding + 1 chat</td><td>~$0.001–0.005</td><td>8 matches max in context; concise persona</td></tr>
+    <tr><td>Command run</td><td>1 route + (steps × loop rounds)</td><td>~$0.01–0.05</td><td>6 tool-rounds/step; 12k tool-result clip; condensed prior-step context</td></tr>
+    <tr><td>Listen (5 min)</td><td>Whisper 5 min + 1 brief</td><td>~$0.03–0.04</td><td>Hard 5-min recording cap; 24MB upload cap</td></tr>
+    <tr><td>Watch (90s + 18 frames)</td><td>Whisper + vision brief</td><td>~$0.02–0.05</td><td>≤20 frames · ≤768px · <b>detail:"low"</b> (the big lever — low-detail images cost a flat small token count)</td></tr>
+    <tr><td>500-item export</td><td>~500 × ingest</td><td>~$1–2, spread over resumable 150/run batches</td><td>Per-file cap + hash-dedupe = free re-runs</td></tr>
+    <tr><td>Daily briefing</td><td>1 run/day</td><td>~$0.01–0.03/day</td><td>Snapshot tool feeds counts, not raw dumps</td></tr>
+  </table></div>
+
+  <div class="why"><b>Why caps live in code, not in policy docs</b>
+    Every ceiling above is enforced where the spend happens — recording timers, frame counters, char slices, loop bounds.
+    A cost policy that isn't executable is a wish. Notice also the shape of each cap: it degrades quality gradually
+    (fewer frames, shorter context) rather than failing the feature.
+  </div>
+
+  <div class="cto"><b>CTO lens — the three-tier model portfolio</b>
+    Treat models like compute classes: <b>embeddings-tier</b> (cheap, high-volume, every item), <b>workhorse-tier</b>
+    (<span class="inline">gpt-4.1-mini</span>-class: routing, summaries, briefs, agent steps), and <b>frontier-tier</b>
+    (reserved for tasks where quality failures are user-visible and expensive — none in JARVIS today, by design).
+    The env-var model config (<span class="inline">OPENAI_CHAT_MODEL</span>) means tier changes are ops decisions, not
+    deploys. When multi-user arrives, add the fourth discipline: per-user budgets with graceful "you've hit today's
+    limit" UX — cost control becomes a product surface, not just an ops one.
+  </div>
+</section>
+
+<!-- ================= 18 INFRA ================= -->
+<section id="infra" class="section">
+  <div class="kicker">18 · Cross-Cutting, Part 3</div>
+  <h2>Infrastructure &amp; IaC — From Laptop To Cloud, Stage By Stage</h2>
+  <p class="lede">
+    JARVIS today is a laptop app: <span class="inline">npm run dev</span>, local Postgres, two long-running scripts.
+    That is the <i>correct</i> infrastructure for its stage. This chapter is the evolution path — four stages, each
+    triggered by a real forcing function, not by boredom — and how Terraform or Pulumi would encode the cloud stages.
+  </p>
+
+  <h3>Stage 0 → 1: reproducibility (docker-compose)</h3>
+  <p><b>Forcing function:</b> "works on my machine" dies the day a second machine appears — a friend's laptop, a CI runner, a NUC in a closet.</p>
+  <div class="term"><span class="hd">docker-compose.yml · the whole product, one command</span>
+services:
+  db:
+    image: <span class="s">pgvector/pgvector:pg16</span>        <span class="c"># postgres WITH the extension baked in</span>
+    environment: { POSTGRES_USER: jarvis, POSTGRES_PASSWORD: jarvis, POSTGRES_DB: jarvis }
+    volumes: [ dbdata:/var/lib/postgresql/data ]
+    healthcheck: { test: ["CMD-SHELL","pg_isready -U jarvis"], interval: 5s }
+  app:
+    build: .                              <span class="c"># multi-stage Dockerfile: deps → build → slim runner</span>
+    environment: { DATABASE_URL: postgresql://jarvis:jarvis@db:5432/jarvis }
+    depends_on: { db: { condition: service_healthy } }
+    ports: ["3000:3000"]
+  bridge:
+    build: .
+    command: ["node","scripts/telegram-bridge.mjs"]   <span class="c"># same image, second process — no queue needed yet</span>
+    depends_on: [ app ]
+volumes: { dbdata: {} }</div>
+  <p class="caption">Fig 18.1 — the compose file is executable documentation: it names every process the product needs to exist.</p>
+
+  <h3>Stage 2: managed hosting — the "always on" unlock</h3>
+  <p><b>Forcing function:</b> proactivity and the bridge want 24/7 uptime; a laptop sleeps.
+    Two sane shapes: <b>Vercel + Neon</b> (native Next.js, serverless Postgres with pgvector, Vercel Cron replaces the
+    bridge scheduler — but the executor must respect function time limits and the bridge needs a tiny always-on host
+    anyway), or <b>Fly.io / Railway</b> (containers from Stage 1 run as-is, long-lived processes welcome, one mental
+    model). For this product's executor-in-process design, <b>containers win</b>; serverless would force the ch. 19
+    worker split prematurely.</p>
+
+  <h3>Stage 3: a real cloud, encoded as code</h3>
+  <p><b>Forcing function:</b> multi-user (ch. 19) or "this is now a company." Reference AWS shape, and the same
+    architecture expressed in both IaC dialects:</p>
+  <div class="term"><span class="hd">stage-3 reference topology (aws)</span>
+Route53 → CloudFront → ALB → <span class="k">ECS Fargate</span>: app service (Next standalone, 2+ tasks)
+                                        └ <span class="k">worker service</span> (executor loop — the extracted kernel)
+<span class="k">RDS Postgres</span> (pgvector, Multi-AZ) · <span class="k">S3</span> (raw media: audio, frames)
+<span class="k">EventBridge Scheduler</span> → briefing endpoint (replaces bridge cron)
+<span class="k">Secrets Manager</span> (API keys, pairing tokens) · <span class="k">SQS</span> (run queue, when extracted)
+CloudWatch/OTel (logs · traces · dashboards)</div>
+
+  <div class="grid-2">
+    <div class="card"><h4>Terraform — the declarative standard</h4><p>HCL, huge ecosystem, state in S3+lock. Strengths: ubiquity, provider maturity, plan-review culture (the <span class="inline">terraform plan</span> diff is the change-management ritual). Weakness: HCL logic (count/for_each gymnastics) gets painful exactly when architectures get conditional.</p></div>
+    <div class="card"><h4>Pulumi — infra in TypeScript</h4><p>Real language, real loops/types/functions — and for THIS repo, the same language as the app, same review skills, shared constants (ports, names) importable from one module. Weakness: smaller community, state via Pulumi Cloud or self-managed backend, and "it's just code" tempts cleverness that infra shouldn't have.</p></div>
+  </div>
+
+  <div class="term"><span class="hd">the same database, both dialects (abridged)</span>
+<span class="c"># ---- Terraform (HCL) ----------------------------------------</span>
+module "db" {
+  source         = "terraform-aws-modules/rds/aws"
+  engine         = "postgres"   engine_version = "16"
+  instance_class = "db.t4g.medium"
+  db_name        = "jarvis"     multi_az = true
+  <span class="c"># pgvector: enabled in-db via migration job — CREATE EXTENSION vector</span>
+}
+resource "aws_ecs_service" "app" {
+  desired_count = 2
+  task_definition = aws_ecs_task_definition.app.arn   <span class="c"># image, env from Secrets Manager</span>
+}
+resource "aws_scheduler_schedule" "briefing" {
+  schedule_expression = "cron(0 7 * * ? *)"           <span class="c"># the bridge scheduler, promoted</span>
+  target { arn = ... http invoke → /api/cron/briefing }
+}
+
+<span class="c">// ---- Pulumi (TypeScript) ------------------------------------</span>
+<span class="k">const</span> db = <span class="k">new</span> aws.rds.Instance(<span class="s">"jarvis-db"</span>, {
+  engine: <span class="s">"postgres"</span>, engineVersion: <span class="s">"16"</span>,
+  instanceClass: <span class="s">"db.t4g.medium"</span>, multiAz: <span class="k">true</span>, dbName: <span class="s">"jarvis"</span>,
+});
+<span class="k">const</span> app = <span class="k">new</span> awsx.ecs.FargateService(<span class="s">"jarvis-app"</span>, {
+  desiredCount: 2,
+  taskDefinitionArgs: { container: { image, environment: secretsFrom(cfg) } },
+});
+<span class="k">new</span> aws.scheduler.Schedule(<span class="s">"briefing"</span>, {
+  scheduleExpression: <span class="s">"cron(0 7 * * ? *)"</span>,
+  target: httpInvoke(app.url, <span class="s">"/api/cron/briefing"</span>),   <span class="c">// typed helper, reused constants</span>
+});</div>
+  <p class="caption">Fig 18.2 — identical architecture, two encodings. The decision is team-shaped, not technology-shaped.</p>
+
+  <div class="cto"><b>CTO lens — how to actually choose (and use) IaC</b>
+    (1) <b>Choose by team fluency:</b> an all-TypeScript team reviews Pulumi like app code; a platform team with existing
+    HCL modules should never switch for aesthetics. For JARVIS-the-company: Pulumi, because the entire codebase is
+    already TypeScript and the reviewer pool is one person.
+    (2) <b>IaC rules that matter more than the tool:</b> state is remote and locked from day one; nothing is ever
+    click-created in the console (drift is the cancer); <span class="inline">plan/preview</span> runs in CI on every PR and a
+    human reads the diff; secrets live in a secret manager, never in state-visible plaintext; stacks split by blast
+    radius (network / data / app) so a bad apply can't eat the database.
+    (3) <b>Sequence:</b> compose file → CI builds the image → Stage-2 container host → IaC only when there's real cloud
+    surface to encode. IaC for two containers is ceremony; IaC for VPC+RDS+ECS+Scheduler is survival.
+  </div>
+
+  <h3>CI/CD — the pipeline this repo earns</h3>
+  <div class="term"><span class="hd">github actions · stages and gates</span>
+on: pull_request        <span class="c"># every PR</span>
+  typecheck → lint → unit (parsers/hash/calc) → build → parser fixtures dry-run
+on: push main           <span class="c"># trunk</span>
+  all of the above → docker build+push → prisma migrate deploy (gated) → deploy → smoke curl /api/extension/health
+nightly
+  retrieval eval (recall@k vs golden set) → report deltas   <span class="c"># intelligence regressions, caught async</span></div>
+</section>
+
+<!-- ================= 19 SCALE ================= -->
+<section id="scale" class="section">
+  <div class="kicker">19 · Cross-Cutting, Part 4</div>
+  <h2>The Scalability Playbook — Known Cliffs, Prepared Ropes</h2>
+  <p class="lede">
+    Scalability isn't "handle a million users" — it's <b>knowing which cliff you'd fall off first, at every stage, and
+    having the rope already coiled</b>. JARVIS scales along four independent axes; each has a designed seam. This
+    chapter is the honest map: current limit → first symptom → the prepared move.
+  </p>
+
+  <h3>Axis 1 — Data volume (one user's lifetime of captures)</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Component</th><th>Comfortable today</th><th>First symptom</th><th>Prepared move</th></tr>
+    <tr><td>Vector search (exact scan)</td><td>~10⁴–10⁵ items</td><td>Chat latency creeps past ~300ms</td><td>One DDL: <span class="inline">CREATE INDEX … USING hnsw (embedding vector_cosine_ops)</span> — recall trade-off measured by the ch. 16 eval set, not by feelings</td></tr>
+    <tr><td>Raw text storage</td><td>GBs, fine</td><td>Backup/restore times balloon</td><td>Cold-path raw text + media to S3; DB keeps pointers + derived rows</td></tr>
+    <tr><td>Graph queries</td><td>10⁴ entities easily</td><td>explore_entity slows on hub nodes</td><td>Weight-pruned reads (already ranked), then composite indexes; graph DB only if traversal depth &gt; 2 becomes a product need</td></tr>
+    <tr><td>Run logs (Json)</td><td>hundreds of runs</td><td>Any need to query across runs</td><td>The pre-written tripwire from ch. 5: promote to a RunEvent table</td></tr>
+  </table></div>
+
+  <h3>Axis 2 — Throughput (the executor under load)</h3>
+  <p>
+    The seam was cut in ch. 3: the executor's entire public surface is <span class="inline">executeWorkflowRun(runId)</span>
+    and the QUEUED→RUNNING claim is already an atomic CAS — which means <b>the database is already a work queue</b>.
+    The ladder, each rung triggered by a real symptom:
+  </p>
+  <div class="flow">
+    <div class="step"><div><b>Today: in-request execution.</b> Right up until runs outlive HTTP patience or concurrency matters.</div></div>
+    <div class="step"><div><b>Rung 1 — worker process, zero new infra.</b> A loop polling <span class="inline">findFirst(QUEUED) → claim → execute</span>. The CAS makes N workers safe <i>today</i>; Postgres <span class="inline">SKIP LOCKED</span> is the refinement. Routes stop executing and only enqueue.</div></div>
+    <div class="step"><div><b>Rung 2 — a real queue (SQS/BullMQ)</b> when you need rate-limits per model provider, retries with backoff, and dead-letter visibility. The run row stays the source of truth; the queue is just the doorbell.</div></div>
+    <div class="step"><div><b>Rung 3 — durable orchestration (Temporal-class)</b> only when runs become hours-long, multi-day, or human-in-the-loop mid-step at scale. Expensive mental model; buy it when checkpoint/resume is a product requirement, not before.</div></div>
+  </div>
+
+  <h3>Axis 3 — Users (the single→multi door)</h3>
+  <div class="deep"><b>Deep dive — the tenancy migration, in order</b>
+    (1) <b>Auth first</b>: NextAuth/passkey, a <span class="inline">User</span> table, sessions — the Phase-4 gate that was
+    always the plan. (2) <b>Tenant column</b>: <span class="inline">userId</span> on the ~6 root models (raw items, knowledge,
+    runs, sessions, entities…), backfilled to the founding operator; children inherit through their parent FK.
+    (3) <b>Enforcement in depth</b>: every Prisma query filtered by session user (a middleware/extension makes it
+    structural), then Postgres <b>Row-Level Security</b> as the belt-and-suspenders — RLS means even a forgotten WHERE
+    clause can't leak across tenants. (4) <b>Per-user pairing tokens</b> (the ConnectorConfig shape already supports it)
+    and per-user cost budgets (ch. 17). (5) The interesting product question — are entities per-user or shared? —
+    is a privacy decision disguised as a schema decision: per-user, until an explicit sharing feature says otherwise.
+  </div>
+
+  <h3>Axis 4 — Model latency (the ceiling you don't own)</h3>
+  <p>
+    Every interactive path already ends at a model call; that's the floor on perceived speed. The moves, in order of
+    leverage: <b>streaming</b> (SSE token-by-token for chat/console — biggest UX win per line of code), parallel
+    tool execution where independent, prompt-cache-friendly stable prefixes, and precomputation (the briefing is
+    <i>already</i> precomputed by schedule — that pattern generalizes to "prepare answers before questions").
+  </p>
+
+  <div class="cto"><b>CTO lens — capacity math before architecture debates</b>
+    A thousand active users × 20 captures/day = 2×10⁵ ingests/day ≈ <b>2.3/second</b> — a number a single modest
+    Postgres + a few workers handles without drama. Run the arithmetic before the architecture meeting: most scaling
+    debates dissolve under division. The systems that die at scale usually die of unbounded tails (no caps), missing
+    idempotency, and cross-tenant leaks — all three of which this codebase solved while it was still small. That's the
+    actual secret: <b>scalability is mostly hygiene adopted early, plus seams cut where the cliffs are.</b>
+  </div>
+</section>
+<!-- ================= 20 CTO ================= -->
+<section id="cto" class="section">
+  <div class="kicker">20 · The Ladder</div>
+  <h2>Thinking Like a CTO — The Frameworks Behind Every Chapter</h2>
+  <p class="lede">
+    Strip away the code and this book has been teaching one skill the whole time: <b>decision quality under
+    uncertainty</b>. Here are the ten frameworks that generated every choice in this system — named, so you can reuse
+    them on problems that look nothing like JARVIS.
+  </p>
+
+  <div class="grid-2">
+    <div class="card"><h4>1 · One-way vs two-way doors</h4><p>Reversible decisions get minutes; irreversible ones get design docs. Corollary: engineer your one-way doors into two-way doors (the provider abstraction turned "which LLM vendor" from a marriage into a fling).</p></div>
+    <div class="card"><h4>2 · Find the load-bearing product object</h4><p>For JARVIS it's the approval-gated run. Once found, schema, APIs, and UI all draw themselves around it. If your architecture feels arbitrary, you haven't found the object yet.</p></div>
+    <div class="card"><h4>3 · Smart path, dumb spine</h4><p>Every intelligent feature sits on a deterministic floor: LLM router / keyword router, vector search / recency, agent execution / simulation. Capability upgrades ride on availability guarantees.</p></div>
+    <div class="card"><h4>4 · The innovation-token budget</h4><p>Two exotic bets per project, everything else boring. Spend tokens where differentiation lives (agent engine, pgvector memory), never on plumbing that has a boring standard.</p></div>
+    <div class="card"><h4>5 · Deliberate debt with tripwires</h4><p>Debt is fine; <i>surprise</i> debt is not. Every shortcut in this book has a written trigger for repayment ("promote logs to a table when cross-run queries appear"). Debt + tripwire = a plan; debt alone = a time bomb.</p></div>
+    <div class="card"><h4>6 · Cut seams before you need them</h4><p>The executor's one-function surface, the retrieval quarantine module, the dumb-pipe bridge — each is a pre-cut extraction line. Seams cost almost nothing early and everything late.</p></div>
+    <div class="card"><h4>7 · Honesty as an architectural property</h4><p>Real telemetry or none; disclosed egress; labeled design modes; graded threat models; "NOT SAVED" toasts. Trust compounds like interest, and it compounds in both directions.</p></div>
+    <div class="card"><h4>8 · Idempotency & consent as defaults</h4><p>Every write path retry-safe (hash dedupe, upserts, CAS claims); every capture consent-gated. These two defaults erase entire categories of both bugs and ethical incidents.</p></div>
+    <div class="card"><h4>9 · Sequence by dependency, ship by phase</h4><p>Engine → memory → presence → hands → proactivity: each phase consumes the last and demos alone. A roadmap is a topological sort, not a mood board.</p></div>
+    <div class="card"><h4>10 · Arithmetic before architecture</h4><p>Unit costs per feature, capacity math per axis, eval scores per retrieval change. Numbers dissolve most debates that opinions inflame.</p></div>
+  </div>
+
+  <h3>Build vs buy vs wait — the third option people forget</h3>
+  <p>
+    This codebase built a CSV parser (40 lines &lt; any dependency), bought nothing it could avoid operating
+    (no vector DB, no queue, no graph DB — Postgres wears all three hats), and <b>waited</b> on everything whose forcing
+    function hadn't arrived (auth, workers, IaC, tests-at-scale). "Wait" is not procrastination when the trigger is
+    written down; it's inventory management for complexity. The failure mode of strong engineers is building the right
+    thing three phases early.
+  </p>
+
+  <h3>When to rewrite — and when you're just bored</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Signal</th><th>Rewrite?</th><th>JARVIS example</th></tr>
+    <tr><td>The abstraction fights every new feature</td><td><span class="badge b-good">yes, that seam</span></td><td>Keyword router → LLM router: swapped in an afternoon <i>because the interface held</i></td></tr>
+    <tr><td>Load-bearing assumptions changed (single→multi user)</td><td><span class="badge b-gold">migrate, don't rewrite</span></td><td>The tenancy plan is column-adds + RLS, not a new backend</td></tr>
+    <tr><td>"The code is ugly" / new framework envy</td><td><span class="badge b-bad">no</span></td><td>The 1,900-line CSS file is unfashionable and works; it ships themes daily</td></tr>
+    <tr><td>Perishable glue rotted (DOM adapters)</td><td><span class="badge b-cyan" style="background:rgba(127,212,255,.08);color:var(--cyan);border-color:var(--line)">budget for it</span></td><td>Adapters are consumables with a maintenance line-item, not failures</td></tr>
+  </table></div>
+
+  <div class="cto"><b>CTO lens — the role, compressed</b>
+    A CTO's output is not code; it's <b>the decision quality of everyone shipping code</b>. That means: writing down
+    trade-offs so others can extend them (this book), converting worries into graded, tracked debts, protecting the
+    innovation-token budget from enthusiasm (including your own), and keeping one ledger nobody else keeps — the list of
+    things that will break at the next order of magnitude, each with its rope already coiled. Founding engineers earn
+    the title the day their pull requests start teaching.
+  </div>
+</section>
+
+<!-- ================= 21 GLOSSARY ================= -->
+<section id="glossary" class="section">
+  <div class="kicker">21 · Reference</div>
+  <h2>Glossary &amp; Exercises — Close The Loop Yourself</h2>
+
+  <h3>Glossary — the working vocabulary</h3>
+  <div class="kv">
+    <b>RSC / client island</b><span>React Server Components render on the server with direct data access; small "use client" islands own interactivity. Server by default, JS by exception.</span>
+    <b>Embedding / cosine distance</b><span>Text → 1,536-dim vector; angle between vectors ≈ semantic distance. pgvector's <span class="inline">&lt;=&gt;</span> operator.</span>
+    <b>RAG</b><span>Retrieval-Augmented Generation: fetch relevant memory, ground the model's answer in it, cite sources.</span>
+    <b>Tool-calling loop</b><span>Model requests function calls; runtime executes and returns results as messages; repeat until a text answer. The agent primitive.</span>
+    <b>CAS claim</b><span>Compare-and-swap: <span class="inline">UPDATE … WHERE status='QUEUED'</span> — atomicity via predicate, the lock-free queue trick.</span>
+    <b>Draft-artifact pattern</b><span>External-effect tools produce reviewable artifacts instead of performing the action. Agency without blast radius.</span>
+    <b>Approval gate</b><span>A per-step human checkpoint materialized as a DB row with its own state machine.</span>
+    <b>Content addressing</b><span>Identity = hash of content; the foundation of dedupe and idempotent ingestion.</span>
+    <b>Canonical URL</b><span>URL minus tracking params/fragments: one identity for one resource across shares.</span>
+    <b>Hydration mismatch</b><span>Server HTML ≠ first client render → React #418. Cause: nondeterminism during SSR.</span>
+    <b>MV3 offscreen document</b><span>Chrome's home for media APIs a service worker can't host (getUserMedia, MediaRecorder).</span>
+    <b>Tainted canvas</b><span>Cross-origin media poisons canvas readback; caught and fallback-handled in Watch mode.</span>
+    <b>Long polling</b><span>Client holds an open request until data arrives; outbound-only presence with no public URL.</span>
+    <b>Mojibake</b><span>Encoding corruption (UTF-8 read as Latin-1); repaired by re-decoding the bytes.</span>
+    <b>RLS</b><span>Row-Level Security: Postgres enforces tenant isolation even when application code forgets.</span>
+    <b>IaC / drift</b><span>Infrastructure declared in code; drift is reality diverging from declaration (usually via console clicks). The cardinal sin.</span>
+    <b>Recall@k</b><span>Of the known-relevant items, how many appear in the top k retrieved. The RAG regression detector.</span>
+    <b>Forcing function</b><span>The concrete event that justifies new complexity. No function, no complexity.</span>
+  </div>
+
+  <h3>Exercises — from reader to owner</h3>
+  <p>Each exercise is scoped to teach one chapter's lesson by making you extend the real system. Do them in order; they compound like the product does.</p>
+  <div class="flow">
+    <div class="step"><div><b>Trace before you touch (ch. 3/6).</b> Without running code, write the full path of a Telegram <span class="inline">/save https://…</span> — every file, function, and table it touches. Then verify by reading. Score yourself on what you missed.</div></div>
+    <div class="step"><div><b>Add a tool (ch. 8).</b> Ship <span class="inline">summarize_category(category)</span>: schema, zod, risk level, registry entry. Notice how much the executor did NOT need to change — that's the registry pattern paying rent.</div></div>
+    <div class="step"><div><b>Add an approval gate (ch. 9).</b> Make <span class="inline">save_knowledge_note</span> approval-required when the note exceeds 2,000 chars. You'll discover gates are declared at run-creation, not tool-time — and why that's the safer design.</div></div>
+    <div class="step"><div><b>Break dedupe, then fix it semantically (ch. 6/7).</b> Save the same article with two different snippets. Explain why hash dedupe misses it; prototype near-dup detection with embedding distance ≥ 0.95 on ingest; decide what UX a "semantic duplicate" deserves (auto-merge? flag? ask?).</div></div>
+    <div class="step"><div><b>Write the first real test (ch. 16).</b> Vitest over the export parsers using the existing fixtures, including the mojibake case. Then break the IG parser deliberately and watch the test earn its keep.</div></div>
+    <div class="step"><div><b>Extract the worker (ch. 19, rung 1).</b> A script that polls QUEUED, claims via the CAS, executes. Prove double-execution is impossible by running two workers against ten runs. You have now built a queue out of a WHERE clause.</div></div>
+    <div class="step"><div><b>Draft the tenancy PR (ch. 19).</b> Schema diff + backfill plan + RLS policies + the entity-sharing decision memo, one page. Don't implement — the exercise is the <i>plan</i>, because that's the CTO deliverable.</div></div>
+    <div class="step"><div><b>Kill a feature (ch. 2/20).</b> Pick any pillar and argue in one page why its next planned feature should NOT be built yet — forcing function, cost, debt, and what to do instead. Saying no with reasons is the rarest skill in this entire book.</div></div>
+  </div>
+
+  <hr class="rule"/>
+  <p style="font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.12em">
+    ◉ END OF ARCHIVE · JARVIS ENGINEERING BIBLE v1.0 · SINGLE SOURCE OF TRUTH ·
+    COMPANION DOCS: PRODUCT_VISION.md · docs/MASTER_PLAN.md · docs/BROWSER_COMPANION_PLAN.md ·
+    "THE UI NEVER LIES."
+  </p>
+</section>
+
+</main>
+</div>
+</body>
+</html>
