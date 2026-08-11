@@ -75,6 +75,16 @@ chat id and talks only to your local app.
 briefing workflow every morning via `POST /api/cron/briefing` (token-authed) and pushes the
 result to your chat — Jarvis speaks first. Any external cron can hit the same endpoint.
 
+## Google Connector (Phase 4)
+
+Real hands, risk-laddered: connect a Google account on `/settings` (needs `GOOGLE_CLIENT_ID` /
+`GOOGLE_CLIENT_SECRET` from a Google Cloud OAuth client; the settings card shows the exact
+redirect URI). Once connected, agent tools gain: `list_recent_emails` and
+`list_calendar_events` (read-only), `draft_email` now creates **real Gmail drafts — never
+sends** (you press send in Gmail), and `create_calendar_event` writes to your own calendar
+only (no attendees, reversible). Anything involving other people stays an approval artifact.
+The `gmail.send` scope is deliberately not requested. Disconnect revokes tokens on both sides.
+
 ## Run Worker
 
 By default runs execute inline (inside the request that triggered them). Set

@@ -9,7 +9,10 @@ const envSchema = z.object({
   JARVIS_EXTENSION_TOKEN: z.string().optional(),
   JARVIS_OPERATOR_PASSWORD: z.string().optional(),
   JARVIS_SESSION_SECRET: z.string().optional(),
-  JARVIS_EXECUTION_MODE: z.enum(["inline", "worker"]).default("inline")
+  JARVIS_EXECUTION_MODE: z.enum(["inline", "worker"]).default("inline"),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().optional()
 });
 
 export const env = envSchema.parse(process.env);

@@ -4,6 +4,8 @@ import { TopBar } from "@/components/top-bar";
 import { SubRail } from "@/components/sub-rail";
 import { env } from "@/lib/env";
 import { ensureExtensionToken } from "@/lib/extension-auth";
+import { getGoogleStatus, googleRedirectUri } from "@/lib/connectors/google";
+import { GoogleDisconnect } from "@/components/google-disconnect";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +36,7 @@ const envKeys = [
 export default async function SettingsPage() {
   const onlineCount = connectorChecks.filter((c) => c.configured).length;
   const extensionToken = await ensureExtensionToken();
+  const google = await getGoogleStatus();
 
   return (
     <AppShell>
@@ -69,6 +72,40 @@ export default async function SettingsPage() {
             <p className="desc">{connector.description}</p>
           </article>
         ))}
+      </section>
+
+      <section className="panel" style={{ marginTop: 18 }}>
+        <div className="panel-head">
+          <h3>GOOGLE ACCOUNT</h3>
+          <span className="tag">
+            {google.connected ? `CONNECTED · ${google.email ?? "OK"}` : google.configured ? "READY TO CONNECT" : "AWAITING KEYS"}
+          </span>
+        </div>
+        <div className="muted" style={{ fontSize: 12, lineHeight: 1.7 }}>
+          {google.connected ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+              <span>
+                Gmail (read + <b>drafts, never sends</b>) and Calendar (read + own-calendar events) are live for the
+                agent tools. Revoking clears stored tokens and Google-side access.
+              </span>
+              <GoogleDisconnect />
+            </div>
+          ) : google.configured ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+              <span>Keys detected. Connect your Google account to arm email/calendar tools (drafts only — no sending).</span>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+              <a className="button" href="/api/connectors/google/start">◉ CONNECT GOOGLE</a>
+            </div>
+          ) : (
+            <p>
+              Create an OAuth client (Google Cloud Console → APIs &amp; Services → Credentials → OAuth client ID, type
+              &quot;Web application&quot;), add this redirect URI:{" "}
+              <span className="mono" style={{ userSelect: "all" }}>{googleRedirectUri()}</span>, enable the Gmail and
+              Calendar APIs, then set <span className="mono">GOOGLE_CLIENT_ID</span> and{" "}
+              <span className="mono">GOOGLE_CLIENT_SECRET</span> in .env.
+            </p>
+          )}
+        </div>
       </section>
 
       <section className="panel" style={{ marginTop: 18 }}>

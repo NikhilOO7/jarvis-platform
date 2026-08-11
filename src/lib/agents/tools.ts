@@ -3,6 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { evaluateExpression } from "@/lib/agents/calculator";
 import { ingestItem } from "@/lib/ingestion";
 import { searchKnowledge } from "@/lib/ai/retrieval";
+import {
+  createCalendarEvent,
+  createGmailDraft,
+  getGoogleStatus,
+  listCalendarEvents,
+  listRecentEmails
+} from "@/lib/connectors/google";
 
 export type ToolArtifact = {
   type: "email_draft" | "calendar_event_proposal" | "expense_record" | "knowledge_note";
@@ -51,6 +58,22 @@ const draftEmailArgs = z.object({
   to: z.string().min(1),
   subject: z.string().min(1),
   body: z.string().min(1)
+});
+
+const listEmailsArgs = z.object({
+  limit: z.number().int().min(1).max(20).optional(),
+  query: z.string().optional()
+});
+
+const listEventsArgs = z.object({
+  days: z.number().int().min(1).max(30).optional()
+});
+
+const createEventArgs = z.object({
+  title: z.string().min(1),
+  startIso: z.string().min(1),
+  endIso: z.string().min(1),
+  description: z.string().optional()
 });
 
 const calendarEventArgs = z.object({
@@ -230,7 +253,7 @@ export const agentTools: AgentTool[] = [
   {
     name: "draft_email",
     description:
-      "Create an email DRAFT artifact for operator review. This never sends anything — sending requires a connected email connector plus explicit operator approval.",
+      "Create an email DRAFT for operator review. With Google connected this creates a real draft in the operator's Gmail drafts folder; otherwise a local artifact. Either way it NEVER sends — the operator presses send themselves.",
     risk: "high",
     parameters: {
       type: "object",
@@ -243,10 +266,89 @@ export const agentTools: AgentTool[] = [
     },
     execute: async (args) => {
       const draft = draftEmailArgs.parse(args);
+      const status = await getGoogleStatus();
+      if (status.connected) {
+        const result = await createGmailDraft(draft);
+        if (result.ok) {
+          return {
+            ok: true,
+            data: { status: "GMAIL_DRAFT_CREATED", draftId: result.draftId, note: "Real draft created in Gmail. Nothing was sent." },
+            artifact: { type: "email_draft", title: draft.subject, payload: { ...draft, gmailDraftId: result.draftId } }
+          };
+        }
+        return { ok: false, error: `Gmail draft failed: ${result.error}` };
+      }
       return {
         ok: true,
-        data: { status: "DRAFT_CREATED", note: "No email was sent. Draft awaits operator review." },
+        data: { status: "DRAFT_CREATED", note: "No email was sent. Google is not connected, so this is a local draft artifact." },
         artifact: { type: "email_draft", title: draft.subject, payload: draft }
+      };
+    }
+  },
+  {
+    name: "list_recent_emails",
+    description:
+      "Read the operator's recent Gmail messages (from/subject/date/snippet). Read-only; requires the Google connector. Supports Gmail search syntax via the optional query.",
+    risk: "low",
+    parameters: {
+      type: "object",
+      properties: {
+        limit: { type: "number", description: "Max messages (1-20), default 8." },
+        query: { type: "string", description: "Optional Gmail search query, e.g. 'is:unread from:client'." }
+      }
+    },
+    execute: async (args) => {
+      const { limit, query } = listEmailsArgs.parse(args);
+      const result = await listRecentEmails(limit ?? 8, query);
+      if (!result.ok) return { ok: false, error: `${result.error} Connect Google on /settings.` };
+      return { ok: true, data: result.emails };
+    }
+  },
+  {
+    name: "list_calendar_events",
+    description: "Read the operator's upcoming Google Calendar events. Read-only; requires the Google connector.",
+    risk: "low",
+    parameters: {
+      type: "object",
+      properties: { days: { type: "number", description: "Look-ahead window in days (1-30), default 7." } }
+    },
+    execute: async (args) => {
+      const { days } = listEventsArgs.parse(args);
+      const result = await listCalendarEvents(days ?? 7);
+      if (!result.ok) return { ok: false, error: `${result.error} Connect Google on /settings.` };
+      return { ok: true, data: result.events };
+    }
+  },
+  {
+    name: "create_calendar_event",
+    description:
+      "Create an event on the operator's OWN calendar (no attendees, no invitations — reversible). For meetings involving other people use propose_calendar_event instead, which produces an approval artifact.",
+    risk: "medium",
+    parameters: {
+      type: "object",
+      properties: {
+        title: { type: "string" },
+        startIso: { type: "string", description: "Start time, ISO 8601 with timezone." },
+        endIso: { type: "string", description: "End time, ISO 8601 with timezone." },
+        description: { type: "string" }
+      },
+      required: ["title", "startIso", "endIso"]
+    },
+    execute: async (args) => {
+      const input = createEventArgs.parse(args);
+      const status = await getGoogleStatus();
+      if (!status.connected) {
+        return {
+          ok: true,
+          data: { status: "PROPOSAL_CREATED", note: "Google is not connected; recorded as a proposal artifact instead." },
+          artifact: { type: "calendar_event_proposal", title: input.title, payload: input }
+        };
+      }
+      const result = await createCalendarEvent(input);
+      if (!result.ok) return { ok: false, error: result.error };
+      return {
+        ok: true,
+        data: { status: "EVENT_CREATED", eventId: result.eventId, link: result.link, note: "Created on the operator's own calendar; no invitations sent." }
       };
     }
   },
