@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "telegram": "node scripts/telegram-bridge.mjs",
     "prisma:generate": "prisma generate",
@@ -30,6 +31,7 @@
     "@types/react-dom": "^19.1.5",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.10"
   }
 }

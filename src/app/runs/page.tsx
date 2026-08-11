@@ -5,6 +5,7 @@ import { TopBar } from "@/components/top-bar";
 import { SubRail } from "@/components/sub-rail";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+import { sweepStaleRuns } from "@/lib/agents/executor";
 
 type RunLog = { at?: string; event?: string; message?: string };
 type RunOutputShape = {
@@ -22,6 +23,7 @@ export const dynamic = "force-dynamic";
 async function getWorkflowRuns() {
   if (!env.DATABASE_URL) return [];
   try {
+    await sweepStaleRuns();
     return await prisma.workflowRun.findMany({
       orderBy: { createdAt: "desc" },
       take: 30,

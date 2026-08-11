@@ -19,6 +19,14 @@ async function getKnowledge() {
   }
 }
 
+type NearDupFlag = { knowledgeItemId: string; title: string; score: number };
+
+function getNearDuplicates(rawMetadata: unknown): NearDupFlag[] {
+  if (!rawMetadata || typeof rawMetadata !== "object") return [];
+  const flags = (rawMetadata as { nearDuplicates?: unknown }).nearDuplicates;
+  return Array.isArray(flags) ? (flags as NearDupFlag[]) : [];
+}
+
 async function getEntityCount() {
   if (!env.DATABASE_URL) return 0;
   try {
@@ -77,11 +85,21 @@ export default async function KnowledgePage() {
                   <span className="alpha">CONF {(item.confidence ?? 0.8).toFixed(2)}</span>
                   {item.actions[0] ? <span>NEXT · {item.actions[0].slice(0, 24)}</span> : null}
                 </div>
-                {item.entities.length > 0 ? (
+                {item.entities.length > 0 || getNearDuplicates(item.source?.rawMetadata).length > 0 ? (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
                     {item.entities.map((mention) => (
                       <span className="pill" key={mention.id} title={mention.context ?? undefined}>
                         {mention.entity.type} · {mention.entity.name}
+                      </span>
+                    ))}
+                    {getNearDuplicates(item.source?.rawMetadata).map((dup) => (
+                      <span
+                        className="pill"
+                        key={`${item.id}-dup-${dup.knowledgeItemId}`}
+                        style={{ borderColor: "var(--accent-2, #ffd27a)", color: "var(--accent-2, #ffd27a)" }}
+                        title={`Semantically similar saved item (${Math.round(dup.score * 100)}% match)`}
+                      >
+                        ≈ SIMILAR · {dup.title.slice(0, 32)}
                       </span>
                     ))}
                   </div>

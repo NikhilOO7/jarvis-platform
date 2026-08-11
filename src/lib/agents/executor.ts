@@ -140,6 +140,44 @@ function simulateStep(step: StepDefinition, command: string): StepResult {
 }
 
 /**
+ * Janitor: a crash mid-run leaves a row stuck in RUNNING. Anything RUNNING
+ * longer than maxAgeMinutes is dead — mark it FAILED so the queue stays honest.
+ * Cheap enough to call from read paths; returns the number of runs swept.
+ */
+export async function sweepStaleRuns(maxAgeMinutes = 15): Promise<number> {
+  if (!env.DATABASE_URL) return 0;
+  try {
+    const cutoff = new Date(Date.now() - maxAgeMinutes * 60 * 1000);
+    const stale = await prisma.workflowRun.findMany({
+      where: { status: "RUNNING", updatedAt: { lt: cutoff } },
+      select: { id: true, logs: true }
+    });
+    for (const run of stale) {
+      const logs = normalizeLogs(run.logs);
+      logs.push(
+        logEntry("EXECUTION_ABANDONED", `Run was stuck in RUNNING for over ${maxAgeMinutes} minutes; marked FAILED by the janitor.`)
+      );
+      await prisma.workflowRun.update({
+        where: { id: run.id },
+        data: {
+          status: "FAILED",
+          output: {
+            summary: "Execution was interrupted (process crashed or timed out) and the run was reclaimed by the janitor.",
+            steps: [],
+            artifacts: [],
+            engine: "offline_simulation"
+          } as unknown as Prisma.InputJsonValue,
+          logs: logs as unknown as Prisma.InputJsonValue
+        }
+      });
+    }
+    return stale.length;
+  } catch {
+    return 0;
+  }
+}
+
+/**
  * Executes a QUEUED workflow run to completion. Claims the run atomically, so
  * concurrent triggers (approval hook, manual execute, command route) are safe.
  * Returns the final run record, or null if the run was not claimable.

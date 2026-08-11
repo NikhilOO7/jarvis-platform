@@ -19,10 +19,10 @@ export async function storeItemEmbeddings(input: {
   rawSourceItemId?: string | null;
   knowledgeItemId?: string | null;
   text: string;
-}) {
+}): Promise<number[] | null> {
   try {
     const embedding = await createEmbedding(input.text);
-    if (!embedding) return false;
+    if (!embedding) return null;
 
     const literal = toVectorLiteral(embedding);
     if (input.rawSourceItemId) {
@@ -31,9 +31,38 @@ export async function storeItemEmbeddings(input: {
     if (input.knowledgeItemId) {
       await prisma.$executeRaw`UPDATE "KnowledgeItem" SET embedding = ${literal}::vector WHERE id = ${input.knowledgeItemId}`;
     }
-    return true;
+    return embedding;
   } catch {
-    return false;
+    return null;
+  }
+}
+
+export type NearDuplicate = { id: string; title: string; score: number };
+
+/**
+ * Semantic near-duplicate check: same idea saved with different words, which
+ * hash dedupe cannot catch. Flag-don't-merge — the threshold is conservative
+ * and the result is surfaced to the operator, never auto-merged.
+ */
+export async function findNearDuplicates(
+  embedding: number[],
+  excludeKnowledgeItemId: string,
+  threshold = 0.92
+): Promise<NearDuplicate[]> {
+  try {
+    const literal = toVectorLiteral(embedding);
+    const rows = await prisma.$queryRaw<Array<{ id: string; title: string; score: number }>>`
+      SELECT id, title, 1 - (embedding <=> ${literal}::vector) AS score
+      FROM "KnowledgeItem"
+      WHERE embedding IS NOT NULL AND id != ${excludeKnowledgeItemId}
+      ORDER BY embedding <=> ${literal}::vector
+      LIMIT 3
+    `;
+    return rows
+      .map((row) => ({ ...row, score: Number(row.score) }))
+      .filter((row) => row.score >= threshold);
+  } catch {
+    return [];
   }
 }
 
