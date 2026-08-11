@@ -1434,7 +1434,7 @@ nightly
   </p>
   <div class="flow">
     <div class="step"><div><b>Today: in-request execution.</b> Right up until runs outlive HTTP patience or concurrency matters.</div></div>
-    <div class="step"><div><b>Rung 1 — worker process, zero new infra.</b> A loop polling <span class="inline">findFirst(QUEUED) → claim → execute</span>. The CAS makes N workers safe <i>today</i>; Postgres <span class="inline">SKIP LOCKED</span> is the refinement. Routes stop executing and only enqueue.</div></div>
+    <div class="step"><div><b>Rung 1 — worker process, zero new infra <span class="badge b-good">shipped</span>.</b> <span class="inline">npm run worker</span> polls an authed <span class="inline">claim-next</span> endpoint (<span class="inline">findFirst(QUEUED) → CAS claim → execute</span>); with <span class="inline">JARVIS_EXECUTION_MODE=worker</span>, routes only enqueue. The CAS makes N workers safe; Postgres <span class="inline">SKIP LOCKED</span> is the refinement.</div></div>
     <div class="step"><div><b>Rung 2 — a real queue (SQS/BullMQ)</b> when you need rate-limits per model provider, retries with backoff, and dead-letter visibility. The run row stays the source of truth; the queue is just the doorbell.</div></div>
     <div class="step"><div><b>Rung 3 — durable orchestration (Temporal-class)</b> only when runs become hours-long, multi-day, or human-in-the-loop mid-step at scale. Expensive mental model; buy it when checkpoint/resume is a product requirement, not before.</div></div>
   </div>

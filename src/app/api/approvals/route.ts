@@ -95,7 +95,8 @@ export async function PATCH(request: Request) {
     });
 
     // Last gate cleared → fire the executor once the response is sent.
-    if (result.workflowRun?.status === "QUEUED") {
+    // In worker mode the run stays QUEUED for the worker loop instead.
+    if (result.workflowRun?.status === "QUEUED" && env.JARVIS_EXECUTION_MODE === "inline") {
       const runId = result.workflowRun.id;
       after(async () => {
         try {

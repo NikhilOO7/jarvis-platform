@@ -8,7 +8,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_NAME: z.string().default("Jarvis"),
   JARVIS_EXTENSION_TOKEN: z.string().optional(),
   JARVIS_OPERATOR_PASSWORD: z.string().optional(),
-  JARVIS_SESSION_SECRET: z.string().optional()
+  JARVIS_SESSION_SECRET: z.string().optional(),
+  JARVIS_EXECUTION_MODE: z.enum(["inline", "worker"]).default("inline")
 });
 
 export const env = envSchema.parse(process.env);

@@ -75,6 +75,16 @@ chat id and talks only to your local app.
 briefing workflow every morning via `POST /api/cron/briefing` (token-authed) and pushes the
 result to your chat — Jarvis speaks first. Any external cron can hit the same endpoint.
 
+## Run Worker
+
+By default runs execute inline (inside the request that triggered them). Set
+`JARVIS_EXECUTION_MODE="worker"` and start `npm run worker` to move execution off the request
+path: routes only enqueue, and the worker loop claims the oldest `QUEUED` run via
+`POST /api/runs/claim-next` (pairing-token authed). The executor's atomic QUEUED→RUNNING
+compare-and-swap makes any number of concurrent workers safe — run two `npm run worker`
+processes and they will never double-execute. `npm run worker -- --once` does a single poll for
+smoke tests.
+
 ## Safe Capture Principle
 
 Use explicit capture first: manual save, browser extension, share sheet, clipboard, iOS Shortcuts, Android share intent, exports, and official APIs where useful. Avoid stealth scraping and private API reverse engineering.

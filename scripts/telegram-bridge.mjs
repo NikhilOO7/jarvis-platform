@@ -145,6 +145,11 @@ async function handleRun(chatId, command) {
       }
     });
   }
+  if (workflowRun?.status === "QUEUED") {
+    // Worker mode: the run executes off-request; watch it and report back.
+    await send(chatId, `${header}\n\nQueued for the worker — I will report back.`);
+    return pollRunCompletion(chatId, workflowRun.id);
+  }
   return send(chatId, `${header}\n\n${result.body.message || "Queued."}`);
 }
 

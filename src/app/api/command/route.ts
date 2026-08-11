@@ -32,9 +32,12 @@ export async function POST(request: Request) {
         })
       : null;
 
-    // No approval gates → the run is QUEUED; execute it right now and return the result.
+    // No approval gates → QUEUED. Inline mode executes now and returns the
+    // result; worker mode leaves it for the worker loop (see /api/runs/claim-next).
     const executedRun =
-      createdRun && createdRun.status === "QUEUED" ? await executeWorkflowRun(createdRun.id) : null;
+      createdRun && createdRun.status === "QUEUED" && env.JARVIS_EXECUTION_MODE === "inline"
+        ? await executeWorkflowRun(createdRun.id)
+        : null;
     const workflowRun = executedRun ?? createdRun;
 
     return NextResponse.json({
@@ -47,7 +50,9 @@ export async function POST(request: Request) {
         ? "Command routed. Connect DATABASE_URL to create and execute real workflow runs."
         : executedRun
           ? `Run ${executedRun.status === "COMPLETED" ? "completed" : executedRun.status.toLowerCase()}.`
-          : "Workflow run created and armed. Clear the approval gate to execute."
+          : createdRun.status === "QUEUED"
+            ? "Run queued for the worker — results will appear on the RUNS monitor."
+            : "Workflow run created and armed. Clear the approval gate to execute."
     });
   } catch (error) {
     return NextResponse.json(
