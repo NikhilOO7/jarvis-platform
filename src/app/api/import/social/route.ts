@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { env } from "@/lib/env";
 import { ingestItem } from "@/lib/ingestion";
 import { parseSocialExport } from "@/lib/importers/social-exports";
+import { requireOperator } from "@/lib/auth";
 
 export const maxDuration = 300;
 
@@ -23,6 +24,9 @@ type FileReport = {
 };
 
 export async function POST(request: Request) {
+  if (!(await requireOperator(request))) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
   try {
     const formData = await request.formData();
     const platformHint = formData.get("platform")?.toString() || undefined;

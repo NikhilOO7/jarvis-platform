@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/lib/env";
 import { ingestItem } from "@/lib/ingestion";
+import { requireOperator } from "@/lib/auth";
 
 const ingestSchema = z.object({
   sourceType: z
@@ -16,6 +17,9 @@ const ingestSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!(await requireOperator(request))) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
   try {
     if (!env.DATABASE_URL) {
       return NextResponse.json({ error: "DATABASE_URL is not configured yet." }, { status: 503 });

@@ -8,6 +8,7 @@ import { ensureExtensionToken } from "@/lib/extension-auth";
 export const dynamic = "force-dynamic";
 
 const connectorChecks = [
+  { name: "Operator Auth", description: "Passphrase login with signed 30-day sessions. Unset means OPEN MODE — anyone reaching this machine is the operator. Required before real connectors.", configured: Boolean(env.JARVIS_OPERATOR_PASSWORD) },
   { name: "Postgres + pgvector", description: "Stores raw content, memory, graph records, agents, workflow runs, approvals, and vector search.", configured: Boolean(env.DATABASE_URL) },
   { name: "OpenAI API", description: "Powers classification, extraction, summarization, chat, speech-to-text, embeddings, and command routing.", configured: Boolean(env.OPENAI_API_KEY) },
   { name: "Telegram API", description: "Future text and voice command surface for Jarvis 2.0 workflows.", configured: Boolean(process.env.TELEGRAM_BOT_TOKEN) },
@@ -22,6 +23,7 @@ const envKeys = [
   "OPENAI_API_KEY",
   "OPENAI_CHAT_MODEL",
   "OPENAI_EMBEDDING_MODEL",
+  "JARVIS_OPERATOR_PASSWORD",
   "TELEGRAM_BOT_TOKEN",
   "ELEVENLABS_API_KEY",
   "ANTHROPIC_API_KEY",

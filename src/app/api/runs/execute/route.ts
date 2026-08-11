@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/lib/env";
 import { executeWorkflowRun } from "@/lib/agents/executor";
+import { requireOperator } from "@/lib/auth";
 
 const executeSchema = z.object({
   id: z.string().min(1)
@@ -10,6 +11,9 @@ const executeSchema = z.object({
 export const maxDuration = 120;
 
 export async function POST(request: Request) {
+  if (!(await requireOperator(request))) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
   if (!env.DATABASE_URL) {
     return NextResponse.json({ error: "DATABASE_URL is not configured." }, { status: 503 });
   }

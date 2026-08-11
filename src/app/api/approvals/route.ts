@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { Prisma } from "@prisma/client";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+import { requireOperator } from "@/lib/auth";
 import { executeWorkflowRun, type RunLogEntry } from "@/lib/agents/executor";
 
 const approvalUpdateSchema = z.object({
@@ -10,7 +11,10 @@ const approvalUpdateSchema = z.object({
   status: z.enum(["APPROVED", "REJECTED"])
 });
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!(await requireOperator(request))) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
   if (!env.DATABASE_URL) {
     return NextResponse.json({
       approvals: [],
@@ -27,6 +31,9 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  if (!(await requireOperator(request))) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
   if (!env.DATABASE_URL) {
     return NextResponse.json({ error: "DATABASE_URL is not configured." }, { status: 503 });
   }

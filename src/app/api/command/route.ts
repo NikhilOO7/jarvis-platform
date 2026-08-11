@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { requireOperator } from "@/lib/auth";
 import { routeCommandSmart } from "@/lib/command-router";
 import { env } from "@/lib/env";
 import { executeWorkflowRun } from "@/lib/agents/executor";
@@ -12,6 +13,9 @@ const commandSchema = z.object({
 export const maxDuration = 120;
 
 export async function POST(request: Request) {
+  if (!(await requireOperator(request))) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
   try {
     const { command } = commandSchema.parse(await request.json());
     const route = await routeCommandSmart(command);

@@ -910,7 +910,7 @@ LIMIT  $k;
     <tr><td>Rogue/buggy tool input from the model</td><td>zod at every execute(); no eval; parser-based calculator</td><td><span class="badge b-good">strong</span></td></tr>
     <tr><td>Unauthorized companion/bridge caller</td><td>Bearer token, constant-time; Telegram chat-id pinning</td><td><span class="badge b-good">strong</span></td></tr>
     <tr><td>Prompt injection via captured content</td><td>Partial: capture is consent-gated and tools are low-blast-radius, but retrieved text does enter prompts unsanitized</td><td><span class="badge b-gold">partial</span></td></tr>
-    <tr><td>Local web app has no login</td><td>Known, accepted for single-operator localhost; hard gate before Phase 4 connectors hold OAuth tokens</td><td><span class="badge b-bad">accepted debt</span></td></tr>
+    <tr><td>Local web app has no login</td><td>Closed: passphrase → signed 30-day session (Web Crypto, edge middleware); APIs accept session OR pairing token so companion/bridge keep working; unset password = labeled OPEN MODE, never silent</td><td><span class="badge b-good">strong</span></td></tr>
     <tr><td>Data leaves the machine</td><td>Single egress (model API), disclosed in UI; no-AI import mode planned</td><td><span class="badge b-gold">disclosed</span></td></tr>
   </table></div>
 

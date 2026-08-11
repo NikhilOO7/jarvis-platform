@@ -5,6 +5,7 @@ import { getOpenAIClient } from "@/lib/openai";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { getGroundingContext } from "@/lib/ai/retrieval";
+import { requireOperator } from "@/lib/auth";
 
 const chatSchema = z.object({
   question: z.string().min(1),
@@ -46,6 +47,9 @@ async function persistTurn(input: {
 }
 
 export async function POST(request: Request) {
+  if (!(await requireOperator(request))) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
   try {
     const { question, sessionId } = chatSchema.parse(await request.json());
     if (!env.DATABASE_URL) {
