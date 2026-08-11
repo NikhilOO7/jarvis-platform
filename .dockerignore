@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.env
+.env*.local
+*.log
+coverage
+tsconfig.tsbuildinfo
+.DS_Store
+images
+mockups
+docs
+extension
+*.md

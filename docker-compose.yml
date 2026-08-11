@@ -1,0 +1,88 @@
+# The whole product, one command: docker compose up --build
+# Default profile runs db + migrations + app. Opt-in long-running processes:
+#   docker compose --profile worker up      (run executor off the request path;
+#                                            pair with JARVIS_EXECUTION_MODE=worker)
+#   docker compose --profile telegram up    (phone presence + morning briefing)
+# Copy .env.example to .env first — compose passes it to every service, then
+# overrides DATABASE_URL to point inside the network.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: jarvis
+      POSTGRES_PASSWORD: jarvis
+      POSTGRES_DB: jarvis
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jarvis -d jarvis"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    ports:
+      - "5432:5432"
+
+  migrate:
+    build:
+      context: .
+      target: build
+    command: ["npx", "prisma", "migrate", "deploy"]
+    environment:
+      DATABASE_URL: postgresql://jarvis:jarvis@db:5432/jarvis?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      target: runner
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://jarvis:jarvis@db:5432/jarvis?schema=public
+    ports:
+      - "3000:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/api/extension/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    profiles: ["worker"]
+    build:
+      context: .
+      target: runner
+    command: ["node", "scripts/worker.mjs"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      JARVIS_APP_URL: http://app:3000
+    depends_on:
+      app:
+        condition: service_healthy
+
+  telegram:
+    profiles: ["telegram"]
+    build:
+      context: .
+      target: runner
+    command: ["node", "scripts/telegram-bridge.mjs"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      JARVIS_APP_URL: http://app:3000
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  dbdata: {}
