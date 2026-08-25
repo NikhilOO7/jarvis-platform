@@ -7,12 +7,11 @@ import { SubRail } from "@/components/sub-rail";
 export default function CommandPage() {
   return (
     <AppShell>
-      <TopBar label="J.A.R.V.I.S · COMMAND" uplink="ready" center="LISTENING · TYPE OR SPEAK" />
+      <TopBar label="J.A.R.V.I.S · COMMAND" uplink="web" center="TYPE COMMAND · VOICE OFF" />
       <SubRail
         extras={[
-          { label: "TURN", value: "03" },
-          { label: "TOKENS", value: "1,284" },
-          { label: "CACHE", value: "HIT" }
+          { label: "CHANNEL", value: "WEB" },
+          { label: "EFFECTS", value: "SAFE MODE" }
         ]}
       />
       <PageHeader
@@ -21,8 +20,8 @@ export default function CommandPage() {
         description="Natural-language commands route into agents, workflows, or research. Risky actions wait at the approval gate."
         meta={[
           { label: "CHANNEL", value: "WEB" },
-          { label: "BUFFER", value: "14 TURNS" },
-          { label: "VOICE", value: "OPTIONAL" }
+          { label: "HISTORY", value: "THIS PAGE" },
+          { label: "VOICE", value: "NOT IMPLEMENTED" }
         ]}
       />
 

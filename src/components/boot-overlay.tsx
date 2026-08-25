@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 
 const BOOT_LINES: Array<{ text: string; status: string; gold?: boolean }> = [
-  { text: "› Initializing Personal Intelligence Core", status: "OK" },
-  { text: "› Mounting Knowledge Graph · loading nodes", status: "OK" },
-  { text: "› Spinning AI Cores · reasoning / embeddings", status: "OK" },
-  { text: "› Calibrating Voice Channel · sub-200ms", status: "OK" },
-  { text: "› Verifying Approval Gates", status: "ARMED", gold: true },
-  { text: "› Synchronizing Memory Buffer", status: "OK" }
+  { text: "› Loading operator interface", status: "UI" },
+  { text: "› Phase 0 safety policy", status: "ACTIVE", gold: true },
+  { text: "› External email and calendar writes", status: "OFF" },
+  { text: "› Voice input and output", status: "OFF" },
+  { text: "› Runtime data policy", status: "OBSERVED" }
 ];
 
 export function BootOverlay() {
@@ -32,7 +31,7 @@ export function BootOverlay() {
   return (
     <div className="boot-overlay" id="boot">
       <div className="boot-inner">
-        <div className="boot-reactor" aria-hidden="true">
+        <div className="boot-core" aria-hidden="true">
           <div className="br-ring br-rim" />
           <div className="br-ring br-coil" />
           <div className="br-ring br-dash" />
@@ -52,7 +51,7 @@ export function BootOverlay() {
             </div>
           ))}
           <div className="line ready" style={{ animationDelay: "3.4s" }}>
-            ▮ System online · welcome back, operator.
+            ▮ Interface ready · verify runtime status in Settings.
           </div>
         </div>
         <div className="boot-progress" aria-hidden="true">

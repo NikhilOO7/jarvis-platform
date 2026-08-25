@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
-import { requireOperator } from "@/lib/auth";
+import { authorizeRequest } from "@/lib/auth";
 
 export async function GET(request: Request) {
-  if (!(await requireOperator(request))) {
+  if (!(await authorizeRequest(request, "briefing:read"))) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
   try {

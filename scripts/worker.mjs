@@ -30,7 +30,7 @@ function loadDotEnv() {
 loadDotEnv();
 
 const APP_URL = (process.env.JARVIS_APP_URL || "http://localhost:3000").replace(/\/$/, "");
-const APP_TOKEN = process.env.JARVIS_EXTENSION_TOKEN || "";
+const APP_TOKEN = process.env.JARVIS_WORKER_TOKEN || "";
 const IDLE_POLL_MS = 3000;
 const ERROR_BACKOFF_MS = 10000;
 
@@ -48,13 +48,13 @@ function stamp() {
 }
 
 async function main() {
-  if (!APP_TOKEN) {
-    console.error("✗ JARVIS_EXTENSION_TOKEN is not set — the worker authenticates with the pairing token from /settings.");
+  if (APP_TOKEN.length < 32) {
+    console.error("✗ JARVIS_WORKER_TOKEN must be a dedicated random value of at least 32 characters.");
     process.exit(1);
   }
 
   const once = process.argv.includes("--once");
-  console.log(`◉ Jarvis worker online → ${APP_URL} (${once ? "single poll" : `poll every ${IDLE_POLL_MS / 1000}s when idle`})`);
+  console.log(`◉ Jarvis worker starting → ${APP_URL} (${once ? "single poll" : `poll every ${IDLE_POLL_MS / 1000}s when idle`})`);
 
   for (;;) {
     let result;

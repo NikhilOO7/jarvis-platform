@@ -3,11 +3,17 @@ import type { Prisma, WorkflowRun } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getOpenAIClient } from "@/lib/openai";
 import { env } from "@/lib/env";
-import { executeTool, toOpenAITools, type ToolArtifact } from "@/lib/agents/tools";
+import { executeTool, getAgentTool, toOpenAITools, type ToolArtifact } from "@/lib/agents/tools";
 
 export type RunLogEntry = { at: string; event: string; message: string };
 
-type StepDefinition = { title: string; description: string; approvalRequired?: boolean };
+type StepDefinition = {
+  title: string;
+  description: string;
+  approvalRequired?: boolean;
+  tools: string[];
+  toolRequired: boolean;
+};
 
 type StepResult = { title: string; result: string; toolCalls: number };
 
@@ -15,7 +21,7 @@ export type RunOutput = {
   summary: string;
   steps: StepResult[];
   artifacts: ToolArtifact[];
-  engine: "openai" | "offline_simulation";
+  engine: "openai" | "none";
 };
 
 const MAX_TOOL_ROUNDS_PER_STEP = 6;
@@ -43,7 +49,9 @@ function normalizeSteps(steps: Prisma.JsonValue | null | undefined): StepDefinit
     .map((step) => ({
       title: String(step.title),
       description: typeof step.description === "string" ? step.description : "",
-      approvalRequired: Boolean(step.approvalRequired)
+      approvalRequired: Boolean(step.approvalRequired),
+      tools: Array.isArray(step.tools) ? step.tools.filter((tool): tool is string => typeof tool === "string") : [],
+      toolRequired: Boolean(step.toolRequired)
     }));
 }
 
@@ -80,19 +88,24 @@ async function runStepWithModel(input: {
         `Workflow: ${input.workflowName} — step ${input.stepIndex + 1} of ${input.totalSteps}.`,
         `Current step: ${step.title} — ${step.description}`,
         priorContext,
+        step.toolRequired
+          ? "This step is not complete until at least one allowed tool call succeeds."
+          : null,
         "Execute this step now using tools as needed, then reply with the step result."
-      ].join("\n\n")
+      ].filter(Boolean).join("\n\n")
     }
   ];
 
   let toolCallCount = 0;
+  let successfulToolCallCount = 0;
+  const allowedTools = toOpenAITools(step.tools);
 
   for (let round = 0; round < MAX_TOOL_ROUNDS_PER_STEP; round++) {
     const response = await client.chat.completions.create({
       model: env.OPENAI_CHAT_MODEL,
       temperature: 0.3,
       messages,
-      tools: toOpenAITools()
+      ...(allowedTools.length > 0 ? { tools: allowedTools } : {})
     });
 
     const message = response.choices[0]?.message;
@@ -100,6 +113,9 @@ async function runStepWithModel(input: {
 
     const toolCalls = message.tool_calls ?? [];
     if (toolCalls.length === 0) {
+      if (step.toolRequired && successfulToolCallCount === 0) {
+        throw new Error(`Step "${step.title}" ended without a required successful tool call.`);
+      }
       return { title: step.title, result: message.content?.trim() || "Step completed.", toolCalls: toolCallCount };
     }
 
@@ -108,7 +124,8 @@ async function runStepWithModel(input: {
     for (const toolCall of toolCalls) {
       if (toolCall.type !== "function") continue;
       toolCallCount += 1;
-      const result = await executeTool(toolCall.function.name, toolCall.function.arguments);
+      const result = await executeTool(toolCall.function.name, toolCall.function.arguments, step.tools);
+      if (result.ok) successfulToolCallCount += 1;
       if (result.artifact) input.artifacts.push(result.artifact);
       input.logs.push(
         logEntry(
@@ -124,19 +141,20 @@ async function runStepWithModel(input: {
     }
   }
 
-  return {
-    title: step.title,
-    result: "Step ended after reaching the tool-call limit; partial results are in the log.",
-    toolCalls: toolCallCount
-  };
+  throw new Error(`Step "${step.title}" did not finish within the ${MAX_TOOL_ROUNDS_PER_STEP}-round tool limit.`);
 }
 
-function simulateStep(step: StepDefinition, command: string): StepResult {
-  return {
-    title: step.title,
-    result: `Simulated (no OPENAI_API_KEY): ${step.description || step.title} for command "${command}".`,
-    toolCalls: 0
-  };
+async function failClaimedRun(runId: string, logs: RunLogEntry[], message: string) {
+  logs.push(logEntry("EXECUTION_BLOCKED", message));
+  return prisma.workflowRun.update({
+    where: { id: runId },
+    data: {
+      status: "FAILED",
+      output: { summary: message, steps: [], artifacts: [], engine: "none" } as unknown as Prisma.InputJsonValue,
+      logs: logs as unknown as Prisma.InputJsonValue
+    },
+    include: { workflowTemplate: true, approvals: true }
+  });
 }
 
 /**
@@ -165,7 +183,7 @@ export async function sweepStaleRuns(maxAgeMinutes = 15): Promise<number> {
             summary: "Execution was interrupted (process crashed or timed out) and the run was reclaimed by the janitor.",
             steps: [],
             artifacts: [],
-            engine: "offline_simulation"
+            engine: "none"
           } as unknown as Prisma.InputJsonValue,
           logs: logs as unknown as Prisma.InputJsonValue
         }
@@ -193,15 +211,54 @@ export async function executeWorkflowRun(runId: string): Promise<WorkflowRun | n
 
   const run = await prisma.workflowRun.findUnique({
     where: { id: runId },
-    include: { workflowTemplate: true }
+    include: { workflowTemplate: true, approvals: true }
   });
   if (!run) return null;
 
   const logs = normalizeLogs(run.logs);
   const steps = normalizeSteps(run.workflowTemplate?.steps ?? null);
   const workflowName = run.workflowTemplate?.name ?? "Ad hoc workflow";
+  if (steps.length === 0) {
+    return failClaimedRun(run.id, logs, "Execution cannot start because the workflow has no valid steps.");
+  }
+
+  const approvalStepCount = steps.filter((step) => step.approvalRequired).length;
+  if (
+    approvalStepCount > 0 &&
+    (run.approvals.length !== approvalStepCount || run.approvals.some((approval) => approval.status !== "APPROVED"))
+  ) {
+    return failClaimedRun(
+      run.id,
+      logs,
+      "Execution cannot start because the workflow's approval gates are incomplete or inconsistent."
+    );
+  }
+
+  const invalidToolContracts = steps.filter((step) => step.toolRequired && step.tools.length === 0);
+  if (invalidToolContracts.length > 0) {
+    return failClaimedRun(
+      run.id,
+      logs,
+      `Execution cannot start because required-tool steps declare no tools: ${invalidToolContracts
+        .map((step) => step.title)
+        .join(", ")}.`
+    );
+  }
+
+  const unknownTools = steps.flatMap((step) => step.tools).filter((name) => !getAgentTool(name));
+  if (unknownTools.length > 0) {
+    return failClaimedRun(
+      run.id,
+      logs,
+      `Execution cannot start because the workflow declares unknown tools: ${[...new Set(unknownTools)].join(", ")}.`
+    );
+  }
+
   const client = getOpenAIClient();
-  const engine: RunOutput["engine"] = client ? "openai" : "offline_simulation";
+  if (!client) {
+    return failClaimedRun(run.id, logs, "Execution cannot start because OPENAI_API_KEY is not configured.");
+  }
+  const engine: RunOutput["engine"] = "openai";
 
   logs.push(logEntry("EXECUTION_STARTED", `Executing ${workflowName} (${steps.length} steps, engine: ${engine}).`));
   await persistLogs(run.id, logs);
@@ -218,19 +275,17 @@ export async function executeWorkflowRun(runId: string): Promise<WorkflowRun | n
         continue;
       }
 
-      const result = client
-        ? await runStepWithModel({
-            client,
-            command: run.command,
-            workflowName,
-            step,
-            stepIndex: index,
-            totalSteps: steps.length,
-            priorResults: stepResults,
-            logs,
-            artifacts
-          })
-        : simulateStep(step, run.command);
+      const result = await runStepWithModel({
+        client,
+        command: run.command,
+        workflowName,
+        step,
+        stepIndex: index,
+        totalSteps: steps.length,
+        priorResults: stepResults,
+        logs,
+        artifacts
+      });
 
       stepResults.push(result);
       logs.push(logEntry("STEP_COMPLETED", `${step.title}: ${result.result.slice(0, 220)}`));

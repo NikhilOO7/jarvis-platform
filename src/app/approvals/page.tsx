@@ -7,46 +7,38 @@ import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 
 async function getApprovals() {
-  if (!env.DATABASE_URL) return [];
+  if (!env.DATABASE_URL) return { approvals: [], mode: "OFFLINE" as const, message: "Database not configured." };
   try {
-    return await prisma.approvalRequest.findMany({
+    const approvals = await prisma.approvalRequest.findMany({
       orderBy: { createdAt: "desc" },
       take: 40,
       include: {
         workflowRun: { include: { workflowTemplate: true } }
       }
     });
+    return { approvals, mode: "LIVE" as const, message: approvals.length === 0 ? "No approval requests recorded." : null };
   } catch {
-    return [];
+    return { approvals: [], mode: "DEGRADED" as const, message: "Approval query failed." };
   }
 }
 
-const designModeApprovals = [
-  { title: "Send drafted client email", actionType: "EMAIL_SEND", description: "External message requires explicit approval before delivery.", status: "PENDING", workflow: "Email Draft And Reply" },
-  { title: "Create calendar event", actionType: "CALENDAR_WRITE", description: "Meeting creation requires confirmation of attendees, time, and details.", status: "PENDING", workflow: "Calendar Scheduling Assistant" },
-  { title: "Save parsed expense", actionType: "EXPENSE_WRITE", description: "Financial record creation requires review before storage.", status: "PENDING", workflow: "Expense Receipt Logger" }
-];
-
 export default async function ApprovalsPage() {
-  const approvals = await getApprovals();
-  const designMode = approvals.length === 0;
-  const pendingCount = designMode
-    ? designModeApprovals.length
-    : approvals.filter((a) => a.status === "PENDING").length;
+  const { approvals, mode, message } = await getApprovals();
+  const pendingCount = approvals.filter((a) => a.status === "PENDING").length;
 
   return (
     <AppShell>
-      <TopBar label="J.A.R.V.I.S · APPROVALS" uplink="armed" center="SAFETY GATE ENGAGED" />
+      <TopBar label="J.A.R.V.I.S · APPROVALS" uplink={mode.toLowerCase()} center="EXTERNAL WRITES DISABLED" />
       <SubRail
         extras={[
           { label: "PENDING", value: pendingCount, variant: pendingCount > 0 ? "warn" : undefined },
-          { label: "MODE", value: designMode ? "DEMO" : "LIVE" }
+          { label: "MODE", value: mode, variant: mode === "DEGRADED" ? "warn" : undefined }
         ]}
       />
       <PageHeader
         eyebrow="Approvals // Safety Gate"
         title="[b]Human control[/b] before external action."
-        description="Review emails, calendar changes, contact edits, financial records, and sensitive data transfers before Jarvis executes them."
+        description="Approval state is protected against replay. External execution remains disabled until approvals bind to exact immutable payloads."
         meta={[
           { label: "QUEUE ·", value: `${pendingCount} PENDING`, highlight: true }
         ]}
@@ -55,29 +47,13 @@ export default async function ApprovalsPage() {
       <section className="panel">
         <div className="panel-head">
           <h3>APPROVAL QUEUE</h3>
-          <span className="tag">{designMode ? "DESIGN MODE" : `${approvals.length} ITEMS`}</span>
+          <span className="tag">{mode} · {approvals.length} ITEMS</span>
         </div>
 
         <div className="module-grid">
-          {designMode
-            ? designModeApprovals.map((approval) => (
-                <article className="module" key={approval.title}>
-                  <div className="module-head">
-                    <div className="module-id">
-                      <span className="bracket">⟦</span> {approval.actionType} <span className="bracket">⟧</span>{" "}
-                      <span className="open">› PENDING</span>
-                    </div>
-                    <div className="module-status warn"><span className="led" />{approval.status}</div>
-                  </div>
-                  <h3>{approval.title}</h3>
-                  <p className="desc">{approval.description}</p>
-                  <div className="caps"><span>{approval.workflow}</span></div>
-                  <div className="approval-bar" style={{ marginTop: "auto" }}>
-                    <ApprovalActions initialStatus={approval.status} disabled />
-                  </div>
-                </article>
-              ))
-            : approvals.map((approval) => (
+          {approvals.length === 0 ? (
+            <div className="empty-state"><p>{message}</p></div>
+          ) : approvals.map((approval) => (
                 <article className="module" key={approval.id}>
                   <div className="module-head">
                     <div className="module-id">

@@ -4,9 +4,6 @@ import { evaluateExpression } from "@/lib/agents/calculator";
 import { ingestItem } from "@/lib/ingestion";
 import { searchKnowledge } from "@/lib/ai/retrieval";
 import {
-  createCalendarEvent,
-  createGmailDraft,
-  getGoogleStatus,
   listCalendarEvents,
   listRecentEmails
 } from "@/lib/connectors/google";
@@ -97,7 +94,7 @@ export const agentTools: AgentTool[] = [
   {
     name: "search_knowledge",
     description:
-      "Search the operator's saved knowledge base semantically. Use this whenever the task references saved content, memory, prior research, preferences, or anything the operator may have captured.",
+      "Search the operator's saved knowledge base using semantic retrieval when embeddings are available and keyword fallback otherwise. Use this for saved content, memory, prior research, preferences, or captured material.",
     risk: "low",
     parameters: {
       type: "object",
@@ -193,7 +190,7 @@ export const agentTools: AgentTool[] = [
     risk: "low",
     parameters: {
       type: "object",
-      properties: { name: { type: "string", description: "Entity name, e.g. 'creatine', 'Alex', 'Mark VII'" } },
+      properties: { name: { type: "string", description: "Entity name, e.g. 'creatine', 'Alex', 'Project Atlas'" } },
       required: ["name"]
     },
     execute: async (args) => {
@@ -253,7 +250,7 @@ export const agentTools: AgentTool[] = [
   {
     name: "draft_email",
     description:
-      "Create an email DRAFT for operator review. With Google connected this creates a real draft in the operator's Gmail drafts folder; otherwise a local artifact. Either way it NEVER sends — the operator presses send themselves.",
+      "Create a LOCAL email draft artifact for operator review. Phase 0 safety mode never writes this draft to Gmail and never sends it.",
     risk: "high",
     parameters: {
       type: "object",
@@ -266,21 +263,9 @@ export const agentTools: AgentTool[] = [
     },
     execute: async (args) => {
       const draft = draftEmailArgs.parse(args);
-      const status = await getGoogleStatus();
-      if (status.connected) {
-        const result = await createGmailDraft(draft);
-        if (result.ok) {
-          return {
-            ok: true,
-            data: { status: "GMAIL_DRAFT_CREATED", draftId: result.draftId, note: "Real draft created in Gmail. Nothing was sent." },
-            artifact: { type: "email_draft", title: draft.subject, payload: { ...draft, gmailDraftId: result.draftId } }
-          };
-        }
-        return { ok: false, error: `Gmail draft failed: ${result.error}` };
-      }
       return {
         ok: true,
-        data: { status: "DRAFT_CREATED", note: "No email was sent. Google is not connected, so this is a local draft artifact." },
+        data: { status: "LOCAL_DRAFT_CREATED", note: "Phase 0 safety mode: no Gmail write and no email send occurred." },
         artifact: { type: "email_draft", title: draft.subject, payload: draft }
       };
     }
@@ -322,7 +307,7 @@ export const agentTools: AgentTool[] = [
   {
     name: "create_calendar_event",
     description:
-      "Create an event on the operator's OWN calendar (no attendees, no invitations — reversible). For meetings involving other people use propose_calendar_event instead, which produces an approval artifact.",
+      "Compatibility alias that creates a LOCAL calendar proposal. Phase 0 safety mode never modifies Google Calendar.",
     risk: "medium",
     parameters: {
       type: "object",
@@ -336,19 +321,10 @@ export const agentTools: AgentTool[] = [
     },
     execute: async (args) => {
       const input = createEventArgs.parse(args);
-      const status = await getGoogleStatus();
-      if (!status.connected) {
-        return {
-          ok: true,
-          data: { status: "PROPOSAL_CREATED", note: "Google is not connected; recorded as a proposal artifact instead." },
-          artifact: { type: "calendar_event_proposal", title: input.title, payload: input }
-        };
-      }
-      const result = await createCalendarEvent(input);
-      if (!result.ok) return { ok: false, error: result.error };
       return {
         ok: true,
-        data: { status: "EVENT_CREATED", eventId: result.eventId, link: result.link, note: "Created on the operator's own calendar; no invitations sent." }
+        data: { status: "PROPOSAL_CREATED", note: "Phase 0 safety mode: no calendar was modified." },
+        artifact: { type: "calendar_event_proposal", title: input.title, payload: input }
       };
     }
   },
@@ -420,8 +396,9 @@ export function getAgentTool(name: string) {
   return agentTools.find((tool) => tool.name === name);
 }
 
-export function toOpenAITools() {
-  return agentTools.map((tool) => ({
+export function toOpenAITools(allowedNames: readonly string[]) {
+  const allowed = new Set(allowedNames);
+  return agentTools.filter((tool) => allowed.has(tool.name)).map((tool) => ({
     type: "function" as const,
     function: {
       name: tool.name,
@@ -431,7 +408,8 @@ export function toOpenAITools() {
   }));
 }
 
-export async function executeTool(name: string, rawArgs: string): Promise<ToolResult> {
+export async function executeTool(name: string, rawArgs: string, allowedNames: readonly string[]): Promise<ToolResult> {
+  if (!allowedNames.includes(name)) return { ok: false, error: `Tool is not allowed in this workflow step: ${name}` };
   const tool = getAgentTool(name);
   if (!tool) return { ok: false, error: `Unknown tool: ${name}` };
 

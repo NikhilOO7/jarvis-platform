@@ -3,57 +3,57 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 export type ThemeId =
-  | "jarvis"
-  | "cyan"
-  | "redgold"
-  | "stealth"
-  | "hulkbuster"
-  | "warmachine"
+  | "core"
+  | "ion"
+  | "solar"
+  | "eclipse"
+  | "titan"
+  | "forge"
   | "vapor"
-  | "mark1"
-  | "centurion"
-  | "endgame"
-  | "bones"
-  | "endosym"
+  | "cavern"
+  | "sentinel"
+  | "apex"
+  | "ivory"
+  | "symbiosis"
   | "neon";
 
 export const THEME_LABELS: Record<ThemeId, string> = {
-  jarvis: "J.A.R.V.I.S · CLASSIC",
-  cyan: "MARK XLII · CYAN",
-  redgold: "MARK XLIII · RED · GOLD",
-  stealth: "MARK VII · STEALTH",
-  hulkbuster: "MARK XLIV · HULKBUSTER",
-  warmachine: "WAR MACHINE · SILVER",
-  vapor: "MARK L · VAPOR",
-  mark1: "MARK I · CAVE",
-  centurion: "MARK XXXIII · CENTURION",
-  endgame: "MARK LXXXV · ENDGAME",
-  bones: "MARK XXXIX · BONES",
-  endosym: "ENDO-SYM · SYMBIOTE",
+  core: "CORE · CLASSIC",
+  ion: "ION · CYAN",
+  solar: "SOLAR · RED GOLD",
+  eclipse: "ECLIPSE · STEALTH",
+  titan: "TITAN · VIOLET",
+  forge: "FORGE · SILVER",
+  vapor: "VAPOR · IRIDESCENT",
+  cavern: "CAVERN · COPPER",
+  sentinel: "SENTINEL · CRIMSON",
+  apex: "APEX · CRIMSON",
+  ivory: "IVORY · PALE GOLD",
+  symbiosis: "SYMBIOSIS · BLACK RED",
   neon: "NEON · CYBER"
 };
 
 export const THEMES: ThemeId[] = [
-  "jarvis",
-  "cyan",
-  "redgold",
-  "stealth",
-  "hulkbuster",
-  "warmachine",
+  "core",
+  "ion",
+  "solar",
+  "eclipse",
+  "titan",
+  "forge",
   "vapor",
-  "mark1",
-  "centurion",
-  "endgame",
-  "bones",
-  "endosym",
+  "cavern",
+  "sentinel",
+  "apex",
+  "ivory",
+  "symbiosis",
   "neon"
 ];
 
 type ThemeCtx = { theme: ThemeId; setTheme: (t: ThemeId) => void };
-const Ctx = createContext<ThemeCtx>({ theme: "jarvis", setTheme: () => {} });
+const Ctx = createContext<ThemeCtx>({ theme: "core", setTheme: () => {} });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeId>("jarvis");
+  const [theme, setThemeState] = useState<ThemeId>("core");
 
   useEffect(() => {
     try {

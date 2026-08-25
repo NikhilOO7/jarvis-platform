@@ -4,8 +4,7 @@ import { isAuthEnabled, readSessionCookie, verifySessionToken } from "@/lib/sess
 /**
  * Page guard: with JARVIS_OPERATOR_PASSWORD set, every page except /login
  * requires a valid session cookie. API routes are guarded in their handlers
- * (they must also accept the companion/bridge pairing token, which needs the
- * node runtime) — see requireOperator in src/lib/auth.ts.
+ * using explicit operator or scoped-service guards in their handlers.
  */
 export async function middleware(request: NextRequest) {
   if (!isAuthEnabled()) return NextResponse.next();

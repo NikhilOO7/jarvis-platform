@@ -1,16 +1,15 @@
 import type { Prisma } from "@prisma/client";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+import { isAuthEnabled } from "@/lib/session";
 
 /**
  * Google connector (Phase 4): OAuth + Gmail + Calendar over plain HTTP —
  * no googleapis SDK, same zero-dep discipline as the bridge and worker.
  *
- * Risk ladder, enforced in the tool layer:
- *   reads (mail list, calendar list)      → free
- *   Gmail DRAFTS                          → real, but never sends
- *   calendar events WITHOUT attendees     → real (own calendar, reversible)
- *   anything touching other people        → approval artifact, not an action
+ * Phase 0 safety posture: OAuth requests read-only scopes and this connector
+ * exposes read operations only. No provider write helpers are present until
+ * the future payload-bound approval design is implemented.
  */
 
 const AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -20,9 +19,7 @@ const CONNECTOR = { type: "EMAIL" as const, name: "google-account" };
 
 export const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
-  "https://www.googleapis.com/auth/gmail.compose",
   "https://www.googleapis.com/auth/calendar.readonly",
-  "https://www.googleapis.com/auth/calendar.events",
   "https://www.googleapis.com/auth/userinfo.email"
 ];
 
@@ -79,6 +76,7 @@ async function writeMetadata(metadata: GoogleMetadata, status: string): Promise<
       metadata: metadata as Prisma.InputJsonObject,
       status,
       enabled: status === "CONNECTED",
+      scopes: GOOGLE_SCOPES,
       connectedAt: status === "CONNECTED" ? new Date() : null
     },
     create: {
@@ -137,6 +135,8 @@ export async function exchangeCodeForTokens(code: string): Promise<{ ok: boolean
 }
 
 export async function getGoogleAccessToken(): Promise<string | null> {
+  // External account data is never exposed through OPEN MODE.
+  if (!isAuthEnabled()) return null;
   const metadata = await readMetadata();
   const tokens = metadata?.tokens;
   if (!tokens) return null;
@@ -166,13 +166,27 @@ export async function getGoogleAccessToken(): Promise<string | null> {
   return refreshed.access_token;
 }
 
-export async function disconnectGoogle(): Promise<void> {
+export async function disconnectGoogle(): Promise<{ ok: boolean; error?: string }> {
   const metadata = await readMetadata();
   const token = metadata?.tokens?.refresh_token ?? metadata?.tokens?.access_token;
   if (token) {
-    await fetch(`${REVOKE_URL}?token=${encodeURIComponent(token)}`, { method: "POST" }).catch(() => {});
+    try {
+      const response = await fetch(`${REVOKE_URL}?token=${encodeURIComponent(token)}`, { method: "POST" });
+      if (!response.ok) {
+        return {
+          ok: false,
+          error: `Google rejected the revocation request (${response.status}); the stored credential was retained for retry.`
+        };
+      }
+    } catch {
+      return {
+        ok: false,
+        error: "Google could not be reached; the stored credential was retained for retry."
+      };
+    }
   }
   await writeMetadata({}, "DISCONNECTED");
+  return { ok: true };
 }
 
 export async function getGoogleStatus(): Promise<{ configured: boolean; connected: boolean; email?: string }> {
@@ -194,19 +208,6 @@ async function googleFetch(url: string, init?: RequestInit): Promise<{ ok: boole
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...(init?.headers ?? {}) }
   });
   return { ok: response.ok, status: response.status, body: await response.json().catch(() => ({})) };
-}
-
-/** RFC 2822 message → base64url, the Gmail API's wire format for drafts. */
-export function buildRfc822(input: { to: string; subject: string; body: string }): string {
-  const message = [
-    `To: ${input.to}`,
-    `Subject: ${input.subject}`,
-    'Content-Type: text/plain; charset="UTF-8"',
-    "MIME-Version: 1.0",
-    "",
-    input.body
-  ].join("\r\n");
-  return Buffer.from(message, "utf8").toString("base64url");
 }
 
 export async function listRecentEmails(limit = 8, query?: string) {
@@ -239,15 +240,6 @@ export async function listRecentEmails(limit = 8, query?: string) {
   return { ok: true as const, emails };
 }
 
-export async function createGmailDraft(input: { to: string; subject: string; body: string }) {
-  const result = await googleFetch("https://gmail.googleapis.com/gmail/v1/users/me/drafts", {
-    method: "POST",
-    body: JSON.stringify({ message: { raw: buildRfc822(input) } })
-  });
-  if (!result.ok) return { ok: false as const, error: describeError(result) };
-  return { ok: true as const, draftId: (result.body as { id?: string }).id };
-}
-
 export async function listCalendarEvents(days = 7) {
   const params = new URLSearchParams({
     timeMin: new Date().toISOString(),
@@ -265,26 +257,6 @@ export async function listCalendarEvents(days = 7) {
     location: event.location
   }));
   return { ok: true as const, events: items };
-}
-
-export async function createCalendarEvent(input: {
-  title: string;
-  startIso: string;
-  endIso: string;
-  description?: string;
-}) {
-  const result = await googleFetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
-    method: "POST",
-    body: JSON.stringify({
-      summary: input.title,
-      description: input.description,
-      start: { dateTime: input.startIso },
-      end: { dateTime: input.endIso }
-    })
-  });
-  if (!result.ok) return { ok: false as const, error: describeError(result) };
-  const body = result.body as { id?: string; htmlLink?: string };
-  return { ok: true as const, eventId: body.id, link: body.htmlLink };
 }
 
 function describeError(result: { status: number; body: unknown }): string {

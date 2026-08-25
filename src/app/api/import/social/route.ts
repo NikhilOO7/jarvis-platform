@@ -103,7 +103,7 @@ export async function POST(request: Request) {
       dryRun,
       reports,
       message: dryRun
-        ? "Parsed in design mode — connect DATABASE_URL to actually import into the knowledge base."
+        ? "Files were parsed but not persisted because DATABASE_URL is not configured."
         : undefined
     });
   } catch (error) {

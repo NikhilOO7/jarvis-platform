@@ -8,12 +8,16 @@ Consent-first browser capture for the Jarvis platform. Full spec:
   list of **proposals** — visible posts, the page, or your text selection.
 - Nothing is read until you press APPROVE on an item. Approved content is sent to **your own
   local Jarvis app**, which classifies, summarizes, and embeds it into your knowledge base.
+  When AI features are configured, that app may send the approved content to the configured
+  model provider; a no-AI capture switch is not implemented yet.
 - Chat/DM pages never get bulk proposals; only explicit text selections, labeled
   "PRIVATE CONVERSATION".
 
 ## What it never does
-No background collection, no auto-scrolling or crawling, no credentials access, no third-party
-servers. It talks only to the app URL you configure (localhost by default).
+No background collection, no auto-scrolling or crawling, and no page-credential access. The
+extension sends requests only to the app URL you configure (the current manifest permits
+`http://localhost:3000`); the local app's configured AI provider is a separate downstream data
+processor for transcription, summarization, embeddings, and answers.
 
 ## Install (Chrome / Brave)
 1. Run the Jarvis app: `npm run dev` (from the repo root).
@@ -41,9 +45,10 @@ chip counts frames live (`● REC 01:12 — audio + 14 frames`).
 
 ## Ask anywhere (Phase D — shipped)
 The bottom of the panel has **ASK JARVIS**: type a question on any page and get an answer
-grounded in your saved knowledge (semantic retrieval), related to the page you're viewing.
+grounded in your saved knowledge, related to the page you're viewing.
 Only your question, the page title/URL, and any text you selected are sent — never the full
-page. Sources are cited under each answer.
+page. Retrieval is semantic when embeddings are available, with keyword/recent fallback, and
+source records are listed under each answer.
 
 ## Coming next (per the plan)
 Phase E: hotkeys, Firefox port, region capture, capture queue, polish.

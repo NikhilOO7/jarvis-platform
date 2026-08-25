@@ -25,6 +25,12 @@ export async function GET(request: Request) {
   const result = await exchangeCodeForTokens(code);
   settings.searchParams.set("google", result.ok ? "connected" : `error:${result.error ?? "unknown"}`);
   const response = NextResponse.redirect(settings);
-  response.cookies.set("jarvis_oauth_state", "", { httpOnly: true, path: "/", maxAge: 0 });
+  response.cookies.set("jarvis_oauth_state", "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0
+  });
   return response;
 }

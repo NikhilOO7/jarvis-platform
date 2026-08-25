@@ -14,7 +14,7 @@
  * instructions and are otherwise ignored.
  *
  * Run: npm run telegram   (reads .env from the repo root; needs TELEGRAM_BOT_TOKEN,
- * JARVIS_EXTENSION_TOKEN, and — after first contact — TELEGRAM_ALLOWED_CHAT_ID)
+ * JARVIS_TELEGRAM_TOKEN, and — after first contact — TELEGRAM_ALLOWED_CHAT_ID)
  * Check config without polling: npm run telegram -- --check
  */
 
@@ -38,7 +38,7 @@ loadDotEnv();
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const APP_URL = (process.env.JARVIS_APP_URL || "http://localhost:3000").replace(/\/$/, "");
-const APP_TOKEN = process.env.JARVIS_EXTENSION_TOKEN || "";
+const APP_TOKEN = process.env.JARVIS_TELEGRAM_TOKEN || "";
 const ALLOWED_CHAT_ID = process.env.TELEGRAM_ALLOWED_CHAT_ID || "";
 const BRIEFING_TIME = process.env.JARVIS_BRIEFING_TIME || ""; // "07:00" local time; empty disables
 
@@ -107,7 +107,7 @@ async function handleSave(chatId, text) {
 async function pollRunCompletion(chatId, runId) {
   for (let attempt = 0; attempt < 20; attempt++) {
     await new Promise((resolve) => setTimeout(resolve, 3000));
-    const result = await app("/api/runs", { method: "GET" });
+    const result = await app(`/api/runs?id=${encodeURIComponent(runId)}`, { method: "GET" });
     if (!result.ok) return;
     const run = (result.body.runs || []).find((entry) => entry.id === runId);
     if (!run) return;
@@ -177,7 +177,7 @@ async function handleCallback(callback) {
 
   if (lastError) return send(chatId, `✕ Approval update failed: ${lastError}`);
   if (decision === "APPROVED") {
-    await send(chatId, "Gates cleared. Executor engaged — I will report back.");
+    await send(chatId, "Approval recorded. I will report the observed run state.");
     await pollRunCompletion(chatId, runId);
   } else {
     await send(chatId, "Understood. Run cancelled; nothing was executed.");
@@ -257,7 +257,8 @@ async function handleMessage(message) {
 async function checkConfig() {
   const problems = [];
   if (!BOT_TOKEN) problems.push("TELEGRAM_BOT_TOKEN is not set (create a bot with @BotFather).");
-  if (!APP_TOKEN) problems.push("JARVIS_EXTENSION_TOKEN is not set (copy the pairing token from /settings).");
+  if (!APP_TOKEN) problems.push("JARVIS_TELEGRAM_TOKEN is not set (use a dedicated Telegram service credential).");
+  else if (APP_TOKEN.length < 32) problems.push("JARVIS_TELEGRAM_TOKEN must be at least 32 characters.");
   if (!ALLOWED_CHAT_ID) problems.push("TELEGRAM_ALLOWED_CHAT_ID not set — bridge will reply with pairing instructions on first contact.");
   console.log(
     BRIEFING_TIME
@@ -268,9 +269,10 @@ async function checkConfig() {
   );
 
   const health = await app("/api/extension/health", { method: "GET" }).catch(() => null);
-  if (!health?.ok) problems.push(`Jarvis app unreachable at ${APP_URL} — start it with "npm run dev".`);
+  if (!health) problems.push(`Jarvis app unreachable at ${APP_URL} — start it with "npm run dev".`);
+  else if (!health.ok) problems.push(`Jarvis health check failed (${health.status}): ${health.body.error || "unknown"}.`);
   else {
-    console.log(`✓ Jarvis app: ${APP_URL} (database: ${health.body.database ? "on" : "off"}, ai: ${health.body.ai ? "on" : "off"}, paired: ${health.body.paired ? "yes" : "NO — token rejected"})`);
+    console.log(`✓ Jarvis app: ${APP_URL} (database configured: ${health.body.database ? "yes" : "no"}, ai configured: ${health.body.ai ? "yes" : "no"}, service: ${health.body.service || "unknown"})`);
     if (!health.body.paired && APP_TOKEN) problems.push("App rejected the token — re-copy it from /settings.");
   }
 
@@ -294,7 +296,16 @@ async function main() {
   }
 
   const problems = await checkConfig();
-  if (problems.some((p) => p.includes("TELEGRAM_BOT_TOKEN") || p.includes("unreachable") || p.includes("rejected"))) {
+  if (
+    problems.some(
+      (p) =>
+        p.includes("TELEGRAM_BOT_TOKEN") ||
+        p.includes("JARVIS_TELEGRAM_TOKEN") ||
+        p.includes("unreachable") ||
+        p.includes("health check failed") ||
+        p.includes("rejected")
+    )
+  ) {
     process.exit(1);
   }
 

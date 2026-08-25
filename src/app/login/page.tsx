@@ -46,7 +46,7 @@ function LoginForm() {
       }}
     >
       <div className="panel" style={{ width: "min(420px, 92vw)", padding: "34px 34px 28px", textAlign: "center" }}>
-        <div className="arc-reactor" style={{ ["--ar-size" as string]: "110px", position: "relative", margin: "0 auto 20px" }}>
+        <div className="signal-core" style={{ ["--ar-size" as string]: "110px", position: "relative", margin: "0 auto 20px" }}>
           <div className="ar-halo" />
           <div className="ar-ring ar-ticks" />
           <div className="ar-ring ar-outer" />
@@ -93,7 +93,7 @@ function LoginForm() {
         </form>
 
         <p className="mono muted" style={{ fontSize: 10, letterSpacing: "0.12em", marginTop: 18, minHeight: 14 }}>
-          {status || "SESSION EXPIRES AFTER 30 DAYS OF SILENCE"}
+          {status || "SESSION EXPIRES 30 DAYS AFTER LOGIN"}
         </p>
       </div>
     </main>

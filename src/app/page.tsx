@@ -1,13 +1,18 @@
 import { AppShell } from "@/components/app-shell";
 import { StandbyDesk } from "@/components/standby-desk";
 import { categoryLabels } from "@/lib/categories";
-import { demoStats } from "@/lib/demo-data";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 
 async function getDeskData() {
   if (!env.DATABASE_URL) {
-    return { stats: demoStats, recent: [], pendingApprovals: 0 };
+    return {
+      stats: { rawItems: 0, knowledgeItems: 0, duplicates: 0 },
+      recent: [],
+      pendingApprovals: 0,
+      systemState: "OFFLINE" as const,
+      statusMessage: "Database not configured"
+    };
   }
   try {
     const [rawItems, knowledgeItems, duplicates, recentRaw, pendingApprovals] = await Promise.all([
@@ -34,19 +39,38 @@ async function getDeskData() {
           title: r.title || r.platform || "Captured item"
         };
       }),
-      pendingApprovals
+      pendingApprovals,
+      systemState: "LIVE" as const,
+      statusMessage: "Database connected"
     };
   } catch {
-    return { stats: demoStats, recent: [], pendingApprovals: 0 };
+    return {
+      stats: { rawItems: 0, knowledgeItems: 0, duplicates: 0 },
+      recent: [],
+      pendingApprovals: 0,
+      systemState: "DEGRADED" as const,
+      statusMessage: "Database query failed"
+    };
   }
 }
 
 export default async function DashboardPage() {
-  const { stats, recent, pendingApprovals } = await getDeskData();
+  const { stats, recent, pendingApprovals, systemState, statusMessage } = await getDeskData();
 
   return (
     <AppShell hideSidebar>
-      <StandbyDesk stats={stats} recent={recent} pendingApprovals={pendingApprovals} />
+      <StandbyDesk
+        stats={stats}
+        recent={recent}
+        pendingApprovals={pendingApprovals}
+        systemState={systemState}
+        statusMessage={statusMessage}
+        capabilities={{
+          database: systemState === "LIVE",
+          ai: Boolean(env.OPENAI_API_KEY),
+          auth: Boolean(env.JARVIS_OPERATOR_PASSWORD)
+        }}
+      />
     </AppShell>
   );
 }

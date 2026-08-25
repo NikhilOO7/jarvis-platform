@@ -3,7 +3,7 @@ import { toFile } from "openai";
 import { env } from "@/lib/env";
 import { getOpenAIClient } from "@/lib/openai";
 import { ingestItem } from "@/lib/ingestion";
-import { verifyExtensionAuth } from "@/lib/extension-auth";
+import { requireServiceScope } from "@/lib/service-auth";
 
 export const maxDuration = 300;
 
@@ -21,7 +21,7 @@ type MediaMetadata = {
 
 export async function POST(request: Request) {
   try {
-    if (!(await verifyExtensionAuth(request))) {
+    if (!(await requireServiceScope(request, "media:write"))) {
       return NextResponse.json(
         { error: "Unauthorized. Pair the extension with the token shown on /settings." },
         { status: 401 }

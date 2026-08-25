@@ -5,15 +5,22 @@ import { SaveForm } from "@/components/save-form";
 import { SocialImportForm } from "@/components/social-import-form";
 import { TopBar } from "@/components/top-bar";
 import { SubRail } from "@/components/sub-rail";
+import { env } from "@/lib/env";
 
 export default function CapturePage() {
+  const storageConfigured = Boolean(env.DATABASE_URL);
+
   return (
     <AppShell>
-      <TopBar label="J.A.R.V.I.S · CAPTURE" uplink="ready" center="INTAKE ARRAY ARMED" />
+      <TopBar
+        label="J.A.R.V.I.S · CAPTURE"
+        uplink={storageConfigured ? "configured" : "offline"}
+        center="MANUAL CAPTURE"
+      />
       <SubRail
         extras={[
-          { label: "INTAKE PATHS", value: "5 / 5" },
-          { label: "QUEUE", value: 0 }
+          { label: "STORAGE", value: storageConfigured ? "CONFIGURED" : "OFFLINE", variant: storageConfigured ? "ok" : "warn" },
+          { label: "MODE", value: "DIRECT REQUEST" }
         ]}
       />
       <PageHeader
@@ -23,7 +30,7 @@ export default function CapturePage() {
         meta={[
           { label: "CHANNEL", value: "WEB" },
           { label: "MODE", value: "MANUAL" },
-          { label: "STATUS", value: "READY", highlight: true }
+          { label: "STORAGE", value: storageConfigured ? "CONFIGURED" : "OFFLINE", highlight: storageConfigured }
         ]}
       />
 

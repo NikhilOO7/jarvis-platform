@@ -1,4 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const googleEnvKeys = ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REDIRECT_URI"] as const;
+
+afterEach(() => {
+  for (const key of googleEnvKeys) delete process.env[key];
+  vi.resetModules();
+});
 
 async function loadGoogle(envVars: Record<string, string> = {}) {
   vi.resetModules();
@@ -8,22 +15,6 @@ async function loadGoogle(envVars: Record<string, string> = {}) {
   Object.assign(process.env, envVars);
   return import("@/lib/connectors/google");
 }
-
-describe("buildRfc822", () => {
-  beforeEach(() => vi.resetModules());
-
-  it("produces base64url of a valid RFC 2822 message", async () => {
-    const google = await loadGoogle();
-    const raw = google.buildRfc822({ to: "alex@example.com", subject: "Sync", body: "Tuesday works — café at 8?" });
-    expect(raw).not.toMatch(/[+/=]/); // base64url, not plain base64
-    const decoded = Buffer.from(raw, "base64url").toString("utf8");
-    expect(decoded).toContain("To: alex@example.com");
-    expect(decoded).toContain("Subject: Sync");
-    expect(decoded).toContain('charset="UTF-8"');
-    expect(decoded).toContain("café at 8?"); // utf8 survives the round-trip
-    expect(decoded).toMatch(/\r\n\r\nTuesday/); // blank line separates headers from body
-  });
-});
 
 describe("buildGoogleAuthUrl", () => {
   it("carries client, redirect, offline access, and all scopes", async () => {
@@ -41,9 +32,10 @@ describe("buildGoogleAuthUrl", () => {
     expect(url.searchParams.get("redirect_uri")).toBe("http://localhost:3000/api/connectors/google/callback");
     const scope = url.searchParams.get("scope") ?? "";
     expect(scope).toContain("gmail.readonly");
-    expect(scope).toContain("gmail.compose");
-    expect(scope).not.toContain("gmail.send"); // drafts-only by design
-    expect(scope).toContain("calendar.events");
+    expect(scope).not.toContain("gmail.compose");
+    expect(scope).not.toContain("gmail.send");
+    expect(scope).toContain("calendar.readonly");
+    expect(scope).not.toContain("calendar.events");
   });
 
   it("reports configured only when both keys exist", async () => {

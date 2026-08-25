@@ -5,36 +5,45 @@ import { SubRail } from "@/components/sub-rail";
 import { agentModules, automationStack, executionSteps } from "@/lib/agent-features";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+import { getGoogleStatus } from "@/lib/connectors/google";
 
 async function getRunCounts() {
-  if (!env.DATABASE_URL) return { queued: 0, running: 0 };
+  if (!env.DATABASE_URL) return { queued: 0, running: 0, status: "OFFLINE" as const };
   try {
     const [queued, running] = await Promise.all([
       prisma.workflowRun.count({ where: { status: "QUEUED" } }),
       prisma.workflowRun.count({ where: { status: "RUNNING" } })
     ]);
-    return { queued, running };
+    return { queued, running, status: "LIVE" as const };
   } catch {
-    return { queued: 0, running: 0 };
+    return { queued: 0, running: 0, status: "DEGRADED" as const };
   }
 }
 
-const STATUS_BY_INDEX = ["online", "online", "warn", "online", "idle", "online"] as const;
-const TELEMETRY = [
-  { p50: "180ms", runs: 42, extra: { label: "APPROVALS", val: 2 } },
-  { p50: "210ms", runs: 18, extra: { label: "APPROVALS", val: 1 } },
-  { p50: "340ms", runs: 9, extra: { label: "RETRIES", val: 2, warn: true } },
-  { p50: "1.2s", runs: 27, extra: { label: "SOURCES", val: 198 } },
-  { p50: "—", runs: 0, extra: { label: "CONNECTOR", val: "OFF" } },
-  { p50: "12ms", runs: 156, extra: { label: "FAILED", val: 0 } }
-];
+type ModuleState = {
+  status: "online" | "warn" | "idle";
+  label: string;
+  mode: string;
+  effects: string;
+};
 
 export default async function AgentsPage() {
-  const { queued, running } = await getRunCounts();
+  const [{ queued, running, status: runtimeStatus }, google] = await Promise.all([getRunCounts(), getGoogleStatus()]);
+  const executionConfigured = Boolean(env.DATABASE_URL && env.OPENAI_API_KEY);
+  const googleReadsEnabled = Boolean(google.connected && env.JARVIS_OPERATOR_PASSWORD);
+  const moduleStates: ModuleState[] = [
+    { status: googleReadsEnabled && executionConfigured ? "online" : googleReadsEnabled ? "warn" : "idle", label: googleReadsEnabled ? "READ ONLY" : "NOT CONNECTED", mode: "Gmail read + local drafts", effects: "NO SEND" },
+    { status: googleReadsEnabled && executionConfigured ? "online" : googleReadsEnabled ? "warn" : "idle", label: googleReadsEnabled ? "READ ONLY" : "NOT CONNECTED", mode: "Calendar read + proposals", effects: "NO WRITE" },
+    { status: "idle", label: "NOT IMPLEMENTED", mode: "Schema only", effects: "NONE" },
+    { status: executionConfigured ? "warn" : "idle", label: executionConfigured ? "LOCAL ONLY" : "NOT READY", mode: "Saved-memory research", effects: "NO WEB" },
+    { status: executionConfigured ? "online" : "idle", label: executionConfigured ? "LOCAL" : "NOT READY", mode: "Knowledge record", effects: "LOCAL WRITE" },
+    { status: executionConfigured ? "online" : "idle", label: executionConfigured ? "AVAILABLE" : "NOT READY", mode: "Deterministic parser", effects: "NO EXTERNAL" }
+  ];
+  const availableCount = moduleStates.filter((state) => state.status !== "idle").length;
 
   return (
     <AppShell>
-      <TopBar label="J.A.R.V.I.S · AGENT BAY" uplink="active" center="DELEGATION READY" />
+      <TopBar label="J.A.R.V.I.S · AGENT BAY" uplink={runtimeStatus.toLowerCase()} center="CAPABILITY MAP" />
       <SubRail
         extras={[
           { label: "QUEUE", value: queued, variant: queued > 0 ? "warn" : undefined },
@@ -46,28 +55,27 @@ export default async function AgentsPage() {
       <PageHeader
         eyebrow="Agent Ecosystem // Expansion Bay"
         title="Delegated [b]workflow command[/b] layer."
-        description="Six modules online. Approval gates engaged on impactful actions. Voice channel and Telegram bridge optional."
+        description="Configured capability state plus observed queue counts. Provider access is verified only when a workflow calls it. Phase 0 restricts Google tools to reads and local proposals."
         meta={[
           { label: "BAY ·", value: "04 / EXP" },
           { label: "CLASS::", value: "ALPHA", highlight: true },
-          { label: "OPS", value: "6 / 6 ARMED" }
+          { label: "AVAILABLE", value: `${availableCount} / ${moduleStates.length}` }
         ]}
       />
 
       <section className="module-grid">
         {agentModules.map((module, i) => {
-          const status = STATUS_BY_INDEX[i] ?? "online";
-          const tel = TELEMETRY[i];
+          const state = moduleStates[i] ?? { status: "idle", label: "UNKNOWN", mode: "Not measured", effects: "NONE" };
           return (
             <article className="module" key={module.title}>
               <div className="module-head">
                 <div className="module-id">
                   <span className="bracket">⟦</span> MODULE-0{i + 1} <span className="bracket">⟧</span>{" "}
-                  <span className="open">{status === "idle" ? "› IDLE" : "› OPEN"}</span>
+                  <span className="open">› {state.label}</span>
                 </div>
-                <div className={`module-status ${status === "online" ? "" : status}`}>
+                <div className={`module-status ${state.status === "online" ? "" : state.status}`}>
                   <span className="led" />
-                  {status === "online" ? "ONLINE" : status === "warn" ? "DEGRADED" : "IDLE"}
+                  {state.status === "online" ? "AVAILABLE" : state.status === "warn" ? "LIMITED" : "IDLE"}
                 </div>
               </div>
               <h3>{module.title}</h3>
@@ -78,12 +86,9 @@ export default async function AgentsPage() {
                 ))}
               </div>
               <div className="telemetry">
-                <span>P50 <b>{tel.p50}</b></span>
-                <span>RUNS <b>{tel.runs}</b></span>
-                <span>
-                  {tel.extra.label}{" "}
-                  <b className={tel.extra.warn ? "warn" : ""}>{tel.extra.val}</b>
-                </span>
+                <span>MODE <b>{state.mode}</b></span>
+                <span>EFFECTS <b>{state.effects}</b></span>
+                <span>METRICS <b>NOT INSTRUMENTED</b></span>
               </div>
             </article>
           );
@@ -112,7 +117,7 @@ export default async function AgentsPage() {
         </div>
 
         <div className="panel">
-          <div className="panel-head"><h3>VOICE + AUTOMATION STACK</h3><span className="tag">8 LAYERS</span></div>
+          <div className="panel-head"><h3>AUTOMATION STACK · CURRENT + PLANNED</h3><span className="tag">8 LAYERS</span></div>
           <div className="timeline-list">
             {automationStack.map((item, index) => (
               <div className="timeline-item" key={item.title}>
@@ -133,13 +138,13 @@ export default async function AgentsPage() {
       </section>
 
       <section className="panel" style={{ marginTop: 18 }}>
-        <div className="panel-head"><h3>SAFETY GATES · APPROVAL REQUIRED</h3><span className="tag">6 RULES</span></div>
+        <div className="panel-head"><h3>PHASE 0 SAFETY POLICY</h3><span className="tag">6 RULES</span></div>
         <div className="module-grid">
           {[
-            "Emails drafted automatically but sent only after explicit approval.",
-            "Calendar changes show attendees, time, title, description before execution.",
-            "Contact edits, financial records, sensitive data transfers require confirmation.",
-            "Internet research separates saved knowledge, external sources, uncertain claims.",
+            "Email tools create local draft artifacts only; Gmail writes and sends are disabled in Phase 0.",
+            "Calendar tools read availability and create local proposals; calendar writes are disabled in Phase 0.",
+            "Contact editing, purchases, payments, and sensitive data transfers are not implemented in Phase 0.",
+            "Research is limited to saved knowledge until a citation-capable web tool is implemented.",
             "Every workflow step is logged for review, debugging, and memory updates.",
             "Personality stays useful and original, without imitating real people or voices."
           ].map((rule, i) => (

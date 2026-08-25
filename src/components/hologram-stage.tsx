@@ -1,7 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
-
 /**
- * Concentric "data ring" layers drawn as SVG so they inherit the active suit
+ * Concentric "data ring" layers drawn as SVG so they inherit the active UI
  * theme's glow color directly (no hue-rotated image, no baked-in watermark).
  */
 function HoloDataRing({ variant }: { variant: "outer" | "inner" }) {
@@ -52,7 +50,15 @@ export function HologramStage() {
         <div className="hp-ring dash" />
         <div className="hp-ring faint" />
       </div>
-      <img className="iron-man" src="/images/iron-man-hologram.png" alt="Iron Man hologram standby" />
+      <div className="signal-core holo-signal-core">
+        <div className="ar-halo" />
+        <div className="ar-ring ar-ticks" />
+        <div className="ar-ring ar-outer" />
+        <div className="ar-ring ar-coils" />
+        <div className="ar-ring ar-dashed" />
+        <div className="ar-ring ar-inner" />
+        <div className="ar-core" />
+      </div>
       <div className="hud-reticle holo-flank l" />
       <div className="hud-reticle gold rev holo-flank r" />
       <div className="holo-scan" />

@@ -7,17 +7,17 @@ import { workflowTemplates } from "@/lib/workflow-templates";
 export default function WorkflowsPage() {
   return (
     <AppShell>
-      <TopBar label="J.A.R.V.I.S · WORKFLOWS" uplink="armed" center="AUTOMATION MATRIX" />
+      <TopBar label="J.A.R.V.I.S · WORKFLOWS" uplink="defined" center="PHASE 0 SAFE MODE" />
       <SubRail
         extras={[
           { label: "TEMPLATES", value: workflowTemplates.length },
-          { label: "STATUS", value: "READY" }
+          { label: "EXTERNAL WRITES", value: "DISABLED" }
         ]}
       />
       <PageHeader
         eyebrow="Workflows // Automation Matrix"
         title="Native Jarvis [b]execution templates[/b]."
-        description="Reusable automation plans for voice commands, email replies, scheduling, research, expenses, and daily briefings."
+        description="Reusable plans for text commands, local email drafts, calendar proposals, saved-memory research, expenses, and briefings. Every step exposes an explicit tool allowlist."
         meta={[
           { label: "MATRIX ·", value: `${workflowTemplates.length} TEMPLATES`, highlight: true }
         ]}

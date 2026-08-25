@@ -18,32 +18,32 @@ import {
 export const agentModules = [
   {
     title: "Email Automation Agent",
-    description: "Draft, send after approval, reply, categorize, summarize, route, and process inbox workflows.",
-    capabilities: ["Draft professional emails", "Categorize incoming mail", "Extract action items", "Prepare replies", "Route inbox tasks"],
+    description: "Reads recent Gmail context and creates local draft artifacts. Gmail writes and sends are disabled in Phase 0.",
+    capabilities: ["Read recent email", "Summarize context", "Extract action items", "Create local drafts", "No Gmail writes"],
     icon: Mail
   },
   {
     title: "Calendar Management",
-    description: "Check availability, schedule meetings, update events, handle requests, and prepare agendas.",
-    capabilities: ["Check availability", "Schedule with approval", "Update events", "Detect conflicts", "Prepare meeting briefs"],
+    description: "Reads upcoming Google Calendar events and creates local meeting proposals. Calendar writes are disabled in Phase 0.",
+    capabilities: ["Read upcoming events", "Inspect availability", "Detect visible conflicts", "Create local proposals", "No calendar writes"],
     icon: CalendarDays
   },
   {
     title: "Contact Management",
-    description: "Search, add, edit, enrich, and recall contacts, relationships, reminders, and communication context.",
-    capabilities: ["Search contacts", "Add contact notes", "Recall relationship context", "Track follow-ups", "Prepare outreach context"],
+    description: "A planned capability. Contact schemas exist, but contact search, editing, and enrichment tools are not implemented.",
+    capabilities: ["Schema only", "No contact connector", "No contact edits", "No enrichment", "No external effects"],
     icon: Contact
   },
   {
     title: "AI Research Agent",
-    description: "Run competitor research, market insights, topic summaries, data gathering, and deep internet research.",
-    capabilities: ["Competitor research", "Market insights", "Source comparison", "Topic summaries", "Deep research briefs"],
+    description: "Searches and synthesizes saved knowledge. Citation-backed external web research is not implemented.",
+    capabilities: ["Search saved knowledge", "Compare saved sources", "Summarize topics", "Save local briefs", "No web retrieval"],
     icon: Search
   },
   {
     title: "Expense Tracking Agent",
-    description: "Track expenses, log spending, organize records, monitor subscriptions, and connect purchases to products.",
-    capabilities: ["Log spending", "Categorize expenses", "Track subscriptions", "Parse receipts", "Summarize monthly costs"],
+    description: "Parses expense details and stores a local knowledge record. No bank, accounting, or payment system is connected.",
+    capabilities: ["Parse expense text", "Categorize expenses", "Create local records", "Link saved context", "No financial connector"],
     icon: DollarSign
   },
   {
@@ -57,17 +57,17 @@ export const agentModules = [
 export const automationStack = [
   {
     title: "Telegram Control Center",
-    description: "Text or voice commands enter Jarvis from a Telegram-style command surface.",
+    description: "Text commands can enter through the Telegram bridge when its bot and scoped service token are configured.",
     icon: Send
   },
   {
     title: "Voice Input",
-    description: "Voice notes become structured commands through speech-to-text.",
+    description: "Planned. Telegram voice-note transcription and web speech input are not implemented.",
     icon: Mic
   },
   {
     title: "Memory Buffer",
-    description: "Jarvis keeps working conversation context so commands build on prior intent.",
+    description: "Chat turns and saved knowledge persist when Postgres is connected; command history is page-local.",
     icon: Brain
   },
   {
@@ -77,12 +77,12 @@ export const automationStack = [
   },
   {
     title: "Workflow Orchestrator",
-    description: "Native Jarvis workflows execute multi-step tasks, log progress, and coordinate tools.",
+    description: "Runs defined multi-step workflows, records step state, and exposes only each step's allowlisted tools.",
     icon: Workflow
   },
   {
     title: "Voice Output",
-    description: "Optional text-to-speech lets Jarvis respond with spoken status updates.",
+    description: "Planned. Text-to-speech output is not implemented even when a provider key is present.",
     icon: Volume2
   },
   {
@@ -92,19 +92,19 @@ export const automationStack = [
   },
   {
     title: "Multi-Agent Delegation",
-    description: "Specialized agents cooperate across email, calendar, contacts, research, expenses, and tools.",
+    description: "Planned. Current workflows route to agent kinds but do not delegate concurrently between autonomous agents.",
     icon: MessageCircle
   }
 ] as const;
 
 export const executionSteps = [
-  "User sends a text or voice command through Telegram, web chat, browser, desktop, or mobile.",
-  "Voice is transcribed into text when needed.",
-  "Jarvis analyzes intent, urgency, required memory, target tool, and risk level.",
-  "The memory buffer and knowledge graph provide context.",
-  "The agent router selects the correct internal agent or native workflow.",
-  "The workflow executes, with approval gates before emails, calendar edits, contact changes, purchases, or sensitive data transfer.",
-  "Jarvis responds with text, optional voice, execution status, and memory updates."
+  "The operator sends a text command through the web UI or configured Telegram bridge.",
+  "The request is authenticated as an operator session or a service credential with the required scope.",
+  "The router selects a workflow using the configured model or keyword fallback.",
+  "A database-backed run is created; without Postgres the response is explicitly a dry run.",
+  "Each step receives only its declared tool allowlist and records its observed state.",
+  "Authenticated browser commands may read connected Google data and create local artifacts, but cannot write to Gmail or Calendar.",
+  "The caller receives text plus the observed queued, running, completed, failed, or dry-run state."
 ] as const;
 
 export const targetUsers = [
@@ -118,12 +118,12 @@ export const targetUsers = [
 ] as const;
 
 export const technologyStack = [
-  "Jarvis native workflow orchestration",
-  "OpenAI GPT reasoning",
-  "OpenAI Whisper or speech-to-text",
-  "Optional Anthropic personality/reasoning model",
-  "ElevenLabs or text-to-speech provider",
-  "Telegram API",
-  "Internal tool agents",
-  "Postgres, pgvector, and Prisma memory layer"
+  "Implemented: Jarvis workflow orchestration with per-step tool allowlists",
+  "Implemented when configured: OpenAI chat reasoning and embeddings",
+  "Planned: speech-to-text input",
+  "Planned: optional additional reasoning providers",
+  "Planned: text-to-speech output",
+  "Implemented when configured: Telegram text-command bridge",
+  "Implemented: local tools plus read-only Google tools",
+  "Implemented when configured: Postgres, pgvector, and Prisma memory layer"
 ] as const;

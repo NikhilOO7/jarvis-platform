@@ -109,28 +109,38 @@ async function searchByKeywords(query: string, limit: number): Promise<Knowledge
   return items.map((item) => ({ ...item, category: String(item.category), score: null }));
 }
 
-export async function searchKnowledge(query: string, limit = 6): Promise<KnowledgeMatch[]> {
+async function searchKnowledgeWithMode(
+  query: string,
+  limit: number
+): Promise<{ matches: KnowledgeMatch[]; mode: "semantic" | "keyword" | "unavailable" }> {
   try {
     const vectorMatches = await searchByVector(query, limit);
-    if (vectorMatches.length > 0) return vectorMatches;
+    if (vectorMatches.length > 0) return { matches: vectorMatches, mode: "semantic" };
   } catch {
     // vector search unavailable (no key, no embeddings yet, or extension issue) — fall through
   }
 
   try {
-    return await searchByKeywords(query, limit);
+    return { matches: await searchByKeywords(query, limit), mode: "keyword" };
   } catch {
-    return [];
+    return { matches: [], mode: "unavailable" };
   }
 }
 
-/** Semantic matches for a question, falling back to the most recent knowledge. */
+export async function searchKnowledge(query: string, limit = 6): Promise<KnowledgeMatch[]> {
+  const result = await searchKnowledgeWithMode(query, limit);
+  if (result.mode === "unavailable") throw new Error("Saved-knowledge retrieval is unavailable.");
+  return result.matches;
+}
+
+/** Search matches for a question, falling back to recent knowledge when the database is reachable. */
 export async function getGroundingContext(
   question: string,
   limit = 8
-): Promise<{ matches: KnowledgeMatch[]; mode: "semantic" | "recent" }> {
-  const matches = await searchKnowledge(question, limit);
-  if (matches.length > 0) return { matches, mode: "semantic" };
+): Promise<{ matches: KnowledgeMatch[]; mode: "semantic" | "keyword" | "recent" | "unavailable" }> {
+  const search = await searchKnowledgeWithMode(question, limit);
+  if (search.matches.length > 0) return search;
+  if (search.mode === "unavailable") return search;
 
   try {
     const recent = await prisma.knowledgeItem.findMany({
@@ -143,6 +153,6 @@ export async function getGroundingContext(
       mode: "recent"
     };
   } catch {
-    return { matches: [], mode: "recent" };
+    return { matches: [], mode: "unavailable" };
   }
 }

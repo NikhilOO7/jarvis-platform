@@ -47,8 +47,8 @@ export function CommandConsole() {
   const [command, setCommand] = useState(examples[0]);
   const [result, setResult] = useState<RouteResult | null>(null);
   const [history, setHistory] = useState<Turn[]>([
-    { kind: "system", text: "[boot] session authenticated · context loaded · memory buffer ready" },
-    { kind: "system", text: "[boot] intent router armed · 6 agents online · approval gates engaged" }
+    { kind: "system", text: "[boot] web command surface ready · runtime state is reported after routing" },
+    { kind: "system", text: "[safety] Phase 0 · tools allowlisted · external email/calendar writes disabled" }
   ]);
   const [busy, setBusy] = useState(false);
   const [deciding, setDeciding] = useState(false);
@@ -93,7 +93,7 @@ export function CommandConsole() {
       setHistory((h) => [
         ...h,
         decision === "APPROVED"
-          ? { kind: "ai", text: "Gates cleared. Executor engaged — results will appear on the RUNS monitor momentarily." }
+          ? { kind: "ai", text: "Approval recorded. Check the RUNS monitor for the observed execution state." }
           : { kind: "ai", text: "Understood. Run cancelled; nothing was executed.", warn: true }
       ]);
     } catch (e) {
@@ -138,11 +138,13 @@ export function CommandConsole() {
             } · ${typed.route.approvalRequired ? "APPROVAL REQUIRED" : "no approval needed"}`
           },
           ...(typed.executed
-            ? [{ kind: "system" as const, text: "› executing workflow · running agent steps · collecting results" }]
-            : []),
+            ? [{ kind: "system" as const, text: `› execution attempt finished · ${typed.workflowRun?.status ?? "unknown state"}` }]
+            : typed.dryRun
+              ? [{ kind: "system" as const, text: "› dry run · route evaluated but no workflow was persisted" }]
+              : []),
           {
             kind: "ai" as const,
-            text: summary || typed.route.suggestedResponse || typed.message || "Route locked.",
+            text: summary || typed.message || typed.route.suggestedResponse || "Route locked.",
             warn: typed.route.approvalRequired
           }
         ]);

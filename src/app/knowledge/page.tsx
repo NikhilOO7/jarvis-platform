@@ -6,16 +6,22 @@ import { categoryLabels } from "@/lib/categories";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 
-async function getKnowledge() {
-  if (!env.DATABASE_URL) return [];
+async function getKnowledgeData() {
+  if (!env.DATABASE_URL) {
+    return { items: [], entityCount: 0, state: "OFFLINE" as const };
+  }
   try {
-    return await prisma.knowledgeItem.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 30,
-      include: { source: true, entities: { include: { entity: true } } }
-    });
+    const [items, entityCount] = await Promise.all([
+      prisma.knowledgeItem.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 30,
+        include: { source: true, entities: { include: { entity: true } } }
+      }),
+      prisma.entity.count()
+    ]);
+    return { items, entityCount, state: "LIVE" as const };
   } catch {
-    return [];
+    return { items: [], entityCount: 0, state: "DEGRADED" as const };
   }
 }
 
@@ -27,26 +33,17 @@ function getNearDuplicates(rawMetadata: unknown): NearDupFlag[] {
   return Array.isArray(flags) ? (flags as NearDupFlag[]) : [];
 }
 
-async function getEntityCount() {
-  if (!env.DATABASE_URL) return 0;
-  try {
-    return await prisma.entity.count();
-  } catch {
-    return 0;
-  }
-}
-
 export default async function KnowledgePage() {
-  const [items, entityCount] = await Promise.all([getKnowledge(), getEntityCount()]);
+  const { items, entityCount, state } = await getKnowledgeData();
 
   return (
     <AppShell>
-      <TopBar label="J.A.R.V.I.S · MEMORY" uplink="online" center="LATTICE INDEXED" />
+      <TopBar label="J.A.R.V.I.S · MEMORY" uplink={state.toLowerCase()} center={`SAVED KNOWLEDGE · ${state}`} />
       <SubRail
         extras={[
           { label: "NODES", value: items.length },
           { label: "ENTITIES", value: entityCount },
-          { label: "RECENT", value: items.length > 0 ? "LIVE" : "EMPTY" }
+          { label: "STATE", value: state, variant: state === "LIVE" ? "ok" : "warn" }
         ]}
       />
       <PageHeader
@@ -55,7 +52,7 @@ export default async function KnowledgePage() {
         description="Every processed capture can become summaries, insights, actions, entities, relationships, and retrieval vectors."
         meta={[
           { label: "TOTAL", value: String(items.length), highlight: true },
-          { label: "INDEX", value: "vector + keyword" }
+          { label: "RETRIEVAL", value: "RUNTIME SELECTED" }
         ]}
       />
 
@@ -67,7 +64,13 @@ export default async function KnowledgePage() {
               <p className="mono" style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--muted)" }}>
                 NO MEMORY NODES DETECTED
               </p>
-              <p style={{ marginTop: 8 }}>Connect Postgres and capture a few signals to activate the lattice.</p>
+              <p style={{ marginTop: 8 }}>
+                {state === "OFFLINE"
+                  ? "Set DATABASE_URL and run migrations to enable saved knowledge."
+                  : state === "DEGRADED"
+                    ? "Knowledge could not be loaded. Check the database connection and application logs."
+                    : "Capture a few signals to create saved knowledge."}
+              </p>
             </div>
           </div>
         ) : (
@@ -82,7 +85,7 @@ export default async function KnowledgePage() {
                 <div className="fdesc">{item.summary}</div>
                 <div className="fmeta">
                   {item.source?.platform ? <span>{item.source.platform}</span> : null}
-                  <span className="alpha">CONF {(item.confidence ?? 0.8).toFixed(2)}</span>
+                  <span className="alpha">CONF {item.confidence.toFixed(2)}</span>
                   {item.actions[0] ? <span>NEXT · {item.actions[0].slice(0, 24)}</span> : null}
                 </div>
                 {item.entities.length > 0 || getNearDuplicates(item.source?.rawMetadata).length > 0 ? (

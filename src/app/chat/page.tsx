@@ -6,14 +6,21 @@ import { SubRail } from "@/components/sub-rail";
 import { env } from "@/lib/env";
 
 export default function ChatPage() {
+  const databaseConfigured = Boolean(env.DATABASE_URL);
+  const modelConfigured = Boolean(env.OPENAI_API_KEY);
+
   return (
     <AppShell>
-      <TopBar label="J.A.R.V.I.S · DIALOGUE" uplink="ready" center="ASSISTANT CORE ONLINE" />
+      <TopBar
+        label="J.A.R.V.I.S · DIALOGUE"
+        uplink={databaseConfigured ? "configured" : "offline"}
+        center="SAVED-MEMORY QUERY"
+      />
       <SubRail
         extras={[
-          { label: "MODEL", value: env.OPENAI_API_KEY ? env.OPENAI_CHAT_MODEL : "OFFLINE" },
-          { label: "MEMORY", value: "LIVE" },
-          { label: "RAG", value: "SEMANTIC" }
+          { label: "MODEL", value: modelConfigured ? env.OPENAI_CHAT_MODEL : "NOT CONFIGURED" },
+          { label: "DATABASE", value: databaseConfigured ? "CONFIGURED" : "OFFLINE", variant: databaseConfigured ? "ok" : "warn" },
+          { label: "RETRIEVAL", value: "RUNTIME SELECTED" }
         ]}
       />
       <PageHeader

@@ -27,8 +27,8 @@ async function test() {
       statusEl.className = body.paired ? "ok" : "err";
       statusEl.textContent = [
         `App: ${body.app || "unknown"} — reachable`,
-        `Database: ${body.database ? "connected" : "not configured"}`,
-        `AI: ${body.ai ? "configured" : "offline mode"}`,
+        `Database: ${body.database ? "configured" : "not configured"}`,
+        `AI: ${body.ai ? "configured" : "not configured"}`,
         body.paired ? "Paired ✓" : "Token not accepted — copy it from the app's /settings page"
       ].join("\n");
     } else {

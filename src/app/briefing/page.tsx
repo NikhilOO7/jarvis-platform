@@ -6,13 +6,19 @@ import { TopBar } from "@/components/top-bar";
 import { SubRail } from "@/components/sub-rail";
 import { JarvisLogoCore } from "@/components/jarvis-logo-core";
 import { categoryDescriptions, categoryLabels, contentCategories } from "@/lib/categories";
-import { demoBriefing, demoStats } from "@/lib/demo-data";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 
+const emptyCategories = { FOOD: 0, WORKOUT: 0, TECH: 0, PRODUCTS: 0, JOBS: 0, MISC: 0 };
+
 async function getBriefingData() {
   if (!env.DATABASE_URL) {
-    return { stats: demoStats, briefing: [], suggestions: demoBriefing };
+    return {
+      stats: { rawItems: 0, knowledgeItems: 0, duplicates: 0, categories: emptyCategories },
+      briefing: [],
+      suggestions: ["Database not configured. Add DATABASE_URL and run migrations to enable briefings."],
+      state: "OFFLINE" as const
+    };
   }
   try {
     const [rawItems, knowledgeItems, duplicates, grouped, latest] = await Promise.all([
@@ -32,15 +38,21 @@ async function getBriefingData() {
         knowledgeItems,
         duplicates,
         categories: {
-          ...demoStats.categories,
+          ...emptyCategories,
           ...Object.fromEntries(grouped.map((g) => [g.category, g._count]))
         }
       },
       briefing: latest.map((item) => ({ title: item.title, summary: item.summary, category: item.category })),
-      suggestions: latest.length === 0 ? demoBriefing : []
+      suggestions: latest.length === 0 ? ["No knowledge items yet. Capture something to generate a briefing."] : [],
+      state: "LIVE" as const
     };
   } catch {
-    return { stats: demoStats, briefing: [], suggestions: demoBriefing };
+    return {
+      stats: { rawItems: 0, knowledgeItems: 0, duplicates: 0, categories: emptyCategories },
+      briefing: [],
+      suggestions: ["Briefing data could not be loaded. Check the database connection and application logs."],
+      state: "DEGRADED" as const
+    };
   }
 }
 
@@ -56,11 +68,11 @@ const heroRight = [
 ];
 
 export default async function BriefingPage() {
-  const { stats, briefing, suggestions } = await getBriefingData();
+  const { stats, briefing, suggestions, state } = await getBriefingData();
 
   return (
     <AppShell>
-      <TopBar label="J.A.R.V.I.S · BRIEFING" uplink="live" center="SITUATION ROOM · ONLINE" />
+      <TopBar label="J.A.R.V.I.S · BRIEFING" uplink={state.toLowerCase()} center={`SITUATION ROOM · ${state}`} />
       <SubRail
         extras={[
           { label: "RAW", value: stats.rawItems.toLocaleString() },
@@ -71,7 +83,7 @@ export default async function BriefingPage() {
 
       <PageHeader
         eyebrow="Command Center // Mainframe · Operator-1"
-        title="Personal intelligence core [b]online[/b]."
+        title={`Personal intelligence core [b]${state.toLowerCase()}[/b].`}
         description="Capture, classify, deduplicate, retrieve, brief, and convert your saved universe into decisions. Standing by for instructions."
         action={
           <Link className="button" href="/capture">
@@ -86,12 +98,10 @@ export default async function BriefingPage() {
       />
 
       <section className="jarvis-hero" aria-label="Jarvis command interface" style={{ position: "relative" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="reactor-glyph tr" src="/images/jarvis%203.png" alt="" aria-hidden="true" />
         <div className="hero-rail-top">
-          <span><span className="pill">AUTO STARTUP</span></span>
-          <span><b>SYSTEM 2.0</b> · INTERFACE ACTIVE</span>
-          <span><span className="pill">VOICE READY</span></span>
+          <span><span className="pill">MANUAL STARTUP</span></span>
+          <span><b>SYSTEM 0.1</b> · {state}</span>
+          <span><span className="pill">VOICE OFF</span></span>
         </div>
 
         <div className="hero-side hero-side-left">
@@ -123,10 +133,10 @@ export default async function BriefingPage() {
         </div>
 
         <div className="hero-rail-bottom">
-          <div className="chip"><Radio size={14} /> VOICE CHANNEL ARMED</div>
+          <div className="chip"><Radio size={14} /> WEB CHANNEL AVAILABLE</div>
           <Link className="button danger" href="/command">◆ ACTIVATE COMMAND MODE</Link>
-          <div className="chip"><Mic size={14} /> SPEECH INPUT QUEUED</div>
-          <div className="chip"><Volume2 size={14} /> VOICE OUTPUT OPTIONAL</div>
+          <div className="chip"><Mic size={14} /> SPEECH INPUT NOT ENABLED</div>
+          <div className="chip"><Volume2 size={14} /> VOICE OUTPUT NOT ENABLED</div>
         </div>
       </section>
 
@@ -147,9 +157,9 @@ export default async function BriefingPage() {
           <div className="label">Signal echoes</div>
         </div>
         <div className="panel">
-          <div className="panel-head"><h3>CHANNELS</h3><span className="tag">ALL OK</span></div>
-          <div className="stat-value">4 / 4</div>
-          <div className="label">Input paths</div>
+          <div className="panel-head"><h3>RUNTIME</h3><span className="tag">OBSERVED</span></div>
+          <div className="stat-value">{state}</div>
+          <div className="label">Database-backed briefing state</div>
         </div>
       </section>
 
@@ -157,7 +167,7 @@ export default async function BriefingPage() {
         <div className="panel">
           <div className="panel-head">
             <h3>KNOWLEDGE SECTORS</h3>
-            <span className="tag">{contentCategories.length} LIVE</span>
+            <span className="tag">{contentCategories.length} CATEGORIES</span>
           </div>
           {contentCategories.map((category) => (
             <Link href="/knowledge" className="sector-row" key={category}>

@@ -239,7 +239,7 @@
 <main class="content">
 
 <header class="hero">
-  <div class="sys">SYS.ARCHIVE :: SINGLE SOURCE OF TRUTH · V1.0 · AUG 2026</div>
+  <div class="sys">SYS.ARCHIVE :: ARCHITECTURE NARRATIVE · V1.1 · AUG 2026</div>
   <h1>JARVIS — the complete <span class="glow">engineering bible</span></h1>
   <p>
     One document that explains a real, working personal-AI operating system — every layer, every component,
@@ -255,6 +255,13 @@
     <span class="chip g">21 chapters · every what/why/how/trade-off</span>
   </div>
 </header>
+
+<div class="fail"><b>Phase 0 status notice</b>
+  This document mixes implemented architecture with target-state teaching material. For current
+  release truth and beta blockers, read <a href="./PHASE_0_HARDENING.md">PHASE_0_HARDENING.md</a>
+  and <a href="./MASTER_PLAN.md">MASTER_PLAN.md</a>. External Gmail/Calendar writes, voice I/O,
+  web research, multi-agent delegation, and payload-bound approvals are not currently enabled.
+</div>
 
 <!-- ================= 01 ORIENTATION ================= -->
 <section id="orientation" class="section">
@@ -278,12 +285,12 @@
   <p>Every feature in this codebase maps to one of seven capability pillars. When a proposed feature maps to none, it gets cut. This is the first CTO lesson: <b>a small system that knows what it is beats a big system that doesn't.</b></p>
   <div class="tbl-wrap"><table>
     <tr><th>#</th><th>Pillar</th><th>"Movie moment"</th><th>Engineering reality</th></tr>
-    <tr><td>1</td><td><b>Total recall</b></td><td>"Pull up everything on the Mark II"</td><td>Ingestion + pgvector semantic memory + knowledge graph</td></tr>
+    <tr><td>1</td><td><b>Total recall</b></td><td>"Pull up everything on Project Atlas"</td><td>Ingestion + pgvector semantic memory + knowledge graph</td></tr>
     <tr><td>2</td><td><b>Natural command</b></td><td>"Run a diagnostic"</td><td>LLM intent router → workflow runs; chat with citations</td></tr>
-    <tr><td>3</td><td><b>Real agency</b></td><td>"Deploy the House Party Protocol"</td><td>Tool-calling executor; draft-artifact connectors</td></tr>
+    <tr><td>3</td><td><b>Real agency</b></td><td>Draft and carry out approved work</td><td>Tool-calling executor; draft-artifact connectors</td></tr>
     <tr><td>4</td><td><b>Judgment &amp; safety</b></td><td>"Sir, I must advise against this"</td><td>Risk scoring, approval gates, audit logs</td></tr>
     <tr><td>5</td><td><b>Proactivity</b></td><td>The morning briefing, unprompted</td><td>Cron endpoint + bridge scheduler</td></tr>
-    <tr><td>6</td><td><b>Presence</b></td><td>JARVIS is in the suit, house, phone</td><td>Web HUD, MV3 extension, Telegram bridge</td></tr>
+    <tr><td>6</td><td><b>Presence</b></td><td>The assistant is available across operator surfaces</td><td>Web HUD, MV3 extension, Telegram bridge</td></tr>
     <tr><td>7</td><td><b>Personality</b></td><td>The dry wit</td><td>A persona layer in every system prompt</td></tr>
   </table></div>
 
@@ -329,10 +336,10 @@
   </p>
 
   <div class="grid-2">
-    <div class="card"><h4>Decision 1 — Single operator, not SaaS</h4><p>JARVIS optimizes for one power user before general polish. No auth screens, no tenancy, no billing — yet. This buys an entire year of product velocity and defers the hardest infrastructure (ch. 19 shows the multi-user path, deliberately designed but not built).</p></div>
+    <div class="card"><h4>Decision 1 — Single operator, not SaaS</h4><p>JARVIS optimizes for one power user before general polish. It has optional single-operator passphrase sessions, but no tenancy or billing. This keeps the private-alpha boundary explicit without pretending the product is multi-user ready.</p></div>
     <div class="card"><h4>Decision 2 — Local-first</h4><p>Your memory lives in your Postgres on your machine. Model API calls are the only data that leaves. This one choice reframes security (ch. 9), infra (ch. 18), and trust: JARVIS is a butler in <i>your</i> house, not a service you visit.</p></div>
     <div class="card"><h4>Decision 3 — Explicit capture only</h4><p>No stealth scraping, no private-API reverse engineering, no background collection. Everything enters through an act of user intent: a save, an upload, an approval click. This is both an ethics position and a durability position — scrapers break and get you banned; consent-first surfaces don't.</p></div>
-    <div class="card"><h4>Decision 4 — Degrade gracefully, always</h4><p>Every AI feature has a deterministic fallback; every missing config produces a labeled "design mode", never a crash. A newcomer can clone the repo and see the full product with zero keys. This is a product decision wearing an engineering costume — the demo IS the onboarding.</p></div>
+    <div class="card"><h4>Decision 4 — Degrade gracefully, fail closed</h4><p>Read and routing paths can use deterministic fallbacks. Missing storage produces explicit offline or parse-only state; missing cognition blocks execution with a FAILED run. The UI remains explorable without presenting fabricated records or simulated completion.</p></div>
   </div>
 
   <div class="cto"><b>CTO lens — one-way doors vs two-way doors</b>
@@ -505,7 +512,7 @@
     <tr><td>Validation</td><td><b>zod</b></td><td>hand-rolled guards, yup</td><td>Every API boundary and every LLM JSON output parses through a schema. LLMs are creative liars; zod is the border police. Parse-don't-validate, at runtime.</td></tr>
     <tr><td>Extension</td><td><b>MV3, plain JS, no build</b></td><td>TS+esbuild, Plasmo, WXT</td><td>Five files you can read in ten minutes, loadable unpacked with zero toolchain. A build step earns its keep at ~2k lines; below that it's pure friction. (Planned TS migration when Watch/Listen grow.)</td></tr>
     <tr><td>Telegram</td><td><b>Zero-dep .mjs bridge</b></td><td>grammY/telegraf, webhooks</td><td>Long-polling needs no public URL (localhost product!); Node 20's global fetch makes a framework redundant for 5 message types. The bridge is deliberately a dumb pipe — all cognition stays in the app.</td></tr>
-    <tr><td>Styling</td><td><b>One hand-written CSS system</b></td><td>Tailwind, CSS-in-JS</td><td>A bespoke HUD (arc-reactor rings, scanlines, 13 suit themes) is exactly the case where utility classes fight you. Design tokens as CSS variables give theme-switching for free.</td></tr>
+    <tr><td>Styling</td><td><b>One hand-written CSS system</b></td><td>Tailwind, CSS-in-JS</td><td>A bespoke HUD (concentric signal rings, scanlines, 13 original themes) is exactly the case where utility classes fight you. Design tokens as CSS variables give theme-switching for free.</td></tr>
   </table></div>
 
   <div class="newbie"><b>Foundations — how to evaluate ANY technology in 5 questions</b>
@@ -791,7 +798,7 @@ LIMIT  $k;
   <h3>8.3 The executor — the kernel</h3>
   <div class="flow">
     <div class="step"><div><b>Claim atomically.</b> <span class="inline">updateMany({where:{id, status:"QUEUED"}, data:{status:"RUNNING"}})</span> — a compare-and-swap in one SQL statement. Three triggers can race (approval hook, RUNS button, command route); exactly one wins; losers get <span class="inline">count: 0</span> and stand down. No locks, no queue, no double execution.</div></div>
-    <div class="step"><div><b>Load run + template; log <span class="inline">EXECUTION_STARTED</span></b> with step count and engine mode (<span class="inline">openai</span> or <span class="inline">offline_simulation</span>).</div></div>
+    <div class="step"><div><b>Load run + template and verify the execution engine.</b> Missing model configuration records <span class="inline">EXECUTION_BLOCKED</span> and fails the run. A configured run logs <span class="inline">EXECUTION_STARTED</span> with engine <span class="inline">openai</span>; there is no simulated-completion mode.</div></div>
     <div class="step"><div><b>Walk the steps.</b> Approval-gated steps log <span class="inline">APPROVAL_GATE</span> cleared (they were approved or we wouldn't be here — the executor re-asserts rather than trusts). Executable steps get a fresh model conversation: persona + command + workflow position + <i>condensed prior-step results</i> — each step sees a summary of history, not the full transcript. That's deliberate context-budget control.</div></div>
     <div class="step"><div><b>Tool loop, bounded.</b> Up to 6 rounds/step: model responds; tool calls are executed through the registry choke point; results return as <span class="inline">role:"tool"</span> messages (12k-char cap each); artifacts accumulate; every call logs <span class="inline">TOOL_CALL name → ok|error</span>. No tool calls → the text IS the step result. Loop exhausted → honest "hit the tool limit" result. Bounds exist because agent loops without bounds eventually find a way to spin.</div></div>
     <div class="step"><div><b>Persist logs at every step boundary</b> — a crash mid-run leaves a run whose story is readable up to the last completed step. Observability isn't a dashboard; it's writing things down as you go.</div></div>
@@ -895,7 +902,11 @@ LIMIT  $k;
     <div class="card"><h4>Risk levels</h4><p>Templates and tools declare <span class="inline">low/medium/high</span>. Risk renders before execution (console meter, Telegram header) and decides nothing by itself — approval gates come from step declarations. Risk informs the human; gates constrain the machine; the two are deliberately independent.</p></div>
     <div class="card"><h4>Approval gates</h4><p>Per-step <span class="inline">approvalRequired</span> becomes ApprovalRequest rows at run creation — <i>before</i> anything executes. Clearing the last gate is the only path from WAITING to QUEUED. The executor re-checks rather than trusts its caller.</p></div>
     <div class="card"><h4>Audit logs</h4><p>Route, gate decisions, execution start, every tool call, step results, completion — all appended to the run's log with timestamps. The RUNS page renders them raw. If it isn't logged, it didn't happen; if it's logged, it can be explained.</p></div>
-    <div class="card"><h4>Pairing tokens</h4><p>Extension, bridge, and cron authenticate with a minted token (<span class="inline">jrv_…</span>, stored in ConnectorConfig or env), compared with <span class="inline">crypto.timingSafeEqual</span> — length-checked, constant-time. Small paranoia, free of charge, correct habit.</p></div>
+    <div class="card"><h4>Scoped service tokens</h4><p>Extension, Telegram, worker, and cron use separate credentials with explicit route scopes, compared with <span class="inline">crypto.timingSafeEqual</span>. The database-minted <span class="inline">jrv_…</span> token remains extension-only; it is never an operator credential.</p></div>
+  </div>
+  <div class="fail"><b>Current approval limit</b>
+    Approval decisions are one-way and tied to runs, but they do not yet bind an immutable action payload hash.
+    External provider writes remain disabled until that model and its replay/idempotency tests exist.
   </div>
   <div class="why"><b>Why constant-time comparison for a localhost token</b>
     A string <span class="inline">===</span> leaks match-length through timing. Is that exploitable on localhost today? Almost
@@ -950,25 +961,23 @@ LIMIT  $k;
   <div class="kicker">11 · The Body, Part 1</div>
   <h2>The HUD — A Web Interface With A Point Of View</h2>
   <p class="lede">
-    Eleven routes, one shell, and a design system that commits to a bit: you are operating a piece of Stark equipment.
-    But under the hologram there's disciplined engineering — server components reading Prisma directly, client islands
+    Eleven routes, one shell, and a design system that commits to an original cinematic command-center identity.
+    But under the command-center presentation there's disciplined engineering — server components reading Prisma directly, client islands
     only where interactivity demands, and a no-fake-telemetry rule with teeth.
   </p>
 
   <h3>Rendering architecture</h3>
   <div class="grid-2">
-    <div class="card"><h4>Server components by default</h4><p>Pages like <span class="inline">/runs</span>, <span class="inline">/knowledge</span>, <span class="inline">/approvals</span> are async RSCs calling Prisma inline — no API hop, no client cache to invalidate, no loading-state ceremony. Each wraps its query in try/catch → demo data, so a keyless clone still renders the full product ("design mode", labeled).</p></div>
+    <div class="card"><h4>Server components by default</h4><p>Pages like <span class="inline">/runs</span>, <span class="inline">/knowledge</span>, and <span class="inline">/approvals</span> are async RSCs calling Prisma inline — no API hop or client cache to invalidate. Queries return observed records or explicit OFFLINE/DEGRADED/EMPTY state; they never substitute demo rows.</p></div>
     <div class="card"><h4>Client islands where users act</h4><p><span class="inline">CommandConsole</span>, <span class="inline">ChatBox</span>, forms, <span class="inline">ApprovalActions</span>, <span class="inline">RunActions</span> — local <span class="inline">useState</span> + <span class="inline">fetch</span> + <span class="inline">router.refresh()</span> to re-render the RSC tree. No Redux/React-Query: at this interaction density, framework state machinery would be pure overhead. State libraries are a scaling tool, not a default.</p></div>
   </div>
 
   <h3>The design system as tokens</h3>
   <p>
-    Thirteen suit themes are CSS-variable palettes on <span class="inline">body[data-theme]</span> — glow color, accent,
-    background depths, even an <span class="inline">--img-hue</span> filter that re-tints the hologram artwork. Components
-    never name colors; they name roles (<span class="inline">var(--glow-rgb)</span>). Theme switching is O(1) by
-    construction, and the arc-reactor rings, scanlines, and corner brackets all re-tint for free.
-    <b>Product note:</b> the hologram re-tinting with the suit theme is an explicit product decision (the operator chose
-    it over movie-accurate always-blue) — recorded so no future engineer "fixes" it.
+    Thirteen original themes are CSS-variable palettes on <span class="inline">body[data-theme]</span> — glow color,
+    accent, background depths, and presentation filters. Components never name colors; they name roles
+    (<span class="inline">var(--glow-rgb)</span>). Theme switching is O(1) by construction, and the concentric signal
+    rings, scanlines, and corner brackets all re-tint for free.
   </p>
 
   <div class="story"><b>War story — the hydration mismatch</b>
@@ -980,7 +989,7 @@ LIMIT  $k;
   </div>
 
   <div class="cto"><b>CTO lens — cosmetic excellence is cheap; fake data is expensive</b>
-    The HUD spends its budget on atmosphere (pure-CSS arc reactor, boot choreography) and refuses to spend it on lies
+    The HUD spends its budget on atmosphere (a pure-CSS signal core and boot choreography) and refuses to spend it on lies
     (every gauge is real data or removed). Users can't tell good architecture from bad, but they can always eventually
     tell honest UI from theater — and so can your own engineers, which matters more.
   </div>
@@ -1186,16 +1195,16 @@ LIMIT  $k;
   <div class="kicker">16 · Cross-Cutting, Part 1</div>
   <h2>Testing &amp; Quality — The Strategy, Including The Gaps</h2>
   <p class="lede">
-    Honest state: there is no automated test suite yet. There IS a quality system — types, schemas, verification
-    rituals — and a written plan for where tests land first. Knowing your quality posture beats pretending coverage.
+    Honest state: a small automated unit suite and GitHub CI now exist, but database-backed concurrency tests,
+    retrieval evaluations, and end-to-end browser coverage are still missing. Knowing the boundary beats pretending coverage.
   </p>
 
   <h3>The quality stack that exists today</h3>
   <div class="grid-2">
     <div class="card"><h4>Static: TS strict + zod at borders</h4><p>Compile-time shape safety inside; runtime schema enforcement at every API boundary and every LLM output. A huge fraction of classic bug surface simply cannot express itself.</p></div>
-    <div class="card"><h4>Ritual: verify every change live</h4><p>Every feature in this book shipped with: typecheck + lint green, endpoint guards curl-tested (401/503 paths included), extension loaded in a real browser with APIs probed, UI screenshot-verified. Manual, but systematic — a checklist, not vibes.</p></div>
-    <div class="card"><h4>Degradation as testability</h4><p>Design-mode fallbacks mean every path has a keyless variant that can be exercised in CI without secrets — dry-run import, offline routing, simulated execution. Graceful degradation accidentally built the test harness.</p></div>
-    <div class="card"><h4>Fixtures already exist</h4><p>Synthetic exports for all four parser formats (including mojibake) were built for live verification — they are the first unit tests, waiting for a runner.</p></div>
+    <div class="card"><h4>CI: a real merge gate</h4><p>GitHub Actions performs clean install, Prisma generation, typecheck, lint, Vitest, and production build. Local verification remains required for database, extension, and UI behavior.</p></div>
+    <div class="card"><h4>Degradation as a contract</h4><p>Keyless paths are explicit: parse-only import, keyword routing, keyword/recency retrieval, and failed-closed execution. Tests should assert these states so a fallback can never masquerade as completed work.</p></div>
+    <div class="card"><h4>Unit coverage started</h4><p>Parsers, hashing, calculator, session logic, service scopes, Google read-only scopes, and tool allowlists have Vitest coverage. Approval concurrency and real-database transitions remain the highest-priority gap.</p></div>
   </div>
 
   <h3>Where tests land first — ranked by (bug cost × change frequency)</h3>
@@ -1480,11 +1489,11 @@ nightly
   <div class="grid-2">
     <div class="card"><h4>1 · One-way vs two-way doors</h4><p>Reversible decisions get minutes; irreversible ones get design docs. Corollary: engineer your one-way doors into two-way doors (the provider abstraction turned "which LLM vendor" from a marriage into a fling).</p></div>
     <div class="card"><h4>2 · Find the load-bearing product object</h4><p>For JARVIS it's the approval-gated run. Once found, schema, APIs, and UI all draw themselves around it. If your architecture feels arbitrary, you haven't found the object yet.</p></div>
-    <div class="card"><h4>3 · Smart path, dumb spine</h4><p>Every intelligent feature sits on a deterministic floor: LLM router / keyword router, vector search / recency, agent execution / simulation. Capability upgrades ride on availability guarantees.</p></div>
+    <div class="card"><h4>3 · Smart path, safe floor</h4><p>Read and routing features sit on deterministic floors: LLM router / keyword router, vector search / keyword and recency. Action execution has a different rule: missing required cognition fails closed and is never simulated as complete.</p></div>
     <div class="card"><h4>4 · The innovation-token budget</h4><p>Two exotic bets per project, everything else boring. Spend tokens where differentiation lives (agent engine, pgvector memory), never on plumbing that has a boring standard.</p></div>
     <div class="card"><h4>5 · Deliberate debt with tripwires</h4><p>Debt is fine; <i>surprise</i> debt is not. Every shortcut in this book has a written trigger for repayment ("promote logs to a table when cross-run queries appear"). Debt + tripwire = a plan; debt alone = a time bomb.</p></div>
     <div class="card"><h4>6 · Cut seams before you need them</h4><p>The executor's one-function surface, the retrieval quarantine module, the dumb-pipe bridge — each is a pre-cut extraction line. Seams cost almost nothing early and everything late.</p></div>
-    <div class="card"><h4>7 · Honesty as an architectural property</h4><p>Real telemetry or none; disclosed egress; labeled design modes; graded threat models; "NOT SAVED" toasts. Trust compounds like interest, and it compounds in both directions.</p></div>
+    <div class="card"><h4>7 · Honesty as an architectural property</h4><p>Real telemetry or none; disclosed egress; explicit offline/degraded/parse-only state; graded threat models; "NOT SAVED" receipts. Trust compounds like interest, and it compounds in both directions.</p></div>
     <div class="card"><h4>8 · Idempotency & consent as defaults</h4><p>Every write path retry-safe (hash dedupe, upserts, CAS claims); every capture consent-gated. These two defaults erase entire categories of both bugs and ethical incidents.</p></div>
     <div class="card"><h4>9 · Sequence by dependency, ship by phase</h4><p>Engine → memory → presence → hands → proactivity: each phase consumes the last and demos alone. A roadmap is a topological sort, not a mood board.</p></div>
     <div class="card"><h4>10 · Arithmetic before architecture</h4><p>Unit costs per feature, capacity math per axis, eval scores per retrieval change. Numbers dissolve most debates that opinions inflame.</p></div>
@@ -1559,7 +1568,7 @@ nightly
 
   <hr class="rule"/>
   <p style="font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.12em">
-    ◉ END OF ARCHIVE · JARVIS ENGINEERING BIBLE v1.0 · SINGLE SOURCE OF TRUTH ·
+    ◉ END OF ARCHIVE · JARVIS ENGINEERING BIBLE v1.1 · ARCHITECTURE NARRATIVE ·
     COMPANION DOCS: PRODUCT_VISION.md · docs/MASTER_PLAN.md · docs/BROWSER_COMPANION_PLAN.md ·
     "THE UI NEVER LIES."
   </p>

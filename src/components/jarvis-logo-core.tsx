@@ -8,7 +8,7 @@ export function JarvisLogoCore() {
         <div className="ring r3" />
       </div>
       <Waveform />
-      <div className="arc-reactor hero-reactor" aria-hidden="true">
+      <div className="signal-core hero-signal-core" aria-hidden="true">
         <div className="ar-halo" />
         <div className="ar-ring ar-ticks" />
         <div className="ar-ring ar-outer" />
@@ -18,7 +18,7 @@ export function JarvisLogoCore() {
         <div className="ar-core" />
       </div>
       <div className="hero-status">
-        <span className="dot" /> LISTENING STANDBY
+        <span className="dot" /> WEB INPUT · VOICE OFF
       </div>
     </div>
   );

@@ -6,6 +6,12 @@
 > propose reading specific on-screen content, obtain explicit approval, capture it, and
 > transcribe/understand any playing video (audio + visuals).
 
+> **Implementation status (Aug 25, 2026):** the MV3 extension, consent HUD, visible-page
+> capture, media upload/transcription path, and page-aware saved-memory ask path exist as an
+> alpha. Capture receipts, redaction, no-AI capture, token rotation/revocation, and the global
+> kill switch below are target requirements, not shipped controls. Phase 0 blocks beta until
+> those privacy controls and encrypted credential storage are implemented.
+
 ## 1. What it is
 
 A Chrome (MV3) extension — "Jarvis Companion" — that injects a small, HUD-styled consent panel
@@ -43,7 +49,7 @@ rate-limited-by-clicking behavior by design and never ships an "auto" mode for t
 | C2 | **Read this thread/article** | Context-menu on selection or post | Extracts the selected post/thread/article body (LinkedIn article, FB post + top comments) |
 | C3 | **Transcribe this video** | "Listen" action while a video plays | `tabCapture` records tab audio while the user plays the video → Whisper STT → transcript saved + summarized |
 | C4 | **Understand this video** | "Watch" action | C3 audio + sampled frames (`captureVisibleTab`, ~1 frame / 3s, ≤20 frames) → vision model → "what is this video saying/selling/claiming" brief with transcript attached |
-| C5 | **Ask about this page** | Panel chat box | Question + captured page context → local `/api/chat` (semantic RAG) → grounded answer in the panel |
+| C5 | **Ask about this page** | Panel chat box | Question + page context → scoped `/api/extension/ask` → runtime-selected saved-memory retrieval → grounded answer in the panel |
 | C6 | **Save to Jarvis** | One-click on any page | Classic bookmark capture (title/URL/selection) — generalizes beyond social sites |
 
 "Understand" output format (C4): 1-line gist → key claims/arguments → what they want you to do
@@ -65,8 +71,8 @@ rate-limited-by-clicking behavior by design and never ships an "auto" mode for t
 ┌────────────────────────────────────────▼──────────────────────────────────────┐
 │  Jarvis app (Next.js)                                                         │
 │  POST /api/extension/capture   (exists — posts/pages/selections)              │
-│  POST /api/extension/media     (new — audio blob + frames → STT + vision)     │
-│  GET  /api/extension/health    (new — pairing check, shows app state)         │
+│  POST /api/extension/media     (exists — audio blob + frames → STT + vision)  │
+│  GET  /api/extension/health    (exists — authenticated pairing/config check)  │
 │  → ingestion pipeline → knowledge + embeddings → chat/agents can use it       │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -77,14 +83,15 @@ these sites churn constantly → adapters are versioned, fail soft (fall back to
 selection/generic capture), and are the main maintenance cost of this feature. The generic
 adapter (og: tags, article text, `<video>` elements) works everywhere.
 
-**Consent panel.** Shadow-DOM overlay so site CSS can't interfere; arc-reactor styling
+**Consent panel.** Shadow-DOM overlay so site CSS can't interfere; original signal-core styling
 consistent with the app; lists each proposal with source, preview snippet, and per-item
 APPROVE / DENY; shows a red "● REC" chip during any recording; ESC dismisses everything.
 
-**Pairing/auth.** The app generates an extension token (stored in `ConnectorConfig`, shown once
-on `/settings`); the extension stores it and sends `Authorization: Bearer` on every call.
-Localhost-only by default. This also becomes the first real entry in the auth story
-(master plan Phase 4 gate).
+**Pairing/auth.** With operator authentication enabled, the app generates a 32+ character
+extension-only token (currently stored in `ConnectorConfig` and displayed on `/settings`);
+the extension stores it and sends `Authorization: Bearer` on every call. Localhost is the
+default app URL. Encryption at rest, rotation/revocation, and a strict host policy remain
+Phase 0 requirements.
 
 ## 4. Video understanding pipeline (C3/C4)
 
@@ -104,8 +111,8 @@ Localhost-only by default. This also becomes the first real entry in the auth st
 Cheap paths first: if the platform renders caption tracks/subtitles in the DOM, the adapter
 grabs them and skips STT. Audio-only (C3) skips frames entirely.
 
-**Cost envelope per video:** ~$0.006/min audio (Whisper) + ~20 low-res frames ≈ a cent or two
-per clip on `gpt-4.1-mini`-class models. Caps keep worst cases bounded.
+**Cost control:** audio duration and frame caps bound individual requests, but provider/model
+pricing and actual token/image usage must be measured before publishing a cost envelope.
 
 ## 5. Privacy & consent model
 
@@ -131,8 +138,8 @@ per clip on `gpt-4.1-mini`-class models. Caps keep worst cases bounded.
 | **D. Ask-anywhere** | Panel chat (C5) wired to /api/chat with page context, deep links into the app | On a job post: "how does this compare to jobs I saved?" answered in the panel |
 | **E. Ambient polish** | Hotkeys, Firefox port, screenshot-region capture, capture queue UI, auto-offer tuning | Daily-driver quality |
 
-Phase A is ~2–3 focused sessions of work; B and C are one session each on top of it (the server
-side is small because ingestion/embedding already exist). D reuses the existing chat API as-is.
+The alpha spans portions of A–D, but none of those phases is considered complete until its
+privacy controls, receipts, failure states, and browser-level tests meet the exit demo.
 
 ## 7. Risks & mitigations
 
@@ -142,13 +149,13 @@ side is small because ingestion/embedding already exist). D reuses the existing 
 | Platform ToS sensitivity | Human-triggered only, no bulk/auto mode, personal-use posture, exports remain the bulk path |
 | MV3 recording quirks (offscreen doc lifetime, tabCapture focus rules) | Known patterns; record only while tab is active; hard caps |
 | Whisper/vision cost creep | Per-clip caps, caption-track fast path, no-AI mode, cost line shown in panel |
-| Token leakage from extension storage | Localhost-only default, revocable token on /settings, no cloud relay |
+| Token leakage from extension storage | Current gap: add encrypted server storage, rotation/revocation UI, strict host validation, and short-lived pairing exchange |
 | DRM/hidden players (some FB videos) | tabCapture records *output* audio so DRM rarely matters; frames capture what's on screen |
 
 ## 8. Decisions locked
 
 1. Chrome MV3 first (Brave-compatible — the user's daily browser); Firefox later.
-2. Extension lives in this repo under `extension/` (plain TS + esbuild, no framework).
+2. Extension lives in this repo under `extension/` (plain JavaScript/CSS MV3, no framework).
 3. Clip-based understanding first; realtime streaming is Phase E+.
 4. OpenAI for STT + vision via existing env keys; provider stays swappable behind `src/lib/ai/*`.
 5. The export importer remains the only bulk path; the extension is single-item, consent-first.

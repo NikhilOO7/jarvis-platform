@@ -37,7 +37,7 @@ const routes: Array<{
     agentKind: "RESEARCH",
     workflowKey: "competitor_research_brief",
     keywords: ["research", "competitor", "market", "summarize", "sources", "internet", "find"],
-    rationale: "The command appears to require internet research or source comparison."
+    rationale: "The command appears to require research or source comparison; Phase 0 limits this route to saved knowledge."
   },
   {
     agentKind: "EXPENSES",
@@ -68,7 +68,13 @@ export function routeCommand(command: string): CommandRoute {
     }))
     .sort((a, b) => b.score - a.score);
 
-  const fallback = { ...routes[routes.length - 1], score: 0 };
+  const fallback = {
+    agentKind: "ORCHESTRATOR" as const,
+    workflowKey: "telegram_voice_command_router",
+    keywords: [],
+    rationale: "No specialized workflow matched, so the command stays within the safe local utility router.",
+    score: 0
+  };
   const best = scored[0]?.score ? scored[0] : fallback;
   const workflow = workflowTemplates.find((template) => template.key === best.workflowKey) ?? workflowTemplates[0];
   const approvalRequired = workflow.steps.some((step) => step.approvalRequired);
@@ -82,7 +88,7 @@ export function routeCommand(command: string): CommandRoute {
     rationale: best.rationale,
     suggestedResponse: approvalRequired
       ? "I can prepare this, but I will require approval before making external changes."
-      : "I can route this into the workflow and report back with results.",
+      : "I can route this workflow and report its observed runtime status.",
     routedBy: "keywords"
   };
 }
@@ -158,7 +164,7 @@ export async function routeCommandSmart(command: string): Promise<CommandRoute> 
       rationale: parsed.rationale,
       suggestedResponse: approvalRequired
         ? "I can prepare this, but I will require approval before making external changes."
-        : "Executing now. I will report back with results.",
+        : "I can route this workflow and report its observed runtime status.",
       routedBy: "llm"
     };
   } catch {

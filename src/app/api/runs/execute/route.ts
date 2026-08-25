@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/lib/env";
 import { executeWorkflowRun } from "@/lib/agents/executor";
-import { requireOperator } from "@/lib/auth";
+import { authorizeRequest } from "@/lib/auth";
 
 const executeSchema = z.object({
   id: z.string().min(1)
@@ -11,7 +11,7 @@ const executeSchema = z.object({
 export const maxDuration = 120;
 
 export async function POST(request: Request) {
-  if (!(await requireOperator(request))) {
+  if (!(await authorizeRequest(request, "runs:execute"))) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
   if (!env.DATABASE_URL) {

@@ -4,7 +4,12 @@ A personal AI operating system for turning saved links, social exports, posts, v
 
 ## Product Truth Source
 
-The detailed product vision, feature map, architecture, roadmap, and guiding principles live in [PRODUCT_VISION.md](./PRODUCT_VISION.md). The founder/CTO execution program — capability pillars, target architecture, and the seven-phase plan to the full JARVIS vision — lives in [docs/MASTER_PLAN.md](./docs/MASTER_PLAN.md). The consent-first browser extension (read-on-approval capture from open Instagram/Facebook/LinkedIn tabs, video transcription and multimodal understanding) is specified in [docs/BROWSER_COMPANION_PLAN.md](./docs/BROWSER_COMPANION_PLAN.md). Treat those documents as the reference for what we are building and in what order.
+The detailed product vision and principles live in [PRODUCT_VISION.md](./PRODUCT_VISION.md).
+The execution program and honest capability audit live in
+[docs/MASTER_PLAN.md](./docs/MASTER_PLAN.md). The current private-beta release gate is tracked
+in [docs/PHASE_0_HARDENING.md](./docs/PHASE_0_HARDENING.md), and the consent-first extension
+specification and implementation-status boundary live in
+[docs/BROWSER_COMPANION_PLAN.md](./docs/BROWSER_COMPANION_PLAN.md).
 
 ## MVP v0.1
 
@@ -45,11 +50,14 @@ The platform includes a working agent execution engine (Phase 1 of the master pl
 - Chat persistence into `ChatSession`/`ChatMessage` with retrieval sources returned per answer
 - Workflow templates, runs, approvals, agent definitions, and connector configs in Prisma
 
+Execution fails closed when `OPENAI_API_KEY` is unavailable; it is never simulated or marked
+complete. Live UI surfaces show observed records or explicit offline/degraded/empty states.
+
 ## API Endpoints
 
 - `POST /api/ingest` - ingest one saved item
 - `POST /api/import` - import pasted export text
-- `POST /api/extension/capture` - future browser extension capture endpoint
+- `POST /api/extension/capture` - scoped browser/Telegram capture endpoint
 - `POST /api/chat` - answer from saved knowledge
 - `GET /api/briefing` - generate briefing payload
 - `POST /api/command` - route a natural-language command and execute it immediately when no approval gate applies
@@ -66,31 +74,33 @@ Jarvis in your pocket: `npm run telegram` starts a zero-dependency long-polling 
 becomes grounded answers from your knowledge base, `/run <command>` routes into agent
 workflows with **inline approve/reject buttons** for approval gates (execution results are
 reported back to the chat), `/save` captures links/notes, `/brief` runs the executive
-briefing. Setup: create a bot with @BotFather, set `TELEGRAM_BOT_TOKEN` and
-`JARVIS_EXTENSION_TOKEN` in `.env`, run `npm run telegram -- --check`, then message the bot
+briefing. Setup: create a bot with @BotFather, set `TELEGRAM_BOT_TOKEN` and a dedicated
+`JARVIS_TELEGRAM_TOKEN` in `.env`, run `npm run telegram -- --check`, then message the bot
 once and pin the printed `TELEGRAM_ALLOWED_CHAT_ID` in `.env`. The bridge answers only that
 chat id and talks only to your local app.
 
 **Proactive briefing:** set `JARVIS_BRIEFING_TIME` (e.g. `07:00`) and the bridge fires the
-briefing workflow every morning via `POST /api/cron/briefing` (token-authed) and pushes the
-result to your chat — Jarvis speaks first. Any external cron can hit the same endpoint.
+saved-knowledge briefing workflow every morning via `POST /api/cron/briefing` (token-authed)
+and pushes the result to your chat. Phase 0 scheduled briefings do not read Google data. Any
+external cron with the dedicated cron credential can hit the same endpoint.
 
 ## Google Connector (Phase 4)
 
-Real hands, risk-laddered: connect a Google account on `/settings` (needs `GOOGLE_CLIENT_ID` /
+Phase 0 read-only posture: connect a Google account on `/settings` (needs `GOOGLE_CLIENT_ID` /
 `GOOGLE_CLIENT_SECRET` from a Google Cloud OAuth client; the settings card shows the exact
-redirect URI). Once connected, agent tools gain: `list_recent_emails` and
-`list_calendar_events` (read-only), `draft_email` now creates **real Gmail drafts — never
-sends** (you press send in Gmail), and `create_calendar_event` writes to your own calendar
-only (no attendees, reversible). Anything involving other people stays an approval artifact.
-The `gmail.send` scope is deliberately not requested. Disconnect revokes tokens on both sides.
+redirect URI, plus configured operator authentication). Once connected, agent tools gain: `list_recent_emails` and
+`list_calendar_events` (read-only). Email drafts and calendar events are local proposal
+artifacts; no Gmail or Calendar writes are executed while Phase 0 hardening is active. The
+`gmail.send`, `gmail.compose`, and `calendar.events` scopes are deliberately not requested.
+Existing connections must be disconnected and reconnected to shed older grants. Disconnect
+clears the stored credential only after Google accepts the provider-side revocation request.
 
 ## Run Worker
 
 By default runs execute inline (inside the request that triggered them). Set
 `JARVIS_EXECUTION_MODE="worker"` and start `npm run worker` to move execution off the request
 path: routes only enqueue, and the worker loop claims the oldest `QUEUED` run via
-`POST /api/runs/claim-next` (pairing-token authed). The executor's atomic QUEUED→RUNNING
+`POST /api/runs/claim-next` using a dedicated `JARVIS_WORKER_TOKEN`. The executor's atomic QUEUED→RUNNING
 compare-and-swap makes any number of concurrent workers safe — run two `npm run worker`
 processes and they will never double-execute. `npm run worker -- --once` does a single poll for
 smoke tests.

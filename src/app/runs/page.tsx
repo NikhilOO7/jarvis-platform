@@ -21,10 +21,10 @@ function normalizeOutput(output: unknown): RunOutputShape | null {
 export const dynamic = "force-dynamic";
 
 async function getWorkflowRuns() {
-  if (!env.DATABASE_URL) return [];
+  if (!env.DATABASE_URL) return { runs: [], mode: "OFFLINE" as const, message: "Database not configured." };
   try {
     await sweepStaleRuns();
-    return await prisma.workflowRun.findMany({
+    const runs = await prisma.workflowRun.findMany({
       orderBy: { createdAt: "desc" },
       take: 30,
       include: {
@@ -32,46 +32,26 @@ async function getWorkflowRuns() {
         approvals: { orderBy: { createdAt: "asc" } }
       }
     });
+    return { runs, mode: "LIVE" as const, message: runs.length === 0 ? "No workflow runs recorded yet." : null };
   } catch {
-    return [];
+    return { runs: [], mode: "DEGRADED" as const, message: "Workflow run query failed." };
   }
 }
-
-const designModeRuns = [
-  {
-    id: "design-email-run",
-    command: "Draft a professional reply to the latest client email",
-    status: "WAITING_FOR_APPROVAL",
-    workflowTemplate: { name: "Email Draft And Reply" },
-    approvals: [{ status: "PENDING" }],
-    logs: [{ at: new Date().toISOString(), event: "COMMAND_ROUTED", message: "Command routed to Email Agent. Approval gate armed." }]
-  },
-  {
-    id: "design-research-run",
-    command: "Research competitors for my AI assistant product",
-    status: "QUEUED",
-    workflowTemplate: { name: "Research Brief Generator" },
-    approvals: [],
-    logs: [{ at: new Date().toISOString(), event: "COMMAND_ROUTED", message: "Research workflow queued for connector execution." }]
-  }
-];
 
 function normalizeLogs(logs: unknown): RunLog[] {
   return Array.isArray(logs) ? (logs as RunLog[]) : [];
 }
 
 export default async function RunsPage() {
-  const runs = await getWorkflowRuns();
-  const visibleRuns = runs.length > 0 ? runs : designModeRuns;
-  const designMode = runs.length === 0;
+  const { runs, mode, message } = await getWorkflowRuns();
 
   return (
     <AppShell>
-      <TopBar label="J.A.R.V.I.S · RUNS" uplink="active" center={designMode ? "DESIGN MODE · NO DB" : "LIVE RUNTIME"} />
+      <TopBar label="J.A.R.V.I.S · RUNS" uplink={mode.toLowerCase()} center={`${mode} RUNTIME`} />
       <SubRail
         extras={[
-          { label: "RUNS", value: visibleRuns.length },
-          { label: "MODE", value: designMode ? "DEMO" : "LIVE" }
+          { label: "RUNS", value: runs.length },
+          { label: "MODE", value: mode, variant: mode === "DEGRADED" ? "warn" : undefined }
         ]}
       />
       <PageHeader
@@ -79,15 +59,15 @@ export default async function RunsPage() {
         title="Workflow [b]execution monitor[/b]."
         description="Track routed commands as native Jarvis workflow runs with status, approval gates, and execution logs."
         meta={[
-          { label: "QUEUE ·", value: `${visibleRuns.length} RUNS`, highlight: true }
+          { label: "QUEUE ·", value: `${runs.length} RUNS`, highlight: true }
         ]}
       />
 
       <section className="panel">
-        <div className="panel-head"><h3>RUN QUEUE</h3><span className="tag">{designMode ? "DESIGN MODE" : "LIVE"}</span></div>
+        <div className="panel-head"><h3>RUN QUEUE</h3><span className="tag">{mode}</span></div>
 
         <div className="grid" style={{ gap: 12 }}>
-          {visibleRuns.map((run) => {
+          {runs.length === 0 ? <div className="empty-state"><p>{message}</p></div> : runs.map((run) => {
             const logs = normalizeLogs(run.logs);
             const isWaiting = run.status === "WAITING_FOR_APPROVAL";
             const output = normalizeOutput("output" in run ? run.output : null);
@@ -121,7 +101,7 @@ export default async function RunsPage() {
                     ) : null}
                   </div>
                 ) : null}
-                <RunActions id={run.id} status={run.status} disabled={designMode} />
+                <RunActions id={run.id} status={run.status} disabled={mode !== "LIVE"} />
                 {logs.length > 0 ? (
                   <div className="timeline-list" style={{ marginTop: 12 }}>
                     {logs.slice(-4).map((log, index) => (

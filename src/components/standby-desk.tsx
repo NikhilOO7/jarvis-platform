@@ -15,6 +15,9 @@ interface StandbyDeskProps {
   };
   recent?: RecentItem[];
   pendingApprovals?: number;
+  systemState?: "LIVE" | "OFFLINE" | "DEGRADED";
+  statusMessage?: string;
+  capabilities?: { database: boolean; ai: boolean; auth: boolean };
 }
 
 const DAYS = Array.from({ length: 30 }, (_, i) => i + 1);
@@ -31,34 +34,33 @@ const DOCK_ITEMS = [
   { href: "/settings", icon: "⚙", label: "SETTINGS" }
 ];
 
-const FALLBACK_RECENT: RecentItem[] = [
-  { when: "14:21 · FOOD", category: "FOOD", title: "High-protein chicken bowls" },
-  { when: "13:48 · TECH", category: "TECH", title: "Embedding model benchmarks" },
-  { when: "12:32 · JOBS", category: "JOBS", title: "Senior AI Engineer · Replicate" },
-  { when: "11:09 · HEALTH", category: "MISC", title: "Updated creatine dosing" }
-];
-
-export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDeskProps) {
+export function StandbyDesk({
+  stats,
+  recent,
+  pendingApprovals = 0,
+  systemState = "OFFLINE",
+  statusMessage = "Runtime status unavailable",
+  capabilities = { database: false, ai: false, auth: false }
+}: StandbyDeskProps) {
   const now = new Date();
   const today = now.getDate();
   const monthLabel = now.toLocaleDateString(undefined, { month: "long" });
   const dowLabel = now.toLocaleDateString(undefined, { weekday: "short" });
   const year = now.getFullYear();
   const week = Math.ceil((now.getDate() + new Date(year, 0, 1).getDay()) / 7);
-  const visibleRecent = recent && recent.length > 0 ? recent : FALLBACK_RECENT;
+  const visibleRecent = recent ?? [];
+  const stateColor = systemState === "LIVE" ? "var(--accent-3)" : systemState === "DEGRADED" ? "var(--warn)" : "var(--muted)";
 
   return (
     <div className="desk">
       <div className="desk-topbar">
         <div className="left">
           <div className="crest" />
-          <span><b>J.A.R.V.I.S</b> · STANDBY · v4.7</span>
-          <span>SYS.UPLINK<b>::stable</b></span>
+          <span><b>J.A.R.V.I.S</b> · STANDBY · v0.1</span>
+          <span>SYS.STATE<b>::{systemState.toLowerCase()}</b></span>
         </div>
         <div className="right">
-          <span className="live-dot" />
-          <span style={{ color: "var(--accent-3)", fontWeight: 600 }}>ONLINE · LISTENING STANDBY</span>
-          <span className="live-dot" />
+          <span style={{ color: stateColor, fontWeight: 600 }}>{systemState} · {statusMessage}</span>
         </div>
       </div>
       <div className="day-rail">
@@ -67,7 +69,7 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
             {String(d).padStart(2, "0")}
           </div>
         ))}
-        <div className="stark">STARK · INDUSTRIES</div>
+        <div className="system-brand">PERSONAL · SYSTEM</div>
       </div>
 
       <div className="desk-body">
@@ -106,8 +108,8 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
 
           <div className="panel" style={{ padding: 14 }}>
             <div className="panel-head">
-              <h3>ENERGY · CORE</h3>
-              <span className="tag">100%</span>
+              <h3>RUNTIME · CORE</h3>
+              <span className="tag">{systemState}</span>
             </div>
             <div style={{ display: "grid", placeItems: "center", padding: "12px 0" }}>
               <div
@@ -122,12 +124,12 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
                   fontFamily: "var(--font-display)",
                   fontSize: 22,
                   fontWeight: 500,
-                  color: "var(--accent-hot)",
+                  color: stateColor,
                   textShadow: "0 0 14px rgba(var(--glow-rgb), 0.7)",
                   boxShadow: "0 0 20px rgba(var(--glow-rgb), 0.3)"
                 }}
               >
-                100%
+                {systemState}
               </div>
             </div>
           </div>
@@ -136,7 +138,7 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
             <div className="panel" style={{ padding: 14 }}>
               <div className="panel-head">
                 <h3>CORE TELEMETRY</h3>
-                <span className="tag">LIVE</span>
+                <span className="tag">{systemState}</span>
               </div>
               <div
                 style={{
@@ -198,34 +200,17 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
         <div className="desk-col right">
           <div className="panel" style={{ padding: 14 }}>
             <div className="panel-head">
-              <h3>WEATHER · LOCATION</h3>
-              <span className="tag">LIVE</span>
+              <h3>CAPABILITY STATUS</h3>
+              <span className="tag">OBSERVED</span>
             </div>
             <div
               style={{
-                display: "flex",
-                gap: 12,
-                alignItems: "center",
                 paddingBottom: 12,
                 borderBottom: "1px dashed rgba(var(--glow-rgb), 0.14)"
               }}
             >
-              <div
-                style={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: "50%",
-                  border: "1px solid rgba(var(--glow-rgb), 0.4)",
-                  display: "grid",
-                  placeItems: "center",
-                  boxShadow:
-                    "inset 0 0 12px rgba(var(--glow-rgb), 0.14), 0 0 12px rgba(var(--glow-rgb), 0.2)"
-                }}
-              >
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 500 }}>72°</div>
-              </div>
               <div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 14 }}>New York, US</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 14 }}>{statusMessage}</div>
                 <div
                   className="mono"
                   style={{
@@ -236,22 +221,21 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
                     marginTop: 3
                   }}
                 >
-                  CLEAR · WIND 6 MPH
+                  NO SYNTHETIC TELEMETRY
                 </div>
               </div>
             </div>
             <div style={{ marginTop: 10, fontFamily: "var(--font-mono)", fontSize: 11 }}>
               {[
-                ["TUE", "74°", "/ 58°"],
-                ["WED", "68°", "/ 54°"],
-                ["THU", "62°", "/ 50°"],
-                ["FRI", "58°", "/ 49°"]
-              ].map(([d, h, l]) => (
+                ["DATABASE", capabilities.database ? "CONNECTED" : "OFFLINE"],
+                ["AI", capabilities.ai ? "CONFIGURED" : "NOT CONFIGURED"],
+                ["AUTH", capabilities.auth ? "ENFORCED" : "OPEN MODE"]
+              ].map(([label, value]) => (
                 <div
-                  key={d}
+                  key={label}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "60px 1fr auto",
+                    gridTemplateColumns: "1fr auto",
                     gap: 8,
                     padding: "4px 0",
                     color: "var(--text-dim)",
@@ -259,9 +243,8 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
                     textTransform: "uppercase"
                   }}
                 >
-                  <span style={{ color: "var(--muted)" }}>{d}</span>
-                  <span style={{ color: "var(--text)", fontWeight: 500 }}>{h}</span>
-                  <span style={{ color: "var(--muted-faint)", fontSize: 10 }}>{l}</span>
+                  <span style={{ color: "var(--muted)" }}>{label}</span>
+                  <span style={{ color: "var(--text)", fontWeight: 500 }}>{value}</span>
                 </div>
               ))}
             </div>
@@ -270,9 +253,11 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
           <div className="panel" style={{ padding: 14 }}>
             <div className="panel-head">
               <h3>RECENT CAPTURES</h3>
-              <span className="tag">{stats ? `+${stats.rawItems} ALL` : "DEMO"}</span>
+              <span className="tag">{stats ? `${stats.rawItems} ALL` : "UNAVAILABLE"}</span>
             </div>
-            {visibleRecent.map((it, i) => (
+            {visibleRecent.length === 0 ? (
+              <div className="muted" style={{ fontSize: 11, padding: "8px 0" }}>No captures recorded.</div>
+            ) : visibleRecent.map((it, i) => (
               <div
                 key={`${it.when}-${i}`}
                 style={{
@@ -309,9 +294,9 @@ export function StandbyDesk({ stats, recent, pendingApprovals = 0 }: StandbyDesk
             </div>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, lineHeight: 1.7, color: "var(--text-dim)" }}>
               <div style={{ color: "var(--muted-faint)", marginBottom: 6 }}>› TODAY · STANDBY MODE</div>
-              <div>Listening for voice and text commands.</div>
+              <div>Web controls available. Voice input is not enabled.</div>
               <div style={{ color: "var(--muted-faint)", margin: "10px 0 6px" }}>› DOCK · ACTIVE</div>
-              <div>9 channels armed below the hologram.</div>
+              <div>Navigation channels are available below the hologram.</div>
             </div>
           </div>
         </div>

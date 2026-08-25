@@ -17,7 +17,7 @@ const PROMPTS = [
 
 export function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "system", content: "[boot] knowledge base online · memory buffer ready · listening" },
+    { role: "system", content: "[boot] saved-memory query surface ready · runtime checked on first request" },
     {
       role: "assistant",
       content: "Good evening. Ask what you want to plan, compare, learn, or remember."
@@ -26,6 +26,7 @@ export function ChatBox() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [retrievalMode, setRetrievalMode] = useState("NOT YET QUERIED");
   const terminalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,6 +52,8 @@ export function ChatBox() {
       });
       const data = await response.json();
       if (data.sessionId) setSessionId(data.sessionId);
+      if (!response.ok) setRetrievalMode("UNAVAILABLE");
+      else if (typeof data.retrieval === "string") setRetrievalMode(data.retrieval.toUpperCase());
       const sources = Array.isArray(data.sources)
         ? (data.sources as Array<{ title: string }>).map((s) => s.title).slice(0, 3)
         : [];
@@ -123,7 +126,11 @@ export function ChatBox() {
           <h4>SESSION CONTEXT</h4>
           <dl className="kv">
             <dt>Mode</dt>
-            <dd><b className="ok">SEMANTIC RAG</b></dd>
+            <dd>
+              <b className={retrievalMode === "UNAVAILABLE" ? "warn" : retrievalMode === "NOT YET QUERIED" ? "" : "ok"}>
+                {retrievalMode}
+              </b>
+            </dd>
             <dt>Source</dt>
             <dd>saved memory only</dd>
             <dt>Turns</dt>
@@ -153,9 +160,9 @@ export function ChatBox() {
         <div className="routing-card">
           <h4>SAFETY</h4>
           <div className="muted" style={{ fontFamily: "var(--font-mono)", fontSize: 11, lineHeight: 1.7 }}>
-            <div>· Answers grounded in saved memory.</div>
-            <div>· External research separated.</div>
-            <div>· No action without approval.</div>
+            <div>· Queries saved memory only.</div>
+            <div>· No external web retrieval.</div>
+            <div>· No action tools available in chat.</div>
           </div>
         </div>
       </div>

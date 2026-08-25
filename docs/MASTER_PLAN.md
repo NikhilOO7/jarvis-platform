@@ -13,40 +13,48 @@ Jarvis is a **personal AI operating system**: an always-available assistant that
 everything you choose to give it, reasons over that memory, and takes real actions on your
 behalf — gated by your approval where the stakes are high.
 
-The fictional JARVIS is the design target for *feel*: instant, calm, omnipresent, proactive,
-slightly witty, and trusted with real authority. We decompose that feel into seven concrete
+The target experience is instant, calm, broadly available, proactive, slightly witty, and
+trusted with carefully bounded authority. We decompose that experience into seven concrete
 capability pillars:
 
-| # | Pillar | "Movie moment" | Engineering reality |
+| # | Pillar | Operator outcome | Engineering reality |
 |---|--------|----------------|---------------------|
-| 1 | **Total recall** | "Pull up everything on the Mark II" | Ingestion + semantic memory (pgvector) + knowledge graph |
-| 2 | **Natural command** | "Jarvis, run a diagnostic" | LLM intent routing → workflow runs, chat + voice I/O |
-| 3 | **Real agency** | "Deploy the House Party Protocol" | Tool-calling agent executor with connectors (email, calendar, web, files) |
-| 4 | **Judgment & safety** | "Sir, I must advise against this" | Risk scoring, approval gates, audit log, permission scopes |
-| 5 | **Proactivity** | Morning briefing before Tony asks | Schedulers, triggers, daily briefings, watchers/alerts |
-| 6 | **Presence** | JARVIS is in the suit, house, and phone | Web HUD, browser extension, share sheet, Telegram, voice channel |
-| 7 | **Personality** | The dry British wit | A consistent persona layer over every response surface |
+| 1 | **Total recall** | "Pull up everything on Project Atlas" | Ingestion + semantic memory (pgvector) + knowledge graph |
+| 2 | **Natural command** | "Run a diagnostic" | LLM intent routing → workflow runs, chat + voice I/O |
+| 3 | **Real agency** | Draft and carry out approved work | Tool-calling agent executor with connectors (email, calendar, web, files) |
+| 4 | **Judgment & safety** | Warn before a risky action | Risk scoring, approval gates, audit log, permission scopes |
+| 5 | **Proactivity** | Morning briefing before the operator asks | Schedulers, triggers, daily briefings, watchers/alerts |
+| 6 | **Presence** | Available wherever the operator works | Web HUD, browser extension, share sheet, Telegram, voice channel |
+| 7 | **Personality** | Calm, concise, quietly witty | A consistent persona layer over every response surface |
 
 Every roadmap item below maps to one of these pillars.
 
 ---
 
-## 2. Where we are today (honest audit, Aug 2026)
+## 2. Where we are today (honest audit, updated Aug 25, 2026)
 
 Shipped and real:
 - Next.js 15 + React 19 + Prisma 6 + Postgres/pgvector foundation; 13-model schema.
-- Capture → dedupe (hash) → classify → summarize → knowledge pipeline (v0.1 of the vision).
-- RAG-lite chat over recent knowledge; command console with keyword routing; approval queue
-  wired end-to-end to run status; cinematic HUD UI with 12 themes.
+- Capture → hash/semantic dedupe → classify → summarize → embed → entity graph pipeline.
+- RAG-lite chat, LLM/keyword routing, workflow executor, polling worker, Telegram text bridge,
+  scheduled briefings, browser capture/transcription/video understanding, operator sessions,
+  and Google OAuth with read-only Gmail/Calendar tools.
+- Phase 0 hardening is active: service credentials are scoped, workflow tools are allowlisted,
+  approval decisions are non-replayable, and Google writes are disabled in favor of local proposals.
 
 Gaps (in priority order):
-1. **No execution engine** — approved runs sit in `QUEUED` forever. Agents are display data.
-2. **Semantic memory dormant** — embedding columns exist but are never written or queried.
-3. **Routing is keyword matching**, not intelligence.
-4. **No proactivity** — nothing scheduled, nothing triggered.
-5. **No connectors** — email/calendar/Telegram/voice are enum values, not integrations.
-6. **No auth** — acceptable for single-operator localhost, blocking for anything else.
-7. Fabricated telemetry in the UI (fake CPU gauges, hardcoded weather/token counts).
+1. **Approvals are not payload-bound yet** — no external write may be re-enabled until the
+   exact immutable action is reviewed and approved.
+2. **Ingestion is synchronous and non-durable** — raw-save-first jobs, retries, import batches,
+   and database-enforced idempotency are still required.
+3. **Retrieval quality is unmeasured** — hybrid ranking, relevance thresholds, linked citations,
+   conversation recall, and an evaluation set are missing.
+4. **Secrets are not encrypted at rest** in `ConnectorConfig`; production auth hardening remains.
+5. **Product records are too generic** — goals, preferences, review state, decisions, and concrete
+   action lifecycle are not modeled.
+6. **No citation-capable internet research or voice-note pipeline.** These remain future work.
+7. **Operational depth is thin** — core-path tests, observability, cost tracking, backups, and
+   failure recovery drills are below beta level.
 
 ## 3. Target architecture
 
@@ -79,8 +87,9 @@ Design rules:
   The executor runs in-process (route-handler triggered now, worker process later).
 - **Every action flows through the tool registry.** Tools declare scopes + risk; the executor
   enforces approval gates; every call is written to the run log. No side channels.
-- **Graceful degradation is a feature.** No API key → deterministic fallbacks. No DB → design
-  mode. This is already in the codebase's DNA; keep it.
+- **Graceful degradation must remain truthful.** Read and routing paths may use deterministic
+  fallbacks. Execution fails closed when its model/runtime is unavailable. No DB means an
+  explicit offline or parse-only response, never fabricated records or simulated completion.
 - **Provider-agnostic cognition.** OpenAI today via one thin client; the model layer stays
   behind `src/lib/ai/*` so we can swap or mix providers later.
 
@@ -113,8 +122,7 @@ records; retrieval quality eval set.
 reading on-screen IG/FB/LinkedIn content, captures on approval, and transcribes/understands
 playing videos (audio + frames → vision model). Detailed spec:
 [BROWSER_COMPANION_PLAN.md](./BROWSER_COMPANION_PLAN.md). Plus mobile share-sheet via PWA and a
-consistent persona layer (system-prompt library + response post-processor) so Jarvis sounds
-like Jarvis everywhere.
+consistent persona layer (system-prompt library + response post-processor) across every surface.
 
 ### Phase 4 — Real Hands: connectors with teeth
 *Pillars: 3, 4.* OAuth-based email (read/summarize/draft/send-behind-approval), calendar
@@ -128,16 +136,16 @@ gated on auth** (single-user passkey/session is enough) because connectors hold 
 the Daily Executive Briefing actually runs at 7am; watchers ("tell me when X changes");
 suggestion engine (surface stale saves, expiring decisions, follow-ups) — Jarvis speaks first.
 
-### Phase 6 — The Suit: multi-agent orchestration
+### Phase 6 — Orchestration: coordinated agents
 *Pillars: 3, 5.* The Orchestrator agent decomposes big commands into multi-agent plans
 (research → summarize → draft → schedule), runs steps in parallel where safe, composes
 results; user-defined custom workflows (the `CUSTOM` agent kind); long-running runs with
 checkpoints and resume.
 
-### Phase 7 — The House: ambient JARVIS
+### Phase 7 — Ambient presence
 *Pillars: 6, 5, 7.* Always-listening voice mode (wake word, local VAD); realtime voice
 conversations; home-screen widgets; multi-device sync; optionally local models for private
-inference. This is where the HUD stops being a website and becomes an environment.
+inference. This is where the command center stops being a website and becomes an environment.
 
 Each phase is shippable alone, ordered by dependency: **engine → memory → presence → hands →
 proactivity → orchestration → ambience.** We do not start N+1 before N's core loop is demoed.
@@ -145,29 +153,33 @@ proactivity → orchestration → ambience.** We do not start N+1 before N's cor
 ## 5. Safety posture (non-negotiable, all phases)
 
 1. Explicit capture only — no stealth scraping, ever (see PRODUCT_VISION.md).
-2. Irreversible/external actions **always** pass an approval gate; approvals name the exact
-   recipient/payload/mutation.
+2. Irreversible/external actions stay disabled until approvals bind the exact immutable
+   recipient/payload/mutation. The current status-only approval rows do not meet that bar.
 3. Risk levels (`low/medium/high`) are computed per-run, shown before execution, logged after.
-4. Full audit trail: every tool call with args + result summary lands in `WorkflowRun.logs`.
-5. Secrets stay in env/`ConnectorConfig`; never in logs, never echoed to the model.
-6. Kill switch: a run can be cancelled at any step boundary.
+4. Current run logs record tool names and outcomes. Phase 0 still requires structured, redacted
+   audit events with correlation IDs before logs qualify as a full security audit trail.
+5. Secrets stay in env or encrypted storage; never in logs or model context. Existing plaintext
+   `ConnectorConfig` credentials are Phase 0 debt and block private beta.
+6. A durable kill switch and cancellation at step boundaries are required before autonomous or
+   long-running execution; they are not implemented yet.
 
 ## 6. Engineering standards
 
 - TypeScript strict; zod at every API boundary; Prisma as the only DB access path
   (raw SQL only for pgvector operators, isolated in one module).
-- Deterministic fallbacks for every AI feature (already the house style — preserve it).
-- `npm run typecheck` + `lint` must pass on every commit; tests arrive with Phase 2
-  (retrieval eval) and Phase 4 (connector contract tests) where they earn their keep.
+- Deterministic fallbacks for read/routing features; action execution fails closed when required
+  cognition or storage is unavailable.
+- CI runs Prisma generation, typecheck, lint, unit tests, and production build on every pull
+  request. Database-backed approval and executor concurrency tests remain required.
 - Repo hygiene: build artifacts and `.DS_Store` out of git; images deduplicated.
 
 ## 7. Immediate milestones
 
 | Milestone | Definition of done |
 |---|---|
-| **M1: First real run** *(this commit)* | Type a command → routed by LLM → run created → (approve if gated) → executor completes it → output + step logs visible on /runs |
-| **M2: Memory online** *(this commit)* | New saves get embeddings; chat retrieves by similarity, not recency; answers cite matched items |
-| **M3: Movie-grade HUD** *(this commit)* | Default theme + components read as a cinematic hologram HUD: arc-reactor core, rotating rings, scanlines, glass panels |
-| M4: Telegram channel | Text a bot → same router/executor → reply with persona |
-| M5: First real connector | Email read + draft + approved send, fully audited |
-| M6: Jarvis speaks first | Scheduled 7am briefing delivered without being asked |
+| **P0.1: Truthful fail-closed runtime** | No simulated completions or invented telemetry; missing dependencies produce explicit offline/degraded/failed state |
+| **P0.2: Scoped identities** | Browser, extension, Telegram, worker, and cron cannot cross their documented authorization boundaries |
+| **P0.3: Immutable action proposals** | Exact payload hash, expiry, approver, execution identity, and provider idempotency key are persisted and tested |
+| **P0.4: Secret protection** | Connector and pairing credentials encrypted at rest with documented rotation and revocation |
+| **P0.5: Beta safety verification** | CI plus database integration tests cover approval replay/concurrency, run claiming, and every high-risk transition |
+| M5: First external write | One narrowly scoped connector mutation re-enabled only through a payload-bound approval and complete audit trail |

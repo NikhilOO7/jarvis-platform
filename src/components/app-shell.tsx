@@ -73,22 +73,22 @@ export function AppShell({
           <div className="sys-row">
             <span className="led" />
             <span>INGESTION</span>
-            <b>ARMED</b>
+            <b>MANUAL</b>
           </div>
           <div className="sys-row">
             <span className="led warn" />
             <span>AI CORE</span>
-            <b className="warn">STANDBY</b>
+            <b className="warn">SEE SETTINGS</b>
           </div>
           <div className="sys-row">
             <span className="led" />
             <span>BRIEFING</span>
-            <b>LIVE</b>
+            <b>ON DEMAND</b>
           </div>
           <div className="sys-row">
             <span className="led idle" />
             <span>VOICE</span>
-            <b className="idle">IDLE</b>
+            <b className="idle">OFF</b>
           </div>
         </div>
 
@@ -114,8 +114,8 @@ export function AppShell({
         <div style={{ marginTop: "auto", paddingTop: 14 }}>
           <div className="sys-row">
             <Radio size={12} />
-            <span>SIGNAL</span>
-            <b>STRONG</b>
+            <span>CHANNEL</span>
+            <b>WEB UI</b>
           </div>
         </div>
       </aside>

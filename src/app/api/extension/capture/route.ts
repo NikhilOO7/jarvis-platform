@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/lib/env";
 import { ingestItem } from "@/lib/ingestion";
-import { verifyExtensionAuth } from "@/lib/extension-auth";
+import { requireServiceScope } from "@/lib/service-auth";
 
 const extensionCaptureSchema = z.object({
   url: z.string().optional().nullable(),
@@ -16,7 +16,7 @@ const extensionCaptureSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    if (!(await verifyExtensionAuth(request))) {
+    if (!(await requireServiceScope(request, "capture:write"))) {
       return NextResponse.json(
         { error: "Unauthorized. Pair the extension with the token shown on /settings." },
         { status: 401 }

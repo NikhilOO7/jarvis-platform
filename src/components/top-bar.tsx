@@ -10,17 +10,22 @@ interface TopBarProps {
 
 export function TopBar({
   label = "J.A.R.V.I.S",
-  uplink = "stable",
-  center = "ONLINE · LISTENING STANDBY"
+  uplink = "unknown",
+  center = "RUNTIME STATE NOT PROVIDED"
 }: TopBarProps) {
   const [uptime, setUptime] = useState("00:00:00");
   const [start] = useState(() => Date.now());
-  // Randomized client-side only, so server and first client render match
-  const [sessionId, setSessionId] = useState("--");
+  // This is only a short-lived browser UI instance label, not a backend session identifier.
+  const [uiInstanceId, setUiInstanceId] = useState("--");
+  const centerColor = uplink.toLowerCase() === "live"
+    ? "var(--accent-3)"
+    : uplink.toLowerCase() === "degraded"
+      ? "var(--warn)"
+      : "var(--muted)";
 
   useEffect(() => {
     const seg = Math.random().toString(36).slice(2, 6).toUpperCase();
-    setSessionId(`${seg.slice(0, 2)}-${seg.slice(2, 4)}`);
+    setUiInstanceId(`${seg.slice(0, 2)}-${seg.slice(2, 4)}`);
   }, []);
 
   useEffect(() => {
@@ -41,31 +46,29 @@ export function TopBar({
       <div className="topbar-left">
         <div className="crest" />
         <span>
-          <b>{label}</b> <span className="sep">·</span> v4.7
+          <b>{label}</b> <span className="sep">·</span> v0.1
         </span>
         <span>
           SYS.UPLINK<b>::{uplink}</b>
         </span>
         <span>
-          PWR <b>1.21 GW</b>
+          PHASE <b>0 · HARDENING</b>
         </span>
       </div>
       <div className="topbar-center">
-        <span className="live-dot" />
-        <span style={{ color: "var(--accent-3)", fontWeight: 600 }}>{center}</span>
-        <span className="live-dot" />
+        <span style={{ color: centerColor, fontWeight: 600 }}>{center}</span>
       </div>
       <div className="topbar-right">
         <div className="metric">
-          <span>SES</span>
-          <b className="ok">{sessionId}</b>
+          <span>UI INSTANCE</span>
+          <b>{uiInstanceId}</b>
         </div>
         <div className="metric">
           <span>USR</span>
           <b>OPERATOR</b>
         </div>
         <div className="metric">
-          <span>UPTIME</span>
+          <span>SESSION AGE</span>
           <b>{uptime}</b>
         </div>
       </div>

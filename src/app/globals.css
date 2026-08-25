@@ -1,13 +1,13 @@
 /* ============================================================
    J.A.R.V.I.S DESIGN SYSTEM
-   Themed HUD interface · Mark XLII Cyan → Vapor
+   Original command-center interface · Core → Neon
    ============================================================ */
 
 /* Theme variables -------------------------------------------------- */
 
-/* J.A.R.V.I.S · Classic — cinematic hologram ice-cyan + gold (default) */
+/* Core · Classic — ice-cyan + gold (default) */
 :root,
-body[data-theme="jarvis"] {
+body[data-theme="core"] {
   --accent:        #7fd4ff;
   --accent-hot:    #c2ecff;
   --accent-2:      #ffd27a;
@@ -28,7 +28,7 @@ body[data-theme="jarvis"] {
   --hero-glow-b:   rgba(24, 76, 158, 0.18);
 }
 
-body[data-theme="cyan"] {
+body[data-theme="ion"] {
   --accent:        #45e7ff;
   --accent-hot:    #6df3ff;
   --accent-2:      #ffbd55;
@@ -47,7 +47,7 @@ body[data-theme="cyan"] {
   --hero-glow-a:   rgba(69, 231, 255, 0.20);
   --hero-glow-b:   rgba(36, 90, 200, 0.16);
 }
-body[data-theme="redgold"] {
+body[data-theme="solar"] {
   --accent:        #ff7a5b;
   --accent-hot:    #ffa066;
   --accent-2:      #ffd24f;
@@ -66,7 +66,7 @@ body[data-theme="redgold"] {
   --hero-glow-a:   rgba(255, 122, 91, 0.22);
   --hero-glow-b:   rgba(200, 60, 30, 0.18);
 }
-body[data-theme="stealth"] {
+body[data-theme="eclipse"] {
   --accent:        #a8c4ff;
   --accent-hot:    #c8d8ff;
   --accent-2:      #8090c0;
@@ -85,7 +85,7 @@ body[data-theme="stealth"] {
   --hero-glow-a:   rgba(168, 196, 255, 0.18);
   --hero-glow-b:   rgba(70, 90, 150, 0.16);
 }
-body[data-theme="hulkbuster"] {
+body[data-theme="titan"] {
   --accent:        #ffce4f;
   --accent-hot:    #ffe080;
   --accent-2:      #a86cff;
@@ -104,7 +104,7 @@ body[data-theme="hulkbuster"] {
   --hero-glow-a:   rgba(255, 206, 79, 0.2);
   --hero-glow-b:   rgba(160, 90, 220, 0.18);
 }
-body[data-theme="warmachine"] {
+body[data-theme="forge"] {
   --accent:        #d8dee6;
   --accent-hot:    #ffffff;
   --accent-2:      #ff5f4d;
@@ -143,8 +143,8 @@ body[data-theme="vapor"] {
   --hero-glow-b:   rgba(139, 92, 255, 0.2);
 }
 
-/* Mark I · Cave Suit — dull iron + orange flame */
-body[data-theme="mark1"] {
+/* Cavern · dull iron + orange flame */
+body[data-theme="cavern"] {
   --accent:        #ff8a3a;
   --accent-hot:    #ffb160;
   --accent-2:      #b0a690;
@@ -164,8 +164,8 @@ body[data-theme="mark1"] {
   --hero-glow-b:   rgba(110, 80, 40, 0.18);
 }
 
-/* Mark XXXIII · Silver Centurion — chrome + crimson */
-body[data-theme="centurion"] {
+/* Sentinel · chrome + crimson */
+body[data-theme="sentinel"] {
   --accent:        #ff3a5e;
   --accent-hot:    #ff7a8e;
   --accent-2:      #d8dee6;
@@ -185,8 +185,8 @@ body[data-theme="centurion"] {
   --hero-glow-b:   rgba(180, 60, 80, 0.18);
 }
 
-/* Mark LXXXV · Endgame — red + gold + electric blue */
-body[data-theme="endgame"] {
+/* Apex · red + gold + electric blue */
+body[data-theme="apex"] {
   --accent:        #4a8aff;
   --accent-hot:    #7aaaff;
   --accent-2:      #ff5a3e;
@@ -206,8 +206,8 @@ body[data-theme="endgame"] {
   --hero-glow-b:   rgba(255, 90, 62, 0.16);
 }
 
-/* Mark XXXIX · Bones — ivory + soft gold (high altitude) */
-body[data-theme="bones"] {
+/* Ivory · pale gold */
+body[data-theme="ivory"] {
   --accent:        #f5edd0;
   --accent-hot:    #ffffff;
   --accent-2:      #e0c878;
@@ -227,8 +227,8 @@ body[data-theme="bones"] {
   --hero-glow-b:   rgba(180, 160, 110, 0.16);
 }
 
-/* Endo-Sym · Symbiote — black + venom crimson + chrome */
-body[data-theme="endosym"] {
+/* Symbiosis · black + crimson + chrome */
+body[data-theme="symbiosis"] {
   --accent:        #ff2040;
   --accent-hot:    #ff5060;
   --accent-2:      #d8dee6;
@@ -529,7 +529,7 @@ button, input, textarea, select { font: inherit; }
   color: var(--muted); text-transform: uppercase;
 }
 
-/* mini arc reactor — concentric counter-rotating rings + pulsing core */
+/* Mini signal core — concentric counter-rotating rings + pulsing center */
 .mini-core {
   width: 168px; aspect-ratio: 1;
   margin: 4px auto 8px;
@@ -551,7 +551,7 @@ button, input, textarea, select { font: inherit; }
   border: none; box-shadow: none;
   will-change: transform;
 }
-/* ten-coil reactor band */
+/* Ten-segment signal band */
 .mini-core .ring.coil {
   inset: 10px;
   border: none; box-shadow: none;
@@ -716,11 +716,6 @@ button, input, textarea, select { font: inherit; }
 .topbar-center {
   display: flex; gap: 14px; align-items: center;
   color: var(--text-dim); font-weight: 500;
-}
-.topbar-center .live-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--accent-3); box-shadow: 0 0 10px var(--accent-3);
-  animation: blink 1.4s ease-in-out infinite;
 }
 @keyframes blink { 0%, 60%, 100% { opacity: 1; } 75% { opacity: 0.3; } }
 .topbar-right {
@@ -960,17 +955,17 @@ h3 { letter-spacing: 0.02em; }
   clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
   transition: 160ms ease;
 }
-body[data-theme="jarvis"] .button {
+body[data-theme="core"] .button {
   background: linear-gradient(180deg, #cdeeff, #74c4ef);
   border-color: rgba(194, 236, 255, 0.75);
 }
-body[data-theme="redgold"] .button,
-body[data-theme="hulkbuster"] .button,
+body[data-theme="solar"] .button,
+body[data-theme="titan"] .button,
 body[data-theme="vapor"] .button {
   background: linear-gradient(180deg, var(--accent-hot), var(--accent));
 }
-body[data-theme="warmachine"] .button { background: linear-gradient(180deg, #fff, #b8bec8); color: #1a1d22; }
-body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--accent-hot), var(--accent)); }
+body[data-theme="forge"] .button { background: linear-gradient(180deg, #fff, #b8bec8); color: #1a1d22; }
+body[data-theme="eclipse"] .button { background: linear-gradient(180deg, var(--accent-hot), var(--accent)); }
 .button:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(var(--glow-rgb), 0.42); }
 .button:disabled { cursor: not-allowed; opacity: 0.45; transform: none; box-shadow: none; }
 .button.secondary {
@@ -1309,18 +1304,18 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.4);
 }
-.theme-pin[data-th="jarvis"] .dot { background: radial-gradient(circle, #ffffff 0 10%, #7fd4ff 16% 46%, #ffd27a 58% 66%, #0b2a3f 100%); box-shadow: 0 0 12px rgba(127, 212, 255, 0.8); }
-.theme-pin[data-th="cyan"] .dot { background: radial-gradient(circle, #fff 0 8%, #6df3ff 12% 50%, #1f6da0 100%); box-shadow: 0 0 10px rgba(69, 231, 255, 0.7); }
-.theme-pin[data-th="redgold"] .dot { background: radial-gradient(circle, #fff7c8 0 8%, #ffd24f 16% 50%, #ff5f4d 100%); box-shadow: 0 0 10px rgba(255, 122, 91, 0.7); }
-.theme-pin[data-th="stealth"] .dot { background: radial-gradient(circle, #ffffff 0 8%, #c8d8ff 20% 50%, #404870 100%); box-shadow: 0 0 10px rgba(168, 196, 255, 0.6); }
-.theme-pin[data-th="hulkbuster"] .dot { background: radial-gradient(circle, #fff7c8 0 8%, #ffce4f 16% 50%, #6a3eb0 100%); box-shadow: 0 0 10px rgba(255, 206, 79, 0.7); }
-.theme-pin[data-th="warmachine"] .dot { background: radial-gradient(circle, #ffffff 0 12%, #b8bec8 30% 50%, #20242b 100%); box-shadow: 0 0 10px rgba(216, 222, 230, 0.6); }
+.theme-pin[data-th="core"] .dot { background: radial-gradient(circle, #ffffff 0 10%, #7fd4ff 16% 46%, #ffd27a 58% 66%, #0b2a3f 100%); box-shadow: 0 0 12px rgba(127, 212, 255, 0.8); }
+.theme-pin[data-th="ion"] .dot { background: radial-gradient(circle, #fff 0 8%, #6df3ff 12% 50%, #1f6da0 100%); box-shadow: 0 0 10px rgba(69, 231, 255, 0.7); }
+.theme-pin[data-th="solar"] .dot { background: radial-gradient(circle, #fff7c8 0 8%, #ffd24f 16% 50%, #ff5f4d 100%); box-shadow: 0 0 10px rgba(255, 122, 91, 0.7); }
+.theme-pin[data-th="eclipse"] .dot { background: radial-gradient(circle, #ffffff 0 8%, #c8d8ff 20% 50%, #404870 100%); box-shadow: 0 0 10px rgba(168, 196, 255, 0.6); }
+.theme-pin[data-th="titan"] .dot { background: radial-gradient(circle, #fff7c8 0 8%, #ffce4f 16% 50%, #6a3eb0 100%); box-shadow: 0 0 10px rgba(255, 206, 79, 0.7); }
+.theme-pin[data-th="forge"] .dot { background: radial-gradient(circle, #ffffff 0 12%, #b8bec8 30% 50%, #20242b 100%); box-shadow: 0 0 10px rgba(216, 222, 230, 0.6); }
 .theme-pin[data-th="vapor"] .dot { background: radial-gradient(circle, #fff 0 8%, #ff8be0 18% 50%, #8b5cff 100%); box-shadow: 0 0 10px rgba(255, 92, 210, 0.7); }
-.theme-pin[data-th="mark1"] .dot { background: radial-gradient(circle, #ffd88a 0 8%, #ff8a3a 18% 50%, #6a4a28 100%); box-shadow: 0 0 10px rgba(255, 138, 58, 0.7); }
-.theme-pin[data-th="centurion"] .dot { background: radial-gradient(circle, #ffffff 0 10%, #d8dee6 24% 48%, #ff3a5e 100%); box-shadow: 0 0 10px rgba(255, 58, 94, 0.7); }
-.theme-pin[data-th="endgame"] .dot { background: conic-gradient(from 0deg, #4a8aff 0deg 120deg, #ff5a3e 120deg 240deg, #ffd24f 240deg 360deg); box-shadow: 0 0 10px rgba(74, 138, 255, 0.7); }
-.theme-pin[data-th="bones"] .dot { background: radial-gradient(circle, #ffffff 0 12%, #fff8d8 30% 56%, #e0c878 100%); box-shadow: 0 0 10px rgba(245, 237, 208, 0.7); }
-.theme-pin[data-th="endosym"] .dot { background: radial-gradient(circle, #ff8090 0 8%, #ff2040 22% 56%, #1a1014 100%); box-shadow: 0 0 10px rgba(255, 32, 64, 0.85); }
+.theme-pin[data-th="cavern"] .dot { background: radial-gradient(circle, #ffd88a 0 8%, #ff8a3a 18% 50%, #6a4a28 100%); box-shadow: 0 0 10px rgba(255, 138, 58, 0.7); }
+.theme-pin[data-th="sentinel"] .dot { background: radial-gradient(circle, #ffffff 0 10%, #d8dee6 24% 48%, #ff3a5e 100%); box-shadow: 0 0 10px rgba(255, 58, 94, 0.7); }
+.theme-pin[data-th="apex"] .dot { background: conic-gradient(from 0deg, #4a8aff 0deg 120deg, #ff5a3e 120deg 240deg, #ffd24f 240deg 360deg); box-shadow: 0 0 10px rgba(74, 138, 255, 0.7); }
+.theme-pin[data-th="ivory"] .dot { background: radial-gradient(circle, #ffffff 0 12%, #fff8d8 30% 56%, #e0c878 100%); box-shadow: 0 0 10px rgba(245, 237, 208, 0.7); }
+.theme-pin[data-th="symbiosis"] .dot { background: radial-gradient(circle, #ff8090 0 8%, #ff2040 22% 56%, #1a1014 100%); box-shadow: 0 0 10px rgba(255, 32, 64, 0.85); }
 .theme-pin[data-th="neon"] .dot { background: conic-gradient(from 90deg, #00ffe0 0deg 180deg, #ff00cc 180deg 360deg); box-shadow: 0 0 14px rgba(0, 255, 224, 0.9); }
 .theme-pin .lbl { font-weight: 600; color: var(--accent); }
 .theme-pin.open { border-color: var(--accent); box-shadow: 0 0 18px rgba(var(--glow-rgb), 0.5); }
@@ -1381,18 +1376,18 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   background: var(--accent); box-shadow: 0 0 6px var(--accent);
 }
 .theme-picker .sw .dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.4); }
-.theme-picker .sw[data-th="jarvis"] .dot { background: radial-gradient(circle, #ffffff 0 10%, #7fd4ff 16% 46%, #ffd27a 58% 66%, #0b2a3f 100%); box-shadow: 0 0 12px rgba(127, 212, 255, 0.8); }
-.theme-picker .sw[data-th="cyan"] .dot { background: radial-gradient(circle, #fff 0 8%, #6df3ff 12% 50%, #1f6da0 100%); box-shadow: 0 0 10px rgba(69, 231, 255, 0.7); }
-.theme-picker .sw[data-th="redgold"] .dot { background: radial-gradient(circle, #fff7c8 0 8%, #ffd24f 16% 50%, #ff5f4d 100%); box-shadow: 0 0 10px rgba(255, 122, 91, 0.7); }
-.theme-picker .sw[data-th="stealth"] .dot { background: radial-gradient(circle, #ffffff 0 8%, #c8d8ff 20% 50%, #404870 100%); box-shadow: 0 0 10px rgba(168, 196, 255, 0.6); }
-.theme-picker .sw[data-th="hulkbuster"] .dot { background: radial-gradient(circle, #fff7c8 0 8%, #ffce4f 16% 50%, #6a3eb0 100%); box-shadow: 0 0 10px rgba(255, 206, 79, 0.7); }
-.theme-picker .sw[data-th="warmachine"] .dot { background: radial-gradient(circle, #ffffff 0 12%, #b8bec8 30% 50%, #20242b 100%); box-shadow: 0 0 10px rgba(216, 222, 230, 0.6); }
+.theme-picker .sw[data-th="core"] .dot { background: radial-gradient(circle, #ffffff 0 10%, #7fd4ff 16% 46%, #ffd27a 58% 66%, #0b2a3f 100%); box-shadow: 0 0 12px rgba(127, 212, 255, 0.8); }
+.theme-picker .sw[data-th="ion"] .dot { background: radial-gradient(circle, #fff 0 8%, #6df3ff 12% 50%, #1f6da0 100%); box-shadow: 0 0 10px rgba(69, 231, 255, 0.7); }
+.theme-picker .sw[data-th="solar"] .dot { background: radial-gradient(circle, #fff7c8 0 8%, #ffd24f 16% 50%, #ff5f4d 100%); box-shadow: 0 0 10px rgba(255, 122, 91, 0.7); }
+.theme-picker .sw[data-th="eclipse"] .dot { background: radial-gradient(circle, #ffffff 0 8%, #c8d8ff 20% 50%, #404870 100%); box-shadow: 0 0 10px rgba(168, 196, 255, 0.6); }
+.theme-picker .sw[data-th="titan"] .dot { background: radial-gradient(circle, #fff7c8 0 8%, #ffce4f 16% 50%, #6a3eb0 100%); box-shadow: 0 0 10px rgba(255, 206, 79, 0.7); }
+.theme-picker .sw[data-th="forge"] .dot { background: radial-gradient(circle, #ffffff 0 12%, #b8bec8 30% 50%, #20242b 100%); box-shadow: 0 0 10px rgba(216, 222, 230, 0.6); }
 .theme-picker .sw[data-th="vapor"] .dot { background: radial-gradient(circle, #fff 0 8%, #ff8be0 18% 50%, #8b5cff 100%); box-shadow: 0 0 10px rgba(255, 92, 210, 0.7); }
-.theme-picker .sw[data-th="mark1"] .dot { background: radial-gradient(circle, #ffd88a 0 8%, #ff8a3a 18% 50%, #6a4a28 100%); box-shadow: 0 0 10px rgba(255, 138, 58, 0.7); }
-.theme-picker .sw[data-th="centurion"] .dot { background: radial-gradient(circle, #ffffff 0 10%, #d8dee6 24% 48%, #ff3a5e 100%); box-shadow: 0 0 10px rgba(255, 58, 94, 0.7); }
-.theme-picker .sw[data-th="endgame"] .dot { background: conic-gradient(from 0deg, #4a8aff 0deg 120deg, #ff5a3e 120deg 240deg, #ffd24f 240deg 360deg); box-shadow: 0 0 10px rgba(74, 138, 255, 0.7); }
-.theme-picker .sw[data-th="bones"] .dot { background: radial-gradient(circle, #ffffff 0 12%, #fff8d8 30% 56%, #e0c878 100%); box-shadow: 0 0 10px rgba(245, 237, 208, 0.7); }
-.theme-picker .sw[data-th="endosym"] .dot { background: radial-gradient(circle, #ff8090 0 8%, #ff2040 22% 56%, #1a1014 100%); box-shadow: 0 0 10px rgba(255, 32, 64, 0.85); }
+.theme-picker .sw[data-th="cavern"] .dot { background: radial-gradient(circle, #ffd88a 0 8%, #ff8a3a 18% 50%, #6a4a28 100%); box-shadow: 0 0 10px rgba(255, 138, 58, 0.7); }
+.theme-picker .sw[data-th="sentinel"] .dot { background: radial-gradient(circle, #ffffff 0 10%, #d8dee6 24% 48%, #ff3a5e 100%); box-shadow: 0 0 10px rgba(255, 58, 94, 0.7); }
+.theme-picker .sw[data-th="apex"] .dot { background: conic-gradient(from 0deg, #4a8aff 0deg 120deg, #ff5a3e 120deg 240deg, #ffd24f 240deg 360deg); box-shadow: 0 0 10px rgba(74, 138, 255, 0.7); }
+.theme-picker .sw[data-th="ivory"] .dot { background: radial-gradient(circle, #ffffff 0 12%, #fff8d8 30% 56%, #e0c878 100%); box-shadow: 0 0 10px rgba(245, 237, 208, 0.7); }
+.theme-picker .sw[data-th="symbiosis"] .dot { background: radial-gradient(circle, #ff8090 0 8%, #ff2040 22% 56%, #1a1014 100%); box-shadow: 0 0 10px rgba(255, 32, 64, 0.85); }
 .theme-picker .sw[data-th="neon"] .dot { background: conic-gradient(from 90deg, #00ffe0 0deg 180deg, #ff00cc 180deg 360deg); box-shadow: 0 0 14px rgba(0, 255, 224, 0.9); }
 .theme-picker .tp-foot {
   font-size: 9px; letter-spacing: 0.16em;
@@ -1448,21 +1443,21 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   width: min(560px, 88vw);
   line-height: 1.9;
 }
-/* arc reactor spin-up */
-.boot-reactor {
+/* Signal-core spin-up */
+.boot-core {
   width: 148px; aspect-ratio: 1;
   margin: 0 auto 22px;
   position: relative;
   display: grid; place-items: center;
   filter: drop-shadow(0 0 26px rgba(var(--glow-rgb), 0.45));
 }
-.boot-reactor .br-ring { position: absolute; border-radius: 50%; }
-.boot-reactor .br-rim {
+.boot-core .br-ring { position: absolute; border-radius: 50%; }
+.boot-core .br-rim {
   inset: 0;
   border: 1px solid rgba(var(--glow-rgb), 0.55);
   box-shadow: inset 0 0 20px rgba(var(--glow-rgb), 0.16), 0 0 18px rgba(var(--glow-rgb), 0.25);
 }
-.boot-reactor .br-coil {
+.boot-core .br-coil {
   inset: 7%;
   background: repeating-conic-gradient(
     rgba(var(--glow-rgb), 0.9) 0deg 24deg,
@@ -1470,24 +1465,24 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   );
   -webkit-mask: radial-gradient(circle, transparent 60%, #000 61% 86%, transparent 87%);
   mask: radial-gradient(circle, transparent 60%, #000 61% 86%, transparent 87%);
-  animation: arcSpinUp 2.4s cubic-bezier(0.18, 0.82, 0.28, 1) forwards, spin 5s linear 2.4s infinite;
+  animation: coreSpinUp 2.4s cubic-bezier(0.18, 0.82, 0.28, 1) forwards, spin 5s linear 2.4s infinite;
   will-change: transform;
 }
-.boot-reactor .br-dash {
+.boot-core .br-dash {
   inset: 21%;
   border: 1px dashed rgba(var(--accent2-rgb, 255, 210, 122), 0.6);
-  animation: arcSpinUpR 2.4s cubic-bezier(0.18, 0.82, 0.28, 1) forwards, spinR 8s linear 2.4s infinite;
+  animation: coreSpinUpR 2.4s cubic-bezier(0.18, 0.82, 0.28, 1) forwards, spinR 8s linear 2.4s infinite;
   will-change: transform;
 }
-.boot-reactor .br-core {
+.boot-core .br-core {
   width: 32%; aspect-ratio: 1; border-radius: 50%;
   background: radial-gradient(circle, #ffffff 0 12%, var(--accent-hot) 26%, rgba(var(--glow-rgb), 0.3) 58%, transparent 72%);
   box-shadow: 0 0 30px rgba(var(--glow-rgb), 0.9), 0 0 70px rgba(var(--glow-rgb), 0.35);
   animation: coreIgnite 2.6s ease forwards, pulse 2.4s ease-in-out 2.6s infinite;
   will-change: transform, opacity;
 }
-@keyframes arcSpinUp { from { transform: rotate(0deg); } to { transform: rotate(720deg); } }
-@keyframes arcSpinUpR { from { transform: rotate(0deg); } to { transform: rotate(-720deg); } }
+@keyframes coreSpinUp { from { transform: rotate(0deg); } to { transform: rotate(720deg); } }
+@keyframes coreSpinUpR { from { transform: rotate(0deg); } to { transform: rotate(-720deg); } }
 @keyframes coreIgnite {
   0% { opacity: 0.08; transform: scale(0.55); }
   55% { opacity: 1; transform: scale(1.14); }
@@ -1568,17 +1563,17 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   100% { transform: scaleX(1); }
 }
 
-/* ARC REACTOR (pure CSS core motif, reusable) ------------------- */
-.arc-reactor {
+/* SIGNAL CORE (pure CSS concentric motif, reusable) ------------- */
+.signal-core {
   --ar-size: 280px;
   width: var(--ar-size); aspect-ratio: 1;
   position: relative;
   display: grid; place-items: center;
   filter: drop-shadow(0 0 26px rgba(var(--glow-rgb), 0.4));
 }
-.arc-reactor .ar-ring { position: absolute; border-radius: 50%; }
+.signal-core .ar-ring { position: absolute; border-radius: 50%; }
 /* outer graticule tick ring */
-.arc-reactor .ar-ticks {
+.signal-core .ar-ticks {
   inset: -3.5%;
   background: repeating-conic-gradient(rgba(var(--glow-rgb), 0.65) 0deg 0.9deg, transparent 0.9deg 6deg);
   -webkit-mask: radial-gradient(circle, transparent 90%, #000 91% 97%, transparent 98%);
@@ -1587,14 +1582,14 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   opacity: 0.75;
   will-change: transform;
 }
-.arc-reactor .ar-outer {
+.signal-core .ar-outer {
   inset: 0;
   border: 1px solid rgba(var(--glow-rgb), 0.5);
   box-shadow: inset 0 0 26px rgba(var(--glow-rgb), 0.14), 0 0 22px rgba(var(--glow-rgb), 0.22);
-  animation: arFlicker 8s steps(1) infinite;
+  animation: coreFlicker 8s steps(1) infinite;
 }
-/* ten-coil segmented band, the reactor signature */
-.arc-reactor .ar-coils {
+/* Ten-segment signal band */
+.signal-core .ar-coils {
   inset: 9%;
   background: repeating-conic-gradient(
     rgba(var(--glow-rgb), 0.88) 0deg 24deg,
@@ -1606,14 +1601,14 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   will-change: transform;
 }
 /* counter-rotating gold dashed ring */
-.arc-reactor .ar-dashed {
+.signal-core .ar-dashed {
   inset: 23%;
   border: 1px dashed rgba(var(--accent2-rgb, 255, 210, 122), 0.55);
   box-shadow: 0 0 14px rgba(var(--accent2-rgb, 255, 210, 122), 0.14);
   animation: spinR 17s linear infinite;
   will-change: transform;
 }
-.arc-reactor .ar-inner {
+.signal-core .ar-inner {
   inset: 32%;
   border: 1px solid rgba(var(--glow-rgb), 0.6);
   border-top-color: rgba(255, 255, 255, 0.8);
@@ -1621,21 +1616,21 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   animation: spin 34s linear infinite;
   will-change: transform;
 }
-.arc-reactor .ar-core {
+.signal-core .ar-core {
   width: 30%; aspect-ratio: 1; border-radius: 50%;
   background: radial-gradient(circle, #ffffff 0 11%, var(--accent-hot) 24%, rgba(var(--glow-rgb), 0.32) 58%, transparent 72%);
   box-shadow: 0 0 34px rgba(var(--glow-rgb), 0.9), 0 0 90px rgba(var(--glow-rgb), 0.32);
   animation: pulse 2.8s ease-in-out infinite;
   will-change: transform, opacity;
 }
-.arc-reactor .ar-halo {
+.signal-core .ar-halo {
   position: absolute; inset: -16%;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(var(--glow-rgb), 0.2), transparent 62%);
   animation: pulse 3.8s ease-in-out infinite;
   will-change: transform, opacity;
 }
-@keyframes arFlicker {
+@keyframes coreFlicker {
   0%, 100% { opacity: 1; }
   6.1% { opacity: 0.72; }
   6.5% { opacity: 1; }
@@ -1646,7 +1641,7 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   73.2% { opacity: 0.68; }
   73.6% { opacity: 1; }
 }
-@keyframes reactorFloat {
+@keyframes coreFloat {
   0% { transform: translate(-50%, calc(-50% - 4px)); }
   100% { transform: translate(-50%, calc(-50% + 4px)); }
 }
@@ -1789,14 +1784,14 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   animation: pulse 3s ease-in-out infinite;
 }
 
-/* hero arc reactor replaces the image-based logo core */
-.hero-reactor {
+/* Hero signal core replaces the image-based logo core */
+.hero-signal-core {
   --ar-size: min(52vw, 292px);
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   z-index: 3;
-  animation: reactorFloat 6s ease-in-out infinite alternate;
+  animation: coreFloat 6s ease-in-out infinite alternate;
   will-change: transform;
 }
 
@@ -1914,7 +1909,7 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
 .sector-row .ct { color: var(--accent); font-weight: 500; }
 .sector-row .arr { color: var(--muted-faint); }
 
-/* STANDBY (Iron Man Hologram) ---------------------------------- */
+/* STANDBY (original CSS hologram) ------------------------------- */
 .desk {
   position: relative;
   min-height: 100vh;
@@ -1950,11 +1945,6 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   box-shadow: 0 0 10px rgba(var(--glow-rgb), 0.5);
 }
 .desk-topbar b { color: var(--accent); font-weight: 600; }
-.desk-topbar .live-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--accent-3); box-shadow: 0 0 8px var(--accent-3);
-  animation: blink 1.4s ease-in-out infinite;
-}
 .day-rail {
   position: relative; z-index: 3;
   display: grid;
@@ -1981,7 +1971,7 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   box-shadow: 0 0 16px rgba(var(--glow-rgb), 0.6);
   font-weight: 700;
 }
-.day-rail .stark {
+.day-rail .system-brand {
   padding: 6px 14px 6px 18px;
   border-left: 1px solid rgba(var(--glow-rgb), 0.25);
   color: var(--accent);
@@ -1989,7 +1979,7 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   letter-spacing: 0.32em;
   display: flex; align-items: center; gap: 8px;
 }
-.day-rail .stark::before { content: "▲"; color: var(--accent-hot); filter: drop-shadow(0 0 6px var(--accent-hot)); }
+.day-rail .system-brand::before { content: "▲"; color: var(--accent-hot); filter: drop-shadow(0 0 6px var(--accent-hot)); }
 
 .desk-body {
   position: relative; z-index: 2;
@@ -2031,17 +2021,6 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   opacity: 0.32;
   width: 70%; max-width: 560px;
 }
-.hologram-stage .chest-reactor {
-  position: absolute;
-  width: 280px; height: 280px;
-  object-fit: contain;
-  opacity: 0.85;
-  mix-blend-mode: screen;
-  filter: var(--img-hue) brightness(1.1) drop-shadow(0 0 24px rgba(var(--glow-rgb), 0.7));
-  animation: pulse 3.2s ease-in-out infinite;
-  z-index: 3;
-  transform: translateY(-10%);
-}
 .hologram-stage .dust {
   position: absolute;
   width: 80%; max-width: 700px;
@@ -2056,19 +2035,6 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
 @keyframes dustFloat {
   0% { transform: translate(-2%, -1%) scale(1); opacity: 0.35; }
   100% { transform: translate(2%, 1%) scale(1.04); opacity: 0.5; }
-}
-.hologram-stage .iron-man {
-  position: relative;
-  width: auto;
-  height: 78%;
-  max-height: 580px;
-  margin-top: 4.5%;
-  object-fit: contain;
-  mix-blend-mode: screen;
-  opacity: 0.96;
-  filter: var(--img-hue) brightness(1.06) drop-shadow(0 0 22px rgba(var(--glow-rgb), 0.5));
-  animation: holoBob 5.6s ease-in-out infinite alternate, holoFigureFlicker 7.3s steps(1) infinite;
-  z-index: 5;
 }
 /* theme-reactive SVG data rings behind the figure */
 .holo-ring-svg {
@@ -2092,16 +2058,6 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   opacity: 0.9;
   filter: drop-shadow(0 0 2.5px rgba(var(--glow-rgb), 0.95));
 }
-@keyframes holoBob { 0% { transform: translateY(-4px); } 100% { transform: translateY(4px); } }
-@keyframes holoFigureFlicker {
-  0%, 100% { opacity: 0.96; }
-  13% { opacity: 0.82; }
-  14% { opacity: 0.96; }
-  47% { opacity: 0.88; }
-  48.5% { opacity: 0.96; }
-  76% { opacity: 0.8; }
-  77% { opacity: 0.96; }
-}
 .hologram-base {
   position: absolute; bottom: 8%;
   left: 50%; transform: translateX(-50%);
@@ -2113,13 +2069,13 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
 }
 
 /* CSS-only hologram projection (no image assets) ---------------- */
-.holo-reactor {
+.holo-signal-core {
   --ar-size: min(44vw, 330px);
   position: absolute;
   top: 42%; left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5;
-  animation: reactorFloat 7s ease-in-out infinite alternate;
+  animation: coreFloat 7s ease-in-out infinite alternate;
   will-change: transform;
 }
 /* projection light cone rising from the base */
@@ -2229,7 +2185,7 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
   from { transform: translateY(0); }
   to { transform: translateY(-160px); }
 }
-/* small orbiting reticles flanking the reactor */
+/* Small orbiting reticles flanking the signal core */
 .holo-flank {
   position: absolute;
   top: 38%;
@@ -2310,19 +2266,6 @@ body[data-theme="stealth"] .button { background: linear-gradient(180deg, var(--a
 .deco-ornament.br { bottom: 110px; right: 18px; animation: spin 60s linear infinite; }
 .deco-ornament.tr { top: 90px; right: 18px; animation: spin 80s linear infinite; }
 .deco-ornament.bl { bottom: 110px; left: 18px; animation: spinR 80s linear infinite; }
-
-.reactor-glyph {
-  position: absolute;
-  width: 200px; height: 200px;
-  opacity: 0.42;
-  mix-blend-mode: screen;
-  filter: var(--img-hue) brightness(1.1);
-  pointer-events: none;
-  animation: spin 80s linear infinite;
-  z-index: 1;
-}
-.reactor-glyph.tr { top: 60px; right: -60px; }
-.reactor-glyph.bl { bottom: 60px; left: -60px; animation: spinR 90s linear infinite; }
 
 /* COMPAT (legacy classes still used by some pages) ------------- */
 .card { /* alias of .panel */ }

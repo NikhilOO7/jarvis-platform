@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { executeWorkflowRun, sweepStaleRuns, type RunOutput } from "@/lib/agents/executor";
-import { requireOperator } from "@/lib/auth";
+import { requireServiceScope } from "@/lib/service-auth";
 
 export const maxDuration = 300;
 
@@ -12,7 +12,7 @@ export const maxDuration = 300;
  * workers race, exactly one claims; the other gets claimed:false and moves on.
  */
 export async function POST(request: Request) {
-  if (!(await requireOperator(request))) {
+  if (!(await requireServiceScope(request, "runs:claim"))) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
   if (!env.DATABASE_URL) {

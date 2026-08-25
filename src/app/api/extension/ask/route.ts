@@ -3,7 +3,7 @@ import { z } from "zod";
 import { env } from "@/lib/env";
 import { getOpenAIClient } from "@/lib/openai";
 import { getGroundingContext } from "@/lib/ai/retrieval";
-import { verifyExtensionAuth } from "@/lib/extension-auth";
+import { requireServiceScope } from "@/lib/service-auth";
 
 export const maxDuration = 60;
 
@@ -20,7 +20,7 @@ const askSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    if (!(await verifyExtensionAuth(request))) {
+    if (!(await requireServiceScope(request, "memory:ask"))) {
       return NextResponse.json(
         { error: "Unauthorized. Pair the extension with the token shown on /settings." },
         { status: 401 }
@@ -40,6 +40,12 @@ export async function POST(request: Request) {
     const { matches, mode } = await getGroundingContext(
       [question, page?.title].filter(Boolean).join(" ")
     );
+    if (mode === "unavailable") {
+      return NextResponse.json(
+        { error: "Saved knowledge could not be queried. Check the database connection and application logs." },
+        { status: 503 }
+      );
+    }
 
     const client = getOpenAIClient();
     if (!client) {

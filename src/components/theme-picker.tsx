@@ -4,18 +4,18 @@ import { useEffect, useState } from "react";
 import { THEMES, THEME_LABELS, useTheme } from "./theme-provider";
 
 const SHORT: Record<string, string> = {
-  jarvis: "J.A.R.V.I.S",
-  cyan: "MK XLII",
-  redgold: "RED·GOLD",
-  stealth: "STEALTH",
-  hulkbuster: "HULKBUST",
-  warmachine: "WAR·MCH",
+  core: "CORE",
+  ion: "ION",
+  solar: "SOLAR",
+  eclipse: "ECLIPSE",
+  titan: "TITAN",
+  forge: "FORGE",
   vapor: "VAPOR",
-  mark1: "MK I CAVE",
-  centurion: "CENTURION",
-  endgame: "MK LXXXV",
-  bones: "BONES",
-  endosym: "ENDO-SYM",
+  cavern: "CAVERN",
+  sentinel: "SENTINEL",
+  apex: "APEX",
+  ivory: "IVORY",
+  symbiosis: "SYMBIOSIS",
   neon: "NEON"
 };
 
@@ -49,7 +49,7 @@ export function ThemePicker() {
       {open ? (
         <aside className="theme-picker" aria-label="Theme picker">
           <div className="tp-head">
-            <span>◇ SUIT</span>
+            <span>◇ THEME</span>
             <b>{THEME_LABELS[theme]}</b>
           </div>
           <div className="tp-swatches">
@@ -71,7 +71,7 @@ export function ThemePicker() {
               </div>
             ))}
           </div>
-          <div className="tp-foot">13 SUITS · 1–9 0 − = · ⌥◄ ⌥► · ESC</div>
+          <div className="tp-foot">13 THEMES · 1–9 0 − = · ⌥◄ ⌥► · ESC</div>
         </aside>
       ) : null}
     </>

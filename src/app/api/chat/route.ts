@@ -55,16 +55,25 @@ export async function POST(request: Request) {
     if (!env.DATABASE_URL) {
       return NextResponse.json({
         answer:
-          "The knowledge database is not connected yet. Set DATABASE_URL, run the Prisma migration, then I can answer from saved knowledge."
+          "The knowledge database is not connected yet. Set DATABASE_URL, run the Prisma migration, then I can answer from saved knowledge.",
+        retrieval: "unavailable"
       });
     }
 
     const { matches, mode } = await getGroundingContext(question);
 
+    if (mode === "unavailable") {
+      return NextResponse.json(
+        { error: "Saved knowledge could not be queried. Check the database connection and application logs.", retrieval: mode },
+        { status: 503 }
+      );
+    }
+
     if (matches.length === 0) {
       return NextResponse.json({
         answer:
-          "I do not have saved knowledge to reason over yet. Save a few links or paste an export, and I can start turning the pile into decisions."
+          "I do not have saved knowledge to reason over yet. Save a few links or paste an export, and I can start turning the pile into decisions.",
+        retrieval: mode
       });
     }
 
@@ -79,6 +88,7 @@ export async function POST(request: Request) {
     if (!client) {
       return NextResponse.json({
         answer: `I found ${matches.length} matching knowledge records. Add OPENAI_API_KEY to generate a grounded answer. Best match: ${matches[0].title} — ${matches[0].summary}`,
+        retrieval: mode,
         sources: matches.map((item) => ({ id: item.id, title: item.title, score: item.score }))
       });
     }
